@@ -19,8 +19,8 @@ def load_all() -> None:
         _sessions[session.id] = session
 
 
-def create() -> ChatSession:
-    session = ChatSession()
+def create(project_id: str | None = None) -> ChatSession:
+    session = ChatSession(project_id=project_id)
     _sessions[session.id] = session
     return session
 
@@ -42,9 +42,14 @@ def list_summaries() -> list[dict]:
         {
             "id": s.id,
             "title": s.title,
+            "project_id": s.project_id,
             "created_at": s.created_at,
             "updated_at": s.updated_at,
         }
         for s in _sessions.values()
     ]
     return sorted(items, key=lambda x: x["updated_at"], reverse=True)
+
+
+def list_by_project(project_id: str) -> list[ChatSession]:
+    return [s for s in _sessions.values() if s.project_id == project_id]

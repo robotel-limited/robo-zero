@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import history
+import projects_store
 import settings_store
 from agent import Agent, AgentCancelled, AgentError
 from notifications import notify_task_ready
@@ -23,16 +24,24 @@ TITLE_MAX_CHARS = 60
 
 
 class ChatSession:
-    def __init__(self, chat_id: str | None = None) -> None:
+    def __init__(self, chat_id: str | None = None, project_id: str | None = None) -> None:
         self.id = chat_id or uuid.uuid4().hex[:12]
         self.title = "Conversație nouă"
         self.created_at = time.time()
         self.updated_at = self.created_at
+        self.project_id = project_id
         self.log: list[dict[str, Any]] = []  # jurnal pentru UI, persistat
-        self.agent = Agent(confirm=self._confirm, on_event=self._on_agent_event)
+        self.agent = Agent(
+            confirm=self._confirm,
+            on_event=self._on_agent_event,
+            project_prompt=self._project_prompt(),
+        )
         self._subscribers: list[asyncio.Queue] = []
         self._running_task: asyncio.Task | None = None
         self._pending_approval: asyncio.Future | None = None
+
+    def _project_prompt(self) -> str | None:
+        return projects_store.get_prompt(self.project_id) if self.project_id else None
 
     # --- stare rulare -----------------------------------------------------
 
@@ -64,6 +73,15 @@ class ChatSession:
 
     def rename(self, title: str) -> None:
         self.title = title[:TITLE_MAX_CHARS]
+        self.updated_at = time.time()
+        self._save()
+
+    def set_project(self, project_id: str | None) -> None:
+        """Atribuie/dezatribuie chat-ul unui proiect (din pagina de chat sau
+        din pagina Proiecte). Promptul proiectului e aplicat doar dacă system
+        prompt-ul nu a fost încă generat (prima rulare) — vezi Agent._system_prompt."""
+        self.project_id = project_id
+        self.agent.project_prompt = self._project_prompt()
         self.updated_at = time.time()
         self._save()
 
@@ -137,6 +155,7 @@ class ChatSession:
         payload = {
             "id": self.id,
             "title": self.title,
+            "project_id": self.project_id,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "log": self.log,
@@ -147,7 +166,7 @@ class ChatSession:
     @classmethod
     def load(cls, path: Path) -> "ChatSession":
         data = json.loads(path.read_text(encoding="utf-8"))
-        session = cls(chat_id=data["id"])
+        session = cls(chat_id=data["id"], project_id=data.get("project_id"))
         session.title = data.get("title", "Conversație nouă")
         session.created_at = data.get("created_at", time.time())
         session.updated_at = data.get("updated_at", session.created_at)

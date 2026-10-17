@@ -20,6 +20,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 import chat_store
 import history
+import projects_store
 import settings_store
 from chat_session import ChatSession
 
@@ -84,6 +85,11 @@ async def settings_page():
     return FileResponse(_WEBUI_DIR / "settings.html")
 
 
+@app.get("/projects")
+async def projects_page():
+    return FileResponse(_WEBUI_DIR / "projects.html")
+
+
 def _get_chat_or_404(chat_id: str) -> ChatSession:
     session = chat_store.get(chat_id)
     if session is None:
@@ -101,15 +107,71 @@ async def put_settings(body: dict):
     return settings_store.save(body or {})
 
 
+def _get_project_or_404(project_id: str) -> dict:
+    project = projects_store.get(project_id)
+    if project is None:
+        raise HTTPException(status_code=404, detail="Proiect inexistent.")
+    return project
+
+
+@app.get("/api/projects")
+async def list_projects():
+    return projects_store.list_all()
+
+
+@app.post("/api/projects")
+async def create_project(body: dict):
+    body = body or {}
+    title = (body.get("title") or "").strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Titlul e vid.")
+    try:
+        return projects_store.create(title, body.get("description", ""), body.get("prompt", ""))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/projects/{project_id}")
+async def get_project(project_id: str):
+    return _get_project_or_404(project_id)
+
+
+@app.patch("/api/projects/{project_id}")
+async def update_project(project_id: str, body: dict):
+    _get_project_or_404(project_id)
+    try:
+        return projects_store.update(project_id, **(body or {}))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.delete("/api/projects/{project_id}")
+async def delete_project(project_id: str):
+    _get_project_or_404(project_id)
+    linked = chat_store.list_by_project(project_id)
+    if any(s.is_running for s in linked):
+        raise HTTPException(
+            status_code=409,
+            detail="Un chat din acest proiect are o rulare activă — anulează mai întâi.",
+        )
+    for session in linked:
+        chat_store.delete(session.id)
+    projects_store.delete(project_id)
+    return {"status": "ok"}
+
+
 @app.get("/api/chats")
 async def list_chats():
     return chat_store.list_summaries()
 
 
 @app.post("/api/chats")
-async def create_chat():
-    session = chat_store.create()
-    return {"id": session.id, "title": session.title}
+async def create_chat(body: dict | None = None):
+    project_id = (body or {}).get("project_id")
+    if project_id:
+        _get_project_or_404(project_id)
+    session = chat_store.create(project_id=project_id)
+    return {"id": session.id, "title": session.title, "project_id": session.project_id}
 
 
 @app.get("/api/chats/{chat_id}")
@@ -118,6 +180,7 @@ async def get_chat(chat_id: str):
     return {
         "id": session.id,
         "title": session.title,
+        "project_id": session.project_id,
         "log": session.log,
         "is_running": session.is_running,
         "token_count": history.estimate_tokens(session.agent.history),
@@ -125,13 +188,20 @@ async def get_chat(chat_id: str):
 
 
 @app.patch("/api/chats/{chat_id}")
-async def rename_chat(chat_id: str, body: dict):
+async def update_chat(chat_id: str, body: dict):
     session = _get_chat_or_404(chat_id)
-    title = (body or {}).get("title", "").strip()
-    if not title:
-        raise HTTPException(status_code=400, detail="Titlul e vid.")
-    session.rename(title)
-    return {"id": session.id, "title": session.title}
+    body = body or {}
+    if "title" in body:
+        title = (body.get("title") or "").strip()
+        if not title:
+            raise HTTPException(status_code=400, detail="Titlul e vid.")
+        session.rename(title)
+    if "project_id" in body:
+        project_id = body.get("project_id")
+        if project_id:
+            _get_project_or_404(project_id)
+        session.set_project(project_id)
+    return {"id": session.id, "title": session.title, "project_id": session.project_id}
 
 
 @app.delete("/api/chats/{chat_id}")

@@ -7,3 +7,4 @@ workdir/*
 !workdir/.gitkeep
 *.bak
 *.old
+data/*.db

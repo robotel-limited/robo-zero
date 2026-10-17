@@ -14,6 +14,7 @@ const tokenCountEl = document.getElementById("token-count");
 let currentChatId = null;
 let eventSource = null;
 let settings = { verbose: true };
+let projectsCache = [];
 
 function formatTokenCount(count) {
   if (count < 1000) return `${count}`;
@@ -121,40 +122,111 @@ async function api(path, options) {
   return resp.status === 204 ? null : resp.json();
 }
 
+function renderChatItem(chat) {
+  const item = document.createElement("div");
+  item.className = "chat-list-item" + (chat.id === currentChatId ? " active" : "");
+
+  const titleEl = document.createElement("span");
+  titleEl.className = "chat-list-title";
+  titleEl.textContent = chat.title;
+  titleEl.addEventListener("click", () => selectChat(chat.id));
+  item.appendChild(titleEl);
+
+  const projectSelect = document.createElement("select");
+  projectSelect.className = "chat-list-project-select";
+  projectSelect.title = "Proiect";
+  const noneOpt = document.createElement("option");
+  noneOpt.value = "";
+  noneOpt.textContent = "Fără proiect";
+  projectSelect.appendChild(noneOpt);
+  for (const project of projectsCache) {
+    const opt = document.createElement("option");
+    opt.value = project.id;
+    opt.textContent = project.title;
+    projectSelect.appendChild(opt);
+  }
+  projectSelect.value = chat.project_id || "";
+  projectSelect.addEventListener("click", (ev) => ev.stopPropagation());
+  projectSelect.addEventListener("change", async (ev) => {
+    ev.stopPropagation();
+    await setChatProject(chat.id, projectSelect.value || null);
+  });
+  item.appendChild(projectSelect);
+
+  const renameBtn = document.createElement("button");
+  renameBtn.className = "chat-list-action";
+  renameBtn.textContent = "✎";
+  renameBtn.title = "Redenumește";
+  renameBtn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    renameChat(chat.id, chat.title);
+  });
+  item.appendChild(renameBtn);
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "chat-list-action";
+  deleteBtn.textContent = "🗑";
+  deleteBtn.title = "Șterge";
+  deleteBtn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    deleteChat(chat.id);
+  });
+  item.appendChild(deleteBtn);
+
+  return item;
+}
+
+function renderChatGroupHeader(label) {
+  const header = document.createElement("div");
+  header.className = "chat-group-header";
+  header.textContent = label;
+  return header;
+}
+
+async function setChatProject(chatId, projectId) {
+  try {
+    await api(`/api/chats/${chatId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ project_id: projectId }),
+    });
+  } catch (e) {
+    appendMessage("message-error", `Eroare la atribuirea proiectului: ${e.message}`);
+  }
+  await loadChatList();
+}
+
 async function loadChatList() {
-  const chats = await api("/api/chats");
+  const [chats, projects] = await Promise.all([api("/api/chats"), api("/api/projects")]);
+  projectsCache = projects;
   chatListEl.innerHTML = "";
+
+  if (projects.length === 0) {
+    for (const chat of chats) chatListEl.appendChild(renderChatItem(chat));
+    return;
+  }
+
+  const byProject = new Map();
+  const unassigned = [];
   for (const chat of chats) {
-    const item = document.createElement("div");
-    item.className = "chat-list-item" + (chat.id === currentChatId ? " active" : "");
+    if (chat.project_id) {
+      if (!byProject.has(chat.project_id)) byProject.set(chat.project_id, []);
+      byProject.get(chat.project_id).push(chat);
+    } else {
+      unassigned.push(chat);
+    }
+  }
 
-    const titleEl = document.createElement("span");
-    titleEl.className = "chat-list-title";
-    titleEl.textContent = chat.title;
-    titleEl.addEventListener("click", () => selectChat(chat.id));
-    item.appendChild(titleEl);
+  for (const project of projects) {
+    const chatsInProject = byProject.get(project.id);
+    if (!chatsInProject || chatsInProject.length === 0) continue;
+    chatListEl.appendChild(renderChatGroupHeader(project.title));
+    for (const chat of chatsInProject) chatListEl.appendChild(renderChatItem(chat));
+  }
 
-    const renameBtn = document.createElement("button");
-    renameBtn.className = "chat-list-action";
-    renameBtn.textContent = "✎";
-    renameBtn.title = "Redenumește";
-    renameBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      renameChat(chat.id, chat.title);
-    });
-    item.appendChild(renameBtn);
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.className = "chat-list-action";
-    deleteBtn.textContent = "🗑";
-    deleteBtn.title = "Șterge";
-    deleteBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      deleteChat(chat.id);
-    });
-    item.appendChild(deleteBtn);
-
-    chatListEl.appendChild(item);
+  if (unassigned.length > 0) {
+    chatListEl.appendChild(renderChatGroupHeader("Fără proiect"));
+    for (const chat of unassigned) chatListEl.appendChild(renderChatItem(chat));
   }
 }
 
@@ -266,8 +338,11 @@ approvalBar.querySelector("#approve-no").addEventListener("click", async () => {
     /* indisponibil — rămân valorile implicite */
   }
 
+  const requestedChatId = new URLSearchParams(window.location.search).get("chat");
   const chats = await api("/api/chats");
-  if (chats.length > 0) {
+  if (requestedChatId && chats.some((c) => c.id === requestedChatId)) {
+    await selectChat(requestedChatId);
+  } else if (chats.length > 0) {
     await selectChat(chats[0].id);
   } else {
     await createChat();

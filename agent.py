@@ -56,10 +56,15 @@ class Agent:
         depth: int = 0,
         on_event: EventCallback | None = None,
         browser_box: BrowserBox | None = None,
+        project_prompt: str | None = None,
     ) -> None:
         self.workdir = workdir or _AGENT_CFG["workdir"]
         self.shell_timeout_seconds = _SHELL_CFG["timeout_seconds"]
         self.confirm = confirm
+        # prompt-ul proiectului căruia îi e legat chat-ul (dacă e legat) — citit
+        # live de _system_prompt() la prima rulare; chat_session.py îl actualizează
+        # și după construcție, dacă proiectul se schimbă înainte de primul mesaj.
+        self.project_prompt = project_prompt
         self.depth = depth  # adâncime delegare sub-agenți (folosit de call_subordinate, etapa 3)
         self.on_event = on_event
         # sesiune de browser partajată cu sub-agenții aceleiași rulări (etapa 5) —
@@ -126,7 +131,10 @@ class Agent:
 
     def _system_prompt(self) -> str:
         template = (_PROJECT_ROOT / "prompts" / "agent.system.md").read_text(encoding="utf-8")
-        return template.format(datetime=datetime.now().isoformat(timespec="seconds"))
+        base = template.format(datetime=datetime.now().isoformat(timespec="seconds"))
+        if self.project_prompt:
+            return f"{base}\n\n---\n\n{self.project_prompt}"
+        return base
 
     async def run(self, user_message: str) -> str:
         """Rulează bucla agentului pentru un mesaj de utilizator și întoarce

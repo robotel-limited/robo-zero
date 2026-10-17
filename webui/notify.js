@@ -1,12 +1,24 @@
 /* notificare "task terminat" când tab-ul nu e activ: beep scurt (Web Audio,
-   fără fișier audio) + cerculeț galben pe favicon. Nu facem nimic dacă tabul
-   e vizibil. Folosit din app.js la fiecare eveniment terminal (final/error/
-   cancelled) — pot fi mai multe task-uri într-un chat, notificăm la fiecare. */
+   fără fișier audio) + favicon care pâlpâie (alternează cu un pătrat galben
+   solid, vizibil și la dimensiunea mică a unui tab). Nu facem nimic dacă
+   tabul e vizibil. Folosit din app.js la fiecare eveniment terminal
+   (final/error/cancelled) — pot fi mai multe task-uri într-un chat,
+   notificăm la fiecare. */
+
+const ALERT_FAVICON_HREF =
+  "data:image/svg+xml;base64," +
+  btoa(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 960">' +
+      '<rect width="960" height="960" rx="160" fill="#ffd400"/>' +
+      "</svg>"
+  );
+const FLASH_INTERVAL_MS = 500;
 
 const faviconLink = document.querySelector('link[rel="icon"]');
 const baseFaviconHref = faviconLink ? faviconLink.href : null;
-let dotFaviconHref = null;
 let audioCtx = null;
+let flashTimer = null;
+let flashOn = false;
 
 function unlockAudio() {
   // AudioContext poate porni doar după un gest al utilizatorului — "unlock"
@@ -35,35 +47,30 @@ function playBeep() {
   }
 }
 
-async function buildDotFaviconHref() {
-  if (dotFaviconHref || !baseFaviconHref) return dotFaviconHref;
-  const svgText = await (await fetch(baseFaviconHref)).text();
-  const withDot = svgText.replace(
-    "</svg>",
-    '<circle cx="860" cy="100" r="110" fill="#ffd400" stroke="#01041a" stroke-width="16"/></svg>'
-  );
-  dotFaviconHref = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(withDot)));
-  return dotFaviconHref;
+function startFlashing() {
+  if (!faviconLink || flashTimer) return;
+  flashTimer = setInterval(() => {
+    flashOn = !flashOn;
+    faviconLink.href = flashOn ? ALERT_FAVICON_HREF : baseFaviconHref;
+  }, FLASH_INTERVAL_MS);
 }
 
-function setFaviconDot(on) {
-  if (!faviconLink) return;
-  if (on) {
-    buildDotFaviconHref().then((href) => {
-      if (href) faviconLink.href = href;
-    });
-  } else {
-    faviconLink.href = baseFaviconHref;
+function stopFlashing() {
+  if (flashTimer) {
+    clearInterval(flashTimer);
+    flashTimer = null;
   }
+  flashOn = false;
+  if (faviconLink) faviconLink.href = baseFaviconHref;
 }
 
 function notifyIfHidden() {
   if (document.hidden) {
     playBeep();
-    setFaviconDot(true);
+    startFlashing();
   }
 }
 
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) setFaviconDot(false);
+  if (!document.hidden) stopFlashing();
 });

@@ -1,3 +1,5 @@
 {
-  "verbose": false
+  "verbose": false,
+  "notify_telegram": false,
+  "notify_sms": false
 }

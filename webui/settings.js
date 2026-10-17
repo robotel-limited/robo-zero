@@ -1,8 +1,5 @@
 /* pagina Setări — separată de index.html, ca să poată crește cu mai multe opțiuni. */
 
-const verboseToggle = document.getElementById("verbose-toggle");
-const verboseState = document.getElementById("verbose-state");
-
 (function initTheme() {
   let saved = null;
   try {
@@ -13,11 +10,6 @@ const verboseState = document.getElementById("verbose-state");
   document.body.classList.toggle("light-mode", saved === "light");
 })();
 
-function setVerboseState(verbose) {
-  verboseToggle.checked = verbose;
-  verboseState.textContent = verbose ? "ON" : "OFF";
-}
-
 async function api(path, options) {
   const resp = await fetch(path, options);
   if (!resp.ok) {
@@ -27,25 +19,45 @@ async function api(path, options) {
   return resp.status === 204 ? null : resp.json();
 }
 
-verboseToggle.addEventListener("change", async () => {
-  const verbose = verboseToggle.checked;
-  setVerboseState(verbose);
-  try {
-    await api("/api/settings", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ verbose }),
-    });
-  } catch (e) {
-    setVerboseState(!verbose);
-    window.alert(`Eroare la salvarea setărilor: ${e.message}`);
+// un toggle = {toggleId, stateId, settingsKey} — citește/scrie o cheie din /api/settings.
+const TOGGLES = [
+  { toggleId: "verbose-toggle", stateId: "verbose-state", settingsKey: "verbose" },
+  { toggleId: "notify-telegram-toggle", stateId: "notify-telegram-state", settingsKey: "notify_telegram" },
+  { toggleId: "notify-sms-toggle", stateId: "notify-sms-state", settingsKey: "notify_sms" },
+];
+
+function bindToggle({ toggleId, stateId, settingsKey }) {
+  const toggle = document.getElementById(toggleId);
+  const state = document.getElementById(stateId);
+
+  function setState(on) {
+    toggle.checked = on;
+    state.textContent = on ? "ON" : "OFF";
   }
-});
+
+  toggle.addEventListener("change", async () => {
+    const on = toggle.checked;
+    setState(on);
+    try {
+      await api("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [settingsKey]: on }),
+      });
+    } catch (e) {
+      setState(!on);
+      window.alert(`Eroare la salvarea setărilor: ${e.message}`);
+    }
+  });
+
+  return setState;
+}
 
 (async function init() {
+  const setters = TOGGLES.map(bindToggle);
   try {
     const settings = await api("/api/settings");
-    setVerboseState(!!settings.verbose);
+    TOGGLES.forEach((t, i) => setters[i](!!settings[t.settingsKey]));
   } catch (e) {
     /* indisponibil — rămâne starea implicită a elementelor din HTML */
   }

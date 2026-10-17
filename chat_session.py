@@ -10,7 +10,9 @@ from pathlib import Path
 from typing import Any
 
 import history
+import settings_store
 from agent import Agent, AgentCancelled, AgentError
+from notifications import notify_task_ready
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 CHATS_DIR = _PROJECT_ROOT / "data" / "chats"
@@ -58,6 +60,7 @@ class ChatSession:
             self._append_log("error", text=f"Eroare neprevăzută: {e}")
         finally:
             self._save()
+            notify_task_ready(self.title, settings_store.load())
 
     def rename(self, title: str) -> None:
         self.title = title[:TITLE_MAX_CHARS]

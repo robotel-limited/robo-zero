@@ -10,6 +10,8 @@ _PATH = Path(__file__).resolve().parent / "conf" / "user_settings.json"
 
 _DEFAULTS: dict[str, Any] = {
     "verbose": True,  # afișează tool_call/tool_result în conversație, nu doar răspunsul final
+    "notify_telegram": False,  # trimite "Task ready - [nume]" pe Telegram la finalul rulării
+    "notify_sms": False,  # trimite "Task ready - [nume]" prin SMS la finalul rulării
 }
 
 

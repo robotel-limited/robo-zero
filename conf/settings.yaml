@@ -43,6 +43,15 @@ browser:
   rate_limit_per_minute: 9       # sub limita reală a tier-ului gratuit (10 RPM)
   navigation_timeout_seconds: 30
 
+robo_rag:
+  # URL-ul temporar de test (uvicorn manual, 2026-10-18). Nu e serviciu
+  # systemd încă -- robo_rag_query va eșua cu eroare de rețea clară dacă
+  # serverul nu rulează, nu silent. tenant/collection/email/parolă vin din
+  # .env (ROBORAG_TENANT_ID etc.), nu de aici.
+  base_url: http://127.0.0.1:8140
+  provider: mistral   # singurul provider configurat pt tenant-ul internal-agents (eu-only)
+  timeout_seconds: 60
+
 history:
   context_tokens: 128000   # fereastră de context deepseek-flash (estimativ)
   trigger_fraction: 0.7

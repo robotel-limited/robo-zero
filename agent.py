@@ -20,6 +20,7 @@ from tools.fs_tool import FsList, FsRead, FsWrite
 from tools.image_generate import ImageGenerate
 from tools.memory_tool import MemoryRecall, MemoryRemember
 from tools.response import FinalResponse
+from tools.robo_rag_tool import RoboRagQuery
 from tools.shell_tool import ShellExecute
 from tools.tool_base import Tool
 from tools.web_read_tool import WebRead
@@ -125,6 +126,7 @@ class Agent:
             ImageGenerate(self),
             WebRead(self),
             BrowserTool(self),
+            RoboRagQuery(self),
             FinalResponse(self),
         ]
         return {t.name: t for t in instances}

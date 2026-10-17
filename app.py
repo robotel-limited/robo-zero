@@ -97,6 +97,25 @@ async def get_chat(chat_id: str):
     }
 
 
+@app.patch("/api/chats/{chat_id}")
+async def rename_chat(chat_id: str, body: dict):
+    session = _get_chat_or_404(chat_id)
+    title = (body or {}).get("title", "").strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Titlul e vid.")
+    session.rename(title)
+    return {"id": session.id, "title": session.title}
+
+
+@app.delete("/api/chats/{chat_id}")
+async def delete_chat(chat_id: str):
+    session = _get_chat_or_404(chat_id)
+    if session.is_running:
+        raise HTTPException(status_code=409, detail="Chat-ul are o rulare activă — anulează mai întâi.")
+    chat_store.delete(chat_id)
+    return {"status": "ok"}
+
+
 @app.post("/api/chats/{chat_id}/messages")
 async def post_message(chat_id: str, body: dict):
     session = _get_chat_or_404(chat_id)

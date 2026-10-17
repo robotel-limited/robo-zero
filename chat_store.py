@@ -29,6 +29,14 @@ def get(chat_id: str) -> ChatSession | None:
     return _sessions.get(chat_id)
 
 
+def delete(chat_id: str) -> bool:
+    session = _sessions.pop(chat_id, None)
+    if session is None:
+        return False
+    session._path().unlink(missing_ok=True)
+    return True
+
+
 def list_summaries() -> list[dict]:
     items = [
         {

@@ -111,9 +111,65 @@ async function loadChatList() {
   for (const chat of chats) {
     const item = document.createElement("div");
     item.className = "chat-list-item" + (chat.id === currentChatId ? " active" : "");
-    item.textContent = chat.title;
-    item.addEventListener("click", () => selectChat(chat.id));
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "chat-list-title";
+    titleEl.textContent = chat.title;
+    titleEl.addEventListener("click", () => selectChat(chat.id));
+    item.appendChild(titleEl);
+
+    const renameBtn = document.createElement("button");
+    renameBtn.className = "chat-list-action";
+    renameBtn.textContent = "✎";
+    renameBtn.title = "Redenumește";
+    renameBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      renameChat(chat.id, chat.title);
+    });
+    item.appendChild(renameBtn);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.className = "chat-list-action";
+    deleteBtn.textContent = "🗑";
+    deleteBtn.title = "Șterge";
+    deleteBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      deleteChat(chat.id);
+    });
+    item.appendChild(deleteBtn);
+
     chatListEl.appendChild(item);
+  }
+}
+
+async function renameChat(chatId, currentTitle) {
+  const title = window.prompt("Titlu nou:", currentTitle);
+  if (!title || !title.trim()) return;
+  await api(`/api/chats/${chatId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title: title.trim() }),
+  }).catch((e) => appendMessage("message-error", `Eroare la redenumire: ${e.message}`));
+  await loadChatList();
+}
+
+async function deleteChat(chatId) {
+  if (!window.confirm("Ștergi definitiv această conversație?")) return;
+  try {
+    await api(`/api/chats/${chatId}`, { method: "DELETE" });
+  } catch (e) {
+    appendMessage("message-error", `Eroare la ștergere: ${e.message}`);
+    return;
+  }
+  if (chatId === currentChatId) {
+    currentChatId = null;
+    if (eventSource) eventSource.close();
+    messagesEl.innerHTML = "";
+    const chats = await api("/api/chats");
+    if (chats.length > 0) await selectChat(chats[0].id);
+    else await createChat();
+  } else {
+    await loadChatList();
   }
 }
 

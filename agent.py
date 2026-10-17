@@ -13,6 +13,7 @@ import yaml
 
 import llm
 import safety
+from tools.call_subordinate import CallSubordinate
 from tools.fs_tool import FsList, FsRead, FsWrite
 from tools.response import FinalResponse
 from tools.shell_tool import ShellExecute
@@ -64,14 +65,18 @@ class Agent:
         # primește SIGTERM — vezi tools/shell_tool.py.
         self.cancelled = False
         self.current_shell_proc: Any = None
+        # sub-agentul pornit curent de call_subordinate.py (dacă există),
+        # pentru ca request_cancel() să se propage în cascadă — vezi acolo.
+        self.current_subordinate: "Agent | None" = None
 
     def _emit(self, event_type: str, **data: Any) -> None:
         """Trimite un eveniment către callback-ul extern, dacă există. Nu
-        trebuie să poată bloca sau crăpa bucla agentului."""
+        trebuie să poată bloca sau crăpa bucla agentului. `depth` e inclus
+        mereu, ca UI-ul să poată distinge evenimentele unui sub-agent."""
         if self.on_event is None:
             return
         try:
-            self.on_event(event_type, data)
+            self.on_event(event_type, {"depth": self.depth, **data})
         except Exception:
             pass
 
@@ -80,13 +85,18 @@ class Agent:
         shell curentă (dacă există una activă) cu SIGTERM, trimis întregului
         grup de procese (tools/shell_tool.py pornește comanda cu
         start_new_session=True) — altfel un copil ca `sleep` dintr-un
-        `sleep 30 && echo done` rămâne orfan și ține bucla blocată."""
+        `sleep 30 && echo done` rămâne orfan și ține bucla blocată.
+        Se propagă și la un sub-agent activ (call_subordinate, etapa 3),
+        altfel anularea nu ajunge la rularea lui, blocată separat în
+        await-ul ei proprie."""
         self.cancelled = True
         if self.current_shell_proc is not None:
             try:
                 os.killpg(self.current_shell_proc.pid, signal.SIGTERM)
             except ProcessLookupError:
                 pass
+        if self.current_subordinate is not None:
+            self.current_subordinate.request_cancel()
 
     def _build_tools(self) -> dict[str, Tool]:
         instances: list[Tool] = [
@@ -94,6 +104,7 @@ class Agent:
             FsWrite(self),
             FsList(self),
             ShellExecute(self),
+            CallSubordinate(self),
             FinalResponse(self),
         ]
         return {t.name: t for t in instances}

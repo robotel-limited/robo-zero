@@ -57,6 +57,11 @@ class ChatSession:
         finally:
             self._save()
 
+    def rename(self, title: str) -> None:
+        self.title = title[:TITLE_MAX_CHARS]
+        self.updated_at = time.time()
+        self._save()
+
     def request_cancel(self) -> bool:
         if not self.is_running:
             return False

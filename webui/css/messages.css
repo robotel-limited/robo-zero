@@ -7,15 +7,6 @@
   --color-accent: #356ca3;
 }
 
-body.light-mode {
-  --color-bg: #f4f6f8;
-  --color-panel: #ffffff;
-  --color-border: #d6dce2;
-  --color-text: #1a1a1a;
-  --color-muted: #5a6572;
-  --color-accent: #356ca3;
-}
-
 * {
   box-sizing: border-box;
 }
@@ -91,7 +82,6 @@ body {
 }
 
 #new-chat-btn,
-#theme-toggle-btn,
 #send-btn,
 #cancel-btn,
 .approval-actions button {
@@ -102,6 +92,15 @@ body {
   color: #fff;
   cursor: pointer;
   font-size: 0.9em;
+}
+
+#token-count {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-muted);
+  font-size: 0.85em;
+  text-align: center;
 }
 
 #cancel-btn {
@@ -167,11 +166,6 @@ body {
   min-width: 255px;
   background-color: #1f3c1e;
   color: #e0e0e0;
-}
-
-body.light-mode .message-agent-response {
-  background-color: var(--color-panel);
-  color: #188216;
 }
 
 #approval-bar {

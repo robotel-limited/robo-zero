@@ -9,35 +9,24 @@ const cancelBtn = document.getElementById("cancel-btn");
 const approvalBar = document.getElementById("approval-bar");
 const approvalText = document.getElementById("approval-text");
 const newChatBtn = document.getElementById("new-chat-btn");
-const themeToggleBtn = document.getElementById("theme-toggle-btn");
+const tokenCountEl = document.getElementById("token-count");
 
 let currentChatId = null;
 let eventSource = null;
 let settings = { verbose: true };
 
-function applyTheme(mode) {
-  document.body.classList.toggle("light-mode", mode === "light");
-  try {
-    localStorage.setItem("az-theme", mode);
-  } catch (e) {
-    /* storaj indisponibil (fereastră privată) — ignorăm, temă implicită rămâne */
-  }
+function setTokenCount(count) {
+  tokenCountEl.textContent = `${count} tokeni`;
 }
 
-(function initTheme() {
-  let saved = null;
+async function refreshTokenCount(chatId) {
   try {
-    saved = localStorage.getItem("az-theme");
+    const chat = await api(`/api/chats/${chatId}`);
+    if (chatId === currentChatId) setTokenCount(chat.token_count);
   } catch (e) {
-    /* ignorat */
+    /* ignorat — contorul rămâne la ultima valoare cunoscută */
   }
-  applyTheme(saved === "light" ? "light" : "dark");
-})();
-
-themeToggleBtn.addEventListener("click", () => {
-  const next = document.body.classList.contains("light-mode") ? "dark" : "light";
-  applyTheme(next);
-});
+}
 
 // tool_result de la image_generate întoarce mesajul "Imagine generată: /files/images/<id>.jpg"
 const IMAGE_PATH_RE = /\/files\/images\/[\w.-]+\.(?:jpg|jpeg|png)\b/;
@@ -200,6 +189,7 @@ async function selectChat(chatId) {
   const chat = await api(`/api/chats/${chatId}`);
   for (const entry of chat.log) renderLogEntry(entry);
   setRunning(chat.is_running);
+  setTokenCount(chat.token_count);
   await loadChatList();
   connectEvents(chatId);
 }
@@ -211,6 +201,7 @@ function connectEvents(chatId) {
     const entry = JSON.parse(ev.data);
     renderLogEntry(entry);
     if (entry.type === "user") loadChatList();
+    refreshTokenCount(chatId);
   };
 }
 

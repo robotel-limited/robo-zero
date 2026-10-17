@@ -30,6 +30,10 @@ def _estimate_tokens(messages: list[dict[str, Any]]) -> int:
     return sum(len(str(m)) for m in messages) // CHARS_PER_TOKEN
 
 
+# alias public — folosit de app.py pentru a arăta nr. de tokeni în UI
+estimate_tokens = _estimate_tokens
+
+
 def sanitize(history: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Repară un istoric cu un mesaj `assistant`+`tool_calls` ale cărui
     rezultate nu au fost toate adăugate — stare posibilă dacă procesul a

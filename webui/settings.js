@@ -1,15 +1,5 @@
 /* pagina Setări — separată de index.html, ca să poată crește cu mai multe opțiuni. */
 
-(function initTheme() {
-  let saved = null;
-  try {
-    saved = localStorage.getItem("az-theme");
-  } catch (e) {
-    /* ignorat */
-  }
-  document.body.classList.toggle("light-mode", saved === "light");
-})();
-
 async function api(path, options) {
   const resp = await fetch(path, options);
   if (!resp.ok) {

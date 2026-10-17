@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 
 import chat_store
+import history
 import settings_store
 from chat_session import ChatSession
 
@@ -119,6 +120,7 @@ async def get_chat(chat_id: str):
         "title": session.title,
         "log": session.log,
         "is_running": session.is_running,
+        "token_count": history.estimate_tokens(session.agent.history),
     }
 
 

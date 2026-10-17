@@ -12,18 +12,11 @@
     <aside id="sidebar">
       <button id="new-chat-btn">+ Conversație nouă</button>
       <div id="chat-list"></div>
-      <button id="settings-btn" title="Setări">⚙ Setări</button>
+      <a id="settings-btn" href="/settings" title="Setări">⚙ Setări</a>
       <button id="theme-toggle-btn" title="Comută temă">☀ / ☾</button>
     </aside>
     <main id="main">
       <div id="messages"></div>
-      <div id="settings-panel" class="hidden">
-        <div class="settings-row">
-          <label for="verbose-toggle">Verbose (afișează raționamentul — apeluri și rezultate de tool, nu doar răspunsul final)</label>
-          <input type="checkbox" id="verbose-toggle" />
-        </div>
-        <button id="settings-close-btn" type="button">Închide</button>
-      </div>
       <div id="approval-bar" class="hidden">
         <div id="approval-text"></div>
         <div class="approval-actions">

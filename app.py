@@ -78,6 +78,11 @@ async def index():
     return FileResponse(_WEBUI_DIR / "index.html")
 
 
+@app.get("/settings")
+async def settings_page():
+    return FileResponse(_WEBUI_DIR / "settings.html")
+
+
 def _get_chat_or_404(chat_id: str) -> ChatSession:
     session = chat_store.get(chat_id)
     if session is None:

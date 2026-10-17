@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>agent-zero-light — Setări</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+  <link rel="stylesheet" href="/static/css/messages.css" />
+</head>
+<body>
+  <div id="settings-page">
+    <header id="settings-header">
+      <a id="settings-back-btn" href="/">← Înapoi</a>
+      <h1>Setări</h1>
+    </header>
+    <div id="settings-body">
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <span class="settings-row-label">Verbose</span>
+          <span class="settings-row-desc">Afișează raționamentul agentului — apeluri și rezultate de tool, nu doar răspunsul final.</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="verbose-toggle" />
+          <span class="switch-slider"></span>
+        </label>
+        <span id="verbose-state" class="switch-state">OFF</span>
+      </div>
+    </div>
+  </div>
+  <script src="/static/settings.js"></script>
+</body>
+</html>

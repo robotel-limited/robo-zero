@@ -21,3 +21,12 @@ server:
 shell:
   timeout_seconds: 120
   output_limit_bytes: 20480
+
+memory:
+  gateway_url: http://127.0.0.1:8930
+  timeout_seconds: 30
+
+image:
+  endpoint: https://ai.api.nvidia.com/v1/genai
+  model: black-forest-labs/flux.2-klein-4b
+  timeout_seconds: 60

@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from urllib.parse import urlparse
 
+import yaml
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -20,7 +21,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 import chat_store
 from chat_session import ChatSession
 
-_WEBUI_DIR = Path(__file__).resolve().parent / "webui"
+_PROJECT_ROOT = Path(__file__).resolve().parent
+_WEBUI_DIR = _PROJECT_ROOT / "webui"
+
+with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
+    _WORKDIR = Path(yaml.safe_load(f)["agent"]["workdir"])
 
 _UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 
@@ -49,12 +54,16 @@ class OriginCheckMiddleware(BaseHTTPMiddleware):
 @asynccontextmanager
 async def _lifespan(_: FastAPI):
     chat_store.load_all()
+    _WORKDIR.mkdir(parents=True, exist_ok=True)
     yield
 
 
 app = FastAPI(title="agent-zero-light", lifespan=_lifespan)
 app.add_middleware(OriginCheckMiddleware)
 app.mount("/static", StaticFiles(directory=_WEBUI_DIR), name="static")
+# fișiere produse de agent în workdir (ex. imagini generate) — servite direct în chat.
+_WORKDIR.mkdir(parents=True, exist_ok=True)
+app.mount("/files", StaticFiles(directory=_WORKDIR), name="files")
 
 
 @app.get("/health")

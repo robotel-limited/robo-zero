@@ -38,10 +38,22 @@ themeToggleBtn.addEventListener("click", () => {
   applyTheme(next);
 });
 
+// tool_result de la image_generate întoarce mesajul "Imagine generată: /files/images/<id>.jpg"
+const IMAGE_PATH_RE = /\/files\/images\/[\w.-]+\.(?:jpg|jpeg|png)\b/;
+
 function appendMessage(cls, text) {
   const div = document.createElement("div");
   div.className = `message ${cls}`;
-  div.textContent = text;
+  const imageMatch = text.match(IMAGE_PATH_RE);
+  if (imageMatch) {
+    div.appendChild(document.createTextNode(text.slice(0, imageMatch.index)));
+    const img = document.createElement("img");
+    img.src = imageMatch[0];
+    img.className = "message-image";
+    div.appendChild(img);
+  } else {
+    div.textContent = text;
+  }
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
   return div;

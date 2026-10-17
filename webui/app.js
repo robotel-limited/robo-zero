@@ -78,14 +78,17 @@ function renderLogEntry(entry) {
     case "final":
       appendMessage("message-agent-response", entry.text);
       setRunning(false);
+      notifyIfHidden();
       break;
     case "error":
       appendMessage("message-error", `Eroare: ${entry.text}`);
       setRunning(false);
+      notifyIfHidden();
       break;
     case "cancelled":
       appendMessage("message-cancelled", entry.text);
       setRunning(false);
+      notifyIfHidden();
       break;
     case "approval_required":
       showApproval(entry.tool_name, entry.arguments);
@@ -222,6 +225,7 @@ composeForm.addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const text = composeInput.value.trim();
   if (!text || !currentChatId) return;
+  unlockAudio();
   composeInput.value = "";
   setRunning(true);
   try {

@@ -1,0 +1,23 @@
+# Configurație agent-zero-light — etapa 1
+llm:
+  provider: deepseek
+  model: deepseek-flash     # cel mai ieftin model curent DeepSeek (V4.1-Flash); deepseek-v4-pro rămâne opțiune
+  endpoint: https://api.deepseek.com/chat/completions
+  timeout_seconds: 120
+  max_retries: 3
+  retry_backoff_seconds: [2, 4, 8]
+
+agent:
+  workdir: /srv/agent-zero-light/workdir
+  max_iterations: 50
+  max_subordinate_depth: 3
+  repetition_warn_count: 3
+  repetition_abort_count: 5
+
+server:
+  host: 0.0.0.0
+  port: 8150
+
+shell:
+  timeout_seconds: 120
+  output_limit_bytes: 20480

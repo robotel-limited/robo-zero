@@ -11,6 +11,7 @@ from typing import Any, Awaitable, Callable
 
 import yaml
 
+import history
 import llm
 import safety
 from tools.browser_tool import BrowserBox, BrowserTool
@@ -153,6 +154,11 @@ class Agent:
         for _ in range(_AGENT_CFG["max_iterations"]):
             if self.cancelled:
                 raise AgentCancelled("Rulare anulată de utilizator.")
+
+            compacted = await history.compact_if_needed(self.history)
+            if compacted is not self.history:
+                self.history = compacted
+                self._emit("history_compacted", kept_messages=len(self.history))
 
             response = await llm.chat(self.history, tools=tool_schemas)
 

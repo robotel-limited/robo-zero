@@ -42,3 +42,8 @@ browser:
   holo4_timeout_seconds: 30
   rate_limit_per_minute: 9       # sub limita reală a tier-ului gratuit (10 RPM)
   navigation_timeout_seconds: 30
+
+history:
+  context_tokens: 128000   # fereastră de context deepseek-flash (estimativ)
+  trigger_fraction: 0.7
+  keep_last_messages: 20

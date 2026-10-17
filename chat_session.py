@@ -50,6 +50,7 @@ class ChatSession:
         try:
             await self.agent.run(user_message)
         except AgentCancelled:
+            self.agent.history = history.sanitize(self.agent.history)
             self._append_log("cancelled", text="Rulare anulată de utilizator.")
         except AgentError as e:
             self._append_log("error", text=str(e))

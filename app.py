@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 
 import chat_store
+import settings_store
 from chat_session import ChatSession
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
@@ -82,6 +83,16 @@ def _get_chat_or_404(chat_id: str) -> ChatSession:
     if session is None:
         raise HTTPException(status_code=404, detail="Chat inexistent.")
     return session
+
+
+@app.get("/api/settings")
+async def get_settings():
+    return settings_store.load()
+
+
+@app.put("/api/settings")
+async def put_settings(body: dict):
+    return settings_store.save(body or {})
 
 
 @app.get("/api/chats")

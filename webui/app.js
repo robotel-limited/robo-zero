@@ -10,9 +10,14 @@ const approvalBar = document.getElementById("approval-bar");
 const approvalText = document.getElementById("approval-text");
 const newChatBtn = document.getElementById("new-chat-btn");
 const themeToggleBtn = document.getElementById("theme-toggle-btn");
+const settingsBtn = document.getElementById("settings-btn");
+const settingsPanel = document.getElementById("settings-panel");
+const settingsCloseBtn = document.getElementById("settings-close-btn");
+const verboseToggle = document.getElementById("verbose-toggle");
 
 let currentChatId = null;
 let eventSource = null;
+let settings = { verbose: true };
 
 function applyTheme(mode) {
   document.body.classList.toggle("light-mode", mode === "light");
@@ -65,10 +70,14 @@ function renderLogEntry(entry) {
       appendMessage("message-user", entry.text);
       break;
     case "tool_call":
-      appendMessage("message-tool-call", `→ ${entry.name}(${entry.arguments})`);
+      if (settings.verbose) appendMessage("message-tool-call", `→ ${entry.name}(${entry.arguments})`);
       break;
     case "tool_result":
-      appendMessage("message-tool-result", `${entry.name}: ${entry.message}`);
+      // conținut produs efectiv (ex. imagine generată) rămâne vizibil chiar la
+      // verbose=off — doar raționamentul (apeluri/rezultate text) se ascunde
+      if (settings.verbose || IMAGE_PATH_RE.test(entry.message)) {
+        appendMessage("message-tool-result", `${entry.name}: ${entry.message}`);
+      }
       break;
     case "final":
       appendMessage("message-agent-response", entry.text);
@@ -252,7 +261,39 @@ approvalBar.querySelector("#approve-no").addEventListener("click", async () => {
   }).catch(() => {});
 });
 
+settingsBtn.addEventListener("click", () => {
+  settingsPanel.classList.toggle("hidden");
+});
+
+settingsCloseBtn.addEventListener("click", () => {
+  settingsPanel.classList.add("hidden");
+});
+
+verboseToggle.addEventListener("change", async () => {
+  const verbose = verboseToggle.checked;
+  try {
+    settings = await api("/api/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ verbose }),
+    });
+  } catch (e) {
+    appendMessage("message-error", `Eroare la salvarea setărilor: ${e.message}`);
+    verboseToggle.checked = settings.verbose;
+    return;
+  }
+  // re-afișează conversația curentă cu noul filtru (log-ul pe disc rămâne complet)
+  if (currentChatId) await selectChat(currentChatId);
+});
+
 (async function init() {
+  try {
+    settings = await api("/api/settings");
+  } catch (e) {
+    /* indisponibil — rămân valorile implicite */
+  }
+  verboseToggle.checked = settings.verbose;
+
   const chats = await api("/api/chats");
   if (chats.length > 0) {
     await selectChat(chats[0].id);

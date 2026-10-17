@@ -9,6 +9,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+import history
 from agent import Agent, AgentCancelled, AgentError
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
@@ -147,5 +148,5 @@ class ChatSession:
         session.created_at = data.get("created_at", time.time())
         session.updated_at = data.get("updated_at", session.created_at)
         session.log = data.get("log", [])
-        session.agent.history = data.get("agent_history", [])
+        session.agent.history = history.sanitize(data.get("agent_history", []))
         return session

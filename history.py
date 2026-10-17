@@ -30,6 +30,47 @@ def _estimate_tokens(messages: list[dict[str, Any]]) -> int:
     return sum(len(str(m)) for m in messages) // CHARS_PER_TOKEN
 
 
+def sanitize(history: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Repară un istoric cu un mesaj `assistant`+`tool_calls` ale cărui
+    rezultate nu au fost toate adăugate — stare posibilă dacă procesul a
+    fost oprit abrupt (SIGKILL) în timpul execuției tool-urilor, între
+    salvarea mesajului `assistant` și salvarea rezultatelor (chat_session.py
+    salvează pe disc la fiecare eveniment). Fără reparare, DeepSeek respinge
+    orice cerere construită din acest istoric ("insufficient tool messages
+    following tool_calls message"), permanent, pentru acel chat. Apelat la
+    încărcarea unui chat de pe disc. Întoarce aceeași listă dacă nu e nimic
+    de reparat."""
+    changed = False
+    result: list[dict[str, Any]] = []
+    i = 0
+    while i < len(history):
+        message = history[i]
+        result.append(message)
+        i += 1
+        if message.get("role") != "assistant" or not message.get("tool_calls"):
+            continue
+        expected_ids = [tc["id"] for tc in message["tool_calls"]]
+        answered_ids = set()
+        while i < len(history) and history[i].get("role") == "tool":
+            result.append(history[i])
+            answered_ids.add(history[i].get("tool_call_id"))
+            i += 1
+        for call_id in expected_ids:
+            if call_id not in answered_ids:
+                changed = True
+                result.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": call_id,
+                        "content": (
+                            "[Eroare: rezultatul acestui apel de tool s-a pierdut "
+                            "— serviciul a fost întrerupt înainte de finalizare.]"
+                        ),
+                    }
+                )
+    return result if changed else history
+
+
 def _safe_tail_start(history: list[dict[str, Any]], desired_start: int) -> int:
     """Un mesaj `tool` sau un `assistant` cu `tool_calls` nu poate deveni
     primul mesaj păstrat — DeepSeek respinge un istoric care începe în

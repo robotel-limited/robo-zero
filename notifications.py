@@ -15,6 +15,12 @@ _TELEGRAM_SCRIPT = _HERMES_SCRIPTS / "claude_notify_telegram.py"
 _SMS_SCRIPT = _HERMES_SCRIPTS / "hermes-sms-notify.sh"
 _SUBPROCESS_TIMEOUT_SECONDS = 30
 
+# asyncio ține doar o referință weak la task-uri — fără o referință forte
+# în viață cât timp task-ul rulează, garbage collector-ul îl poate distruge
+# la mijlocul execuției, fără nicio eroare vizibilă (exact simptomul observat:
+# testul manual al scriptului mergea, dar cel declanșat din aplicație nu).
+_background_tasks: set[asyncio.Task] = set()
+
 
 async def _run(*args: str) -> None:
     try:
@@ -35,11 +41,17 @@ async def _run(*args: str) -> None:
         logger.exception("notificare: eroare la lansarea %s", args[0])
 
 
+def _spawn(*args: str) -> None:
+    task = asyncio.create_task(_run(*args))
+    _background_tasks.add(task)
+    task.add_done_callback(_background_tasks.discard)
+
+
 def notify_task_ready(session_title: str, settings: dict) -> None:
     """Fire-and-forget: lansează notificările activate în settings pentru
     chat_id-ul utilizat implicit de scripturile Hermes (Sorin)."""
     message = f"Task ready - {session_title}"
     if settings.get("notify_telegram"):
-        asyncio.create_task(_run("python3", str(_TELEGRAM_SCRIPT), "notify", message))
+        _spawn("python3", str(_TELEGRAM_SCRIPT), "notify", message)
     if settings.get("notify_sms"):
-        asyncio.create_task(_run(str(_SMS_SCRIPT), message))
+        _spawn(str(_SMS_SCRIPT), message)

@@ -30,3 +30,15 @@ image:
   endpoint: https://ai.api.nvidia.com/v1/genai
   model: black-forest-labs/flux.2-klein-4b
   timeout_seconds: 60
+
+web:
+  robo_crawl_url: http://127.0.0.1:8112
+  timeout_seconds: 30
+  fallback_text_limit_chars: 20000
+
+browser:
+  holo4_endpoint: https://api.hcompany.ai/v1/chat/completions
+  holo4_model: holo3-1-35b-a3b
+  holo4_timeout_seconds: 30
+  rate_limit_per_minute: 9       # sub limita reală a tier-ului gratuit (10 RPM)
+  navigation_timeout_seconds: 30

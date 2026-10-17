@@ -13,6 +13,7 @@ import yaml
 
 import llm
 import safety
+from tools.browser_tool import BrowserBox, BrowserTool
 from tools.call_subordinate import CallSubordinate
 from tools.fs_tool import FsList, FsRead, FsWrite
 from tools.image_generate import ImageGenerate
@@ -20,6 +21,7 @@ from tools.memory_tool import MemoryRecall, MemoryRemember
 from tools.response import FinalResponse
 from tools.shell_tool import ShellExecute
 from tools.tool_base import Tool
+from tools.web_read_tool import WebRead
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
@@ -52,12 +54,17 @@ class Agent:
         workdir: str | None = None,
         depth: int = 0,
         on_event: EventCallback | None = None,
+        browser_box: BrowserBox | None = None,
     ) -> None:
         self.workdir = workdir or _AGENT_CFG["workdir"]
         self.shell_timeout_seconds = _SHELL_CFG["timeout_seconds"]
         self.confirm = confirm
         self.depth = depth  # adâncime delegare sub-agenți (folosit de call_subordinate, etapa 3)
         self.on_event = on_event
+        # sesiune de browser partajată cu sub-agenții aceleiași rulări (etapa 5) —
+        # vezi tools/browser_tool.py:BrowserBox; creat nou doar la rădăcină (depth 0),
+        # altfel call_subordinate.py trece referința părintelui.
+        self.browser_box = browser_box or BrowserBox()
         self.history: list[dict[str, Any]] = []
         self.tools: dict[str, Tool] = self._build_tools()
         # ultimele apeluri (tool, argumente_json) — pentru detecția repetiției
@@ -110,6 +117,8 @@ class Agent:
             MemoryRecall(self),
             MemoryRemember(self),
             ImageGenerate(self),
+            WebRead(self),
+            BrowserTool(self),
             FinalResponse(self),
         ]
         return {t.name: t for t in instances}
@@ -121,6 +130,20 @@ class Agent:
     async def run(self, user_message: str) -> str:
         """Rulează bucla agentului pentru un mesaj de utilizator și întoarce
         textul răspunsului final (cel care devine mesajul verde în UI)."""
+        try:
+            return await self._run(user_message)
+        finally:
+            # Browserul (dacă a fost pornit de browser_tool) se închide o
+            # singură dată, la finalul rulării rădăcină — sub-agenții (depth > 0)
+            # îl lasă deschis, e partajat cu părintele (BrowserBox, etapa 5).
+            if self.depth == 0 and self.browser_box.session is not None:
+                try:
+                    await self.browser_box.session.close()
+                except Exception:
+                    pass
+                self.browser_box.session = None
+
+    async def _run(self, user_message: str) -> str:
         if not self.history:
             self.history.append({"role": "system", "content": self._system_prompt()})
         self.history.append({"role": "user", "content": user_message})

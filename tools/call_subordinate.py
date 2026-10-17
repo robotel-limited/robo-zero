@@ -54,6 +54,7 @@ class CallSubordinate(Tool):
             workdir=parent.workdir,
             depth=parent.depth + 1,
             on_event=parent.on_event,
+            browser_box=parent.browser_box,
         )
         parent.current_subordinate = subordinate
         try:

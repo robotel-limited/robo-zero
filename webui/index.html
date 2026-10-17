@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>agent-zero-light</title>
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
+  <link rel="stylesheet" href="/static/css/messages.css" />
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <button id="new-chat-btn">+ Conversație nouă</button>
+      <div id="chat-list"></div>
+      <button id="theme-toggle-btn" title="Comută temă">☀ / ☾</button>
+    </aside>
+    <main id="main">
+      <div id="messages"></div>
+      <div id="approval-bar" class="hidden">
+        <div id="approval-text"></div>
+        <div class="approval-actions">
+          <button id="approve-yes">Aprobă</button>
+          <button id="approve-no">Refuză</button>
+        </div>
+      </div>
+      <form id="compose-form">
+        <textarea id="compose-input" placeholder="Scrie un mesaj…" rows="2"></textarea>
+        <button id="cancel-btn" type="button" class="hidden">Anulează</button>
+        <button id="send-btn" type="submit">Trimite</button>
+      </form>
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

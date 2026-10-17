@@ -3,6 +3,8 @@
 """
 
 import json
+import os
+import signal
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Awaitable, Callable
@@ -31,21 +33,60 @@ class AgentError(Exception):
     """Eroare vizibilă care încheie rularea curentă (limită de iterații sau repetiție)."""
 
 
+class AgentCancelled(AgentError):
+    """Rularea a fost anulată explicit de utilizator (etapa 2: POST /cancel)."""
+
+
+# (tip_eveniment, date) -> None — hook opțional folosit de app.py/chat_session.py
+# pentru a retransmite evenimente prin SSE, fără ca agent.py să cunoască FastAPI/SSE.
+EventCallback = Callable[[str, dict[str, Any]], None]
+
+
 class Agent:
     def __init__(
         self,
         confirm: ConfirmCallback,
         workdir: str | None = None,
         depth: int = 0,
+        on_event: EventCallback | None = None,
     ) -> None:
         self.workdir = workdir or _AGENT_CFG["workdir"]
         self.shell_timeout_seconds = _SHELL_CFG["timeout_seconds"]
         self.confirm = confirm
         self.depth = depth  # adâncime delegare sub-agenți (folosit de call_subordinate, etapa 3)
+        self.on_event = on_event
         self.history: list[dict[str, Any]] = []
         self.tools: dict[str, Tool] = self._build_tools()
         # ultimele apeluri (tool, argumente_json) — pentru detecția repetiției
         self._recent_calls: list[tuple[str, str]] = []
+        # anulare (etapa 2): flag verificat la începutul fiecărei iterații și
+        # înainte de fiecare tool; subprocesul shell curent (dacă există)
+        # primește SIGTERM — vezi tools/shell_tool.py.
+        self.cancelled = False
+        self.current_shell_proc: Any = None
+
+    def _emit(self, event_type: str, **data: Any) -> None:
+        """Trimite un eveniment către callback-ul extern, dacă există. Nu
+        trebuie să poată bloca sau crăpa bucla agentului."""
+        if self.on_event is None:
+            return
+        try:
+            self.on_event(event_type, data)
+        except Exception:
+            pass
+
+    def request_cancel(self) -> None:
+        """Marchează rularea curentă pentru anulare și întrerupe comanda
+        shell curentă (dacă există una activă) cu SIGTERM, trimis întregului
+        grup de procese (tools/shell_tool.py pornește comanda cu
+        start_new_session=True) — altfel un copil ca `sleep` dintr-un
+        `sleep 30 && echo done` rămâne orfan și ține bucla blocată."""
+        self.cancelled = True
+        if self.current_shell_proc is not None:
+            try:
+                os.killpg(self.current_shell_proc.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
 
     def _build_tools(self) -> dict[str, Tool]:
         instances: list[Tool] = [
@@ -71,11 +112,15 @@ class Agent:
         tool_schemas = [t.schema() for t in self.tools.values()]
 
         for _ in range(_AGENT_CFG["max_iterations"]):
+            if self.cancelled:
+                raise AgentCancelled("Rulare anulată de utilizator.")
+
             response = await llm.chat(self.history, tools=tool_schemas)
 
             if not response.tool_calls:
                 final_text = response.content or ""
                 self.history.append({"role": "assistant", "content": final_text})
+                self._emit("final", text=final_text)
                 return final_text
 
             self.history.append(
@@ -95,7 +140,12 @@ class Agent:
 
             break_text: str | None = None
             for tc in response.tool_calls:
+                if self.cancelled:
+                    raise AgentCancelled("Rulare anulată de utilizator.")
+
+                self._emit("tool_call", name=tc.name, arguments=tc.arguments)
                 result_text, break_loop = await self._execute_tool_call(tc.name, tc.arguments)
+                self._emit("tool_result", name=tc.name, message=result_text)
                 self.history.append(
                     {"role": "tool", "tool_call_id": tc.id, "content": result_text}
                 )
@@ -103,6 +153,7 @@ class Agent:
                     break_text = result_text
 
             if break_text is not None:
+                self._emit("final", text=break_text)
                 return break_text
 
         raise AgentError(

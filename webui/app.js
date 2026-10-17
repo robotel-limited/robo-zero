@@ -15,8 +15,15 @@ let currentChatId = null;
 let eventSource = null;
 let settings = { verbose: true };
 
+function formatTokenCount(count) {
+  if (count < 1000) return `${count}`;
+  const thousands = count / 1000;
+  const rounded = thousands >= 10 ? Math.round(thousands) : Math.round(thousands * 10) / 10;
+  return `${rounded}k`;
+}
+
 function setTokenCount(count) {
-  tokenCountEl.textContent = `${count} tokeni`;
+  tokenCountEl.textContent = `${formatTokenCount(count)} tokeni`;
 }
 
 async function refreshTokenCount(chatId) {

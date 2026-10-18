@@ -16,6 +16,23 @@ let eventSource = null;
 let settings = { verbose: true };
 let projectsCache = [];
 
+const appEl = document.getElementById("app");
+
+function setupPanelToggle(btnId, cssClass, storageKey) {
+  const btn = document.getElementById(btnId);
+  if (!btn || !appEl) return;
+  if (localStorage.getItem(storageKey) === "1") {
+    appEl.classList.add(cssClass);
+  }
+  btn.addEventListener("click", () => {
+    appEl.classList.toggle(cssClass);
+    localStorage.setItem(storageKey, appEl.classList.contains(cssClass) ? "1" : "0");
+  });
+}
+
+setupPanelToggle("toggle-main-btn", "hide-main", "a0-hide-main");
+setupPanelToggle("toggle-sidebar-btn", "hide-sidebar", "a0-hide-sidebar");
+
 function formatTokenCount(count) {
   if (count < 1000) return `${count}`;
   const thousands = count / 1000;
@@ -92,6 +109,16 @@ function renderLogEntry(entry) {
       break;
     case "approval_resolved":
       hideApproval();
+      break;
+    case "project_memory_updated":
+      appendMessage(
+        "message-memory",
+        "Fișa proiectului actualizată:\n" +
+          [...entry.added.map((t) => `+ ${t}`), ...entry.replaced.map((r) => `~ ${r.old} → ${r.new}`)].join("\n")
+      );
+      break;
+    case "project_context_refreshed":
+      appendMessage("message-memory", "Context nou primit din alte discuții ale proiectului:\n" + entry.lines.join("\n"));
       break;
     default:
       break;
@@ -263,6 +290,10 @@ async function deleteChat(chatId) {
 
 async function selectChat(chatId) {
   currentChatId = chatId;
+  if (appEl && appEl.classList.contains("hide-main")) {
+    appEl.classList.remove("hide-main");
+    localStorage.setItem("a0-hide-main", "0");
+  }
   messagesEl.innerHTML = "";
   hideApproval();
   const chat = await api(`/api/chats/${chatId}`);

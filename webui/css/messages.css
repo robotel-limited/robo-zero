@@ -23,13 +23,49 @@ body {
   height: 100vh;
 }
 
+#toggle-sidebar-btn,
+#toggle-main-btn {
+  position: fixed;
+  top: 8px;
+  z-index: 100;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-panel);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 1em;
+  line-height: 1;
+}
+
+#toggle-main-btn {
+  left: 8px;
+}
+
+#toggle-sidebar-btn {
+  right: 8px;
+}
+
+#app.hide-sidebar #sidebar {
+  display: none;
+}
+
+#app.hide-main #main {
+  display: none;
+}
+
+#app.hide-main #sidebar {
+  width: 100%;
+}
+
 #sidebar {
   width: 240px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 12px;
+  padding: 48px 12px 12px;
   background: var(--color-panel);
   border-right: 1px solid var(--color-border);
 }

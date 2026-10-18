@@ -14,6 +14,7 @@ import path_access
 import project_folders_store as folders
 import project_kb_store as kb
 import project_memory_store as store
+import project_rules_store as rules
 import projects_store
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
@@ -25,6 +26,11 @@ _FISA_HEADER = (
     "Fapte extrase automat din toate discuțiile proiectului. Pot conține erori: "
     "dacă utilizatorul spune altceva, are prioritate el. Când te bazezi pe un fapt, "
     "menționează sursa (discuția și data)."
+)
+_RULES_HEADER = (
+    "## Reguli învățate (aprobate de Sorin)\n"
+    "Corecții de comportament confirmate de Sorin în discuții anterioare ale "
+    "proiectului — au prioritate asupra abordării implicite a agentului."
 )
 _SEARCH_NOTE = (
     "Pentru detalii exacte din discuțiile proiectului sau din fișierele bazei de "
@@ -68,6 +74,17 @@ def _fisa(project_id: str) -> str:
         sections.setdefault(fact["category"] or "Altele", []).append(_fact_line(fact))
     body = "\n".join(f"### {cat}\n" + "\n".join(lines) for cat, lines in sections.items())
     return f"{_FISA_HEADER}\n{body}"
+
+
+def _rules(project_id: str) -> str:
+    approved = rules.list_for(project_id, status="approved")
+    if not approved:
+        return ""
+    sections: dict[str, list[str]] = {}
+    for rule in approved:
+        sections.setdefault(rule["category"] or "Altele", []).append(f"- {rule['text']}")
+    body = "\n".join(f"### {cat}\n" + "\n".join(lines) for cat, lines in sections.items())
+    return f"{_RULES_HEADER}\n{body}"
 
 
 def _other_chats(project_id: str, exclude_chat_id: str | None) -> str:
@@ -135,6 +152,9 @@ def build_initial(project_id: str, exclude_chat_id: str | None) -> str | None:
     if project["prompt"].strip():
         blocks.append(project["prompt"].strip())
     blocks.append(_fisa(project_id))
+    rules_block = _rules(project_id)
+    if rules_block:
+        blocks.append(rules_block)
     others = _other_chats(project_id, exclude_chat_id)
     if others:
         blocks.append(others)
@@ -159,6 +179,14 @@ def diff_since(project_id: str, ts: float, chat_id: str) -> list[str]:
             lines.append(f"~ înlocuit: {fact['replaces_text']} → {fact['text']} (sursa: {source})")
         else:
             lines.append(f"+ {fact['text']} (sursa: {source})")
+    for rule in rules.approved_rules_since(project_id, ts):
+        if rule["source_chat_id"] == chat_id:
+            continue
+        source = f"„{rule.get('source_chat_title') or 'discuție ștearsă'}”"
+        if rule.get("replaces_text"):
+            lines.append(f"~ regulă înlocuită: {rule['replaces_text']} → {rule['text']} (sursa: {source})")
+        else:
+            lines.append(f"+ regulă nouă: {rule['text']} (sursa: {source})")
     for f in kb.files_since(project_id, ts):
         lines.append(f"+ fișier nou în baza de cunoștințe: [{f['id']}] {f['filename']}: {f['summary']}…")
     for folder in folders.added_since(project_id, ts):

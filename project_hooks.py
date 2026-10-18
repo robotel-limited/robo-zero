@@ -11,6 +11,7 @@ import project_digest
 import project_folders_store
 import project_kb_store
 import project_memory_store
+import project_rules_store
 
 
 def reindex(session: Any) -> None:
@@ -43,6 +44,7 @@ def on_chat_deleted(chat_id: str) -> None:
 def on_project_deleted(project_id: str) -> None:
     project_archive.remove_project(project_id)
     project_memory_store.delete_project(project_id)
+    project_rules_store.delete_project(project_id)
     project_kb_store.delete_project(project_id)
     for folder_id in project_folders_store.delete_project(project_id):
         folder_index_store.delete_folder(folder_id)

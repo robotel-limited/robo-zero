@@ -131,6 +131,13 @@ function renderLogEntry(entry) {
     case "project_context_refreshed":
       appendMessage("message-memory", "Context nou primit din alte discuții ale proiectului:\n" + entry.lines.join("\n"));
       break;
+    case "project_rules_proposed":
+      appendMessage(
+        "message-memory",
+        "Reguli noi propuse (așteaptă aprobare pe cardul proiectului din /projects):\n" +
+          entry.added.map((t) => `+ ${t}`).join("\n")
+      );
+      break;
     default:
       break;
   }

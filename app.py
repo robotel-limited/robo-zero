@@ -29,6 +29,7 @@ import settings_store
 from chat_session import ChatSession
 from project_folder_routes import router as project_folder_router
 from project_memory_routes import router as project_memory_router
+from project_rules_routes import router as project_rules_router
 from upload_routes import router as upload_router
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
@@ -74,6 +75,7 @@ app = FastAPI(title="agent-zero-light", lifespan=_lifespan)
 app.add_middleware(OriginCheckMiddleware)
 app.include_router(project_memory_router)
 app.include_router(project_folder_router)
+app.include_router(project_rules_router)
 app.include_router(upload_router)
 app.mount("/static", StaticFiles(directory=_WEBUI_DIR), name="static")
 # fișiere produse de agent în workdir (ex. imagini generate) — servite direct în chat.

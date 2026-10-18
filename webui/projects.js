@@ -103,6 +103,7 @@ function renderProject(project) {
   loadKbInto(card, project.id);
   loadFoldersInto(card, project.id);
   loadMemoryInto(card, project.id);
+  loadRulesInto(card, project.id);
   return card;
 }
 

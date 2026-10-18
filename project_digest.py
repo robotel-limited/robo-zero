@@ -14,6 +14,7 @@ import yaml
 import history
 import llm
 import project_memory_store as store
+import project_rules_store as rules_store
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
@@ -22,6 +23,8 @@ with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
 # project_search ar readuce fapte din alte chat-uri (sursă greșită, duplicate);
 # response e dublat de intrarea `final`
 _SKIPPED_TOOLS = {"project_search", "response"}
+
+_RULE_STATUS_RO = {"pending": "în așteptare", "approved": "aprobată", "rejected": "respinsă"}
 
 _locks: dict[str, asyncio.Lock] = {}
 # referințe puternice: altfel un task fără referință poate fi colectat de GC
@@ -35,6 +38,9 @@ Răspunzi strict cu un obiect JSON de forma:
 {"summary": "...", "ops": [
   {"op": "add", "category": "...", "text": "...", "event_date": "YYYY-MM-DD sau null"},
   {"op": "supersede", "fact_id": 12, "category": "...", "text": "...", "event_date": "YYYY-MM-DD sau null"}
+], "rules": [
+  {"op": "add", "category": "...", "text": "..."},
+  {"op": "supersede", "rule_id": 7, "category": "...", "text": "..."}
 ]}
 
 Reguli pentru summary:
@@ -50,7 +56,15 @@ Reguli pentru ops (fișa):
 - fiecare text de fapt e de sine stătător (subiect explicit, valori, unități), o singură informație per fapt;
 - category: 1-2 cuvinte; refolosește categoriile existente din fișă când se potrivesc;
 - event_date: data evenimentului real (ex. data RMN-ului), nu data discuției; null dacă nu se cunoaște;
-- dacă nu e nimic de schimbat în fișă, ops = []."""
+- dacă nu e nimic de schimbat în fișă, ops = [].
+
+Reguli pentru rules (reguli învățate — LISTA REGULI de mai jos arată toate regulile existente, cu status):
+- extragi doar corecții explicite ale lui Sorin asupra comportamentului/abordării agentului (ex. "nu mai face X, fă Y", "de-acum, pentru Z procedează așa"), sau confirmarea clară că o abordare a funcționat și trebuie repetată;
+- NU extragi fapte despre proiect (acelea sunt în fișă) și NU extragi variante doar discutate, ci doar ce Sorin a confirmat ca regulă de urmat;
+- dacă o regulă nouă corectează sau înlocuiește o regulă deja cu status "aprobată", folosești "supersede" cu rule_id-ul acelei reguli, NU "add";
+- nu propune din nou o regulă deja "respinsă" sau deja existentă (pending/aprobată), reformulată echivalent;
+- fiecare regulă e de sine stătătoare (1-2 propoziții), category: 1-2 cuvinte;
+- dacă nu e nimic nou de propus, rules = []."""
 
 
 def _entry_line(entry: dict[str, Any]) -> str | None:
@@ -109,6 +123,7 @@ async def _digest(session: Any, project_id: str) -> None:
         _, lines = _pending(session)
         added: list[str] = []
         replaced: list[dict[str, str]] = []
+        rules_proposed: list[str] = []
         try:
             for chunk in _chunks(lines):
                 if not chunk:
@@ -117,6 +132,7 @@ async def _digest(session: Any, project_id: str) -> None:
                 if session.project_id != project_id or not session._path().exists():
                     return  # chat mutat sau șters cât a durat apelul LLM
                 _apply_ops(session, project_id, result.get("ops") or [], added, replaced)
+                _apply_rule_ops(session, project_id, result.get("rules") or [], rules_proposed)
                 last_index = chunk[-1][0]
                 store.save_digest(
                     session.id, project_id, session.title, str(result.get("summary") or ""), last_index + 1
@@ -125,6 +141,8 @@ async def _digest(session: Any, project_id: str) -> None:
             session._append_log("error", text=f"Memoria proiectului nu s-a putut actualiza: {e}")
         if added or replaced:
             session._append_log("project_memory_updated", added=added, replaced=replaced)
+        if rules_proposed:
+            session._append_log("project_rules_proposed", added=rules_proposed)
 
 
 async def _call_llm(session: Any, project_id: str, lines: list[str]) -> dict[str, Any]:
@@ -136,9 +154,15 @@ async def _call_llm(session: Any, project_id: str, lines: list[str]) -> dict[str
         for f in facts
     ) or "(fișa e goală)"
     summary = (digest or {}).get("summary") or "(niciun rezumat încă)"
+    rules = "\n".join(
+        f"[id {r['id']}] [{_RULE_STATUS_RO[r['status']]}] ({r['category']}) {r['text']}"
+        for r in rules_store.list_for(project_id)
+        if r["status"] in _RULE_STATUS_RO
+    ) or "(nicio regulă încă)"
     user_content = (
         f"Data de azi: {date.today().isoformat()}\n\n"
-        f"(1) FIȘA:\n{fisa}\n\n(2) REZUMATUL:\n{summary}\n\n(3) MESAJELE NOI:\n" + "\n".join(lines)
+        f"(1) FIȘA:\n{fisa}\n\n(2) REZUMATUL:\n{summary}\n\n"
+        f"(3) LISTA REGULI (toate, cu status):\n{rules}\n\n(4) MESAJELE NOI:\n" + "\n".join(lines)
     )
     response = await llm.chat(
         [{"role": "system", "content": _SYSTEM_PROMPT}, {"role": "user", "content": user_content}],
@@ -174,3 +198,23 @@ def _apply_ops(
             # id invalid: informația nu se pierde, devine fapt nou
         store.add_fact(project_id, text, category, event_date, **source)
         added.append(text)
+
+
+def _apply_rule_ops(session: Any, project_id: str, ops: list[Any], proposed: list[str]) -> None:
+    for op in ops:
+        if not isinstance(op, dict) or not str(op.get("text") or "").strip():
+            continue
+        text = str(op["text"]).strip()
+        category = str(op.get("category") or "").strip()
+        supersedes = None
+        if op.get("op") == "supersede":
+            try:
+                candidate = rules_store.get_rule(int(op.get("rule_id")))
+            except (TypeError, ValueError):
+                candidate = None
+            if candidate is not None and candidate["project_id"] == project_id and candidate["status"] == "approved":
+                supersedes = candidate["id"]
+        rules_store.add_rule(
+            project_id, text, category, session.id, session.title, supersedes=supersedes
+        )
+        proposed.append(text)

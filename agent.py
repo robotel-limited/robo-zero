@@ -16,6 +16,7 @@ import history
 import llm
 import projects_store
 import safety
+import settings_store
 from tools.browser_tool import BrowserBox, BrowserTool
 from tools.call_subordinate import CallSubordinate
 from tools.fs_tool import FsList, FsRead, FsWrite
@@ -144,14 +145,17 @@ class Agent:
         return {t.name: t for t in instances}
 
     def _chat_model(self) -> str | None:
-        """Modelul proiectului (etapa D), citit live din projects_store la
-        fiecare tură — ca schimbarea din /projects să se aplice imediat,
-        inclusiv sub-agenților (project_id se propagă prin call_subordinate).
-        None (implicit/flash) pentru chat-urile neafiliate."""
-        if not self.project_id:
-            return None
-        project = projects_store.get(self.project_id)
-        return project["model"] if project else None
+        """Modelul proiectului (etapa D) are prioritate, citit live din
+        projects_store la fiecare tură — ca schimbarea din /projects să se
+        aplice imediat, inclusiv sub-agenților (project_id se propagă prin
+        call_subordinate). Pentru chat-urile neafiliate unui proiect,
+        folosește modelul implicit global din Settings (etapa E), citit la
+        fel de live — nu doar MODEL hardcodat din settings.yaml."""
+        if self.project_id:
+            project = projects_store.get(self.project_id)
+            if project:
+                return project["model"]
+        return settings_store.load()["default_model"]
 
     def _system_prompt(self) -> str:
         template = (_PROJECT_ROOT / "prompts" / "agent.system.md").read_text(encoding="utf-8")

@@ -15,6 +15,11 @@ _LOG_PATH = Path(__file__).resolve().parent / "data" / "usage.jsonl"
 _PRICING = {
     "deepseek-flash": {"offpeak": (0.003, 0.15, 0.60), "peak": (0.006, 0.30, 1.20)},
     "deepseek-v4-pro": {"offpeak": (0.022, 0.66, 1.98), "peak": (0.044, 1.32, 3.96)},
+    # DashScope (Alibaba) nu are discount de cache sau peak/offpeak — preț
+    # unic, verificat live 2026-10-06: $0.05/M input, $0.4/M output (<=256K).
+    "qwen-flash": {"offpeak": (0.05, 0.05, 0.4), "peak": (0.05, 0.05, 0.4)},
+    # gratuit pe cheia noastră NVIDIA.
+    "nvidia/nemotron-3-super-120b-a12b": {"offpeak": (0, 0, 0), "peak": (0, 0, 0)},
 }
 
 

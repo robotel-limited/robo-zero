@@ -43,11 +43,41 @@ function bindToggle({ toggleId, stateId, settingsKey }) {
   return setState;
 }
 
+function bindModelSelect() {
+  const select = document.getElementById("default-model-select");
+  select.addEventListener("change", async () => {
+    const value = select.value;
+    try {
+      await api("/api/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ default_model: value }),
+      });
+    } catch (e) {
+      window.alert(`Eroare la salvarea modelului implicit: ${e.message}`);
+    }
+  });
+  return select;
+}
+
 (async function init() {
   const setters = TOGGLES.map(bindToggle);
+  const modelSelect = bindModelSelect();
+  try {
+    const models = await api("/api/models");
+    for (const { id, label } of models) {
+      const opt = document.createElement("option");
+      opt.value = id;
+      opt.textContent = label;
+      modelSelect.appendChild(opt);
+    }
+  } catch (e) {
+    /* indisponibil — select rămâne vid */
+  }
   try {
     const settings = await api("/api/settings");
     TOGGLES.forEach((t, i) => setters[i](!!settings[t.settingsKey]));
+    if (settings.default_model) modelSelect.value = settings.default_model;
   } catch (e) {
     /* indisponibil — rămâne starea implicită a elementelor din HTML */
   }

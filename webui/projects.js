@@ -19,6 +19,17 @@ async function api(path, options) {
 // se închidă la fiecare salvare.
 const expandedIds = new Set();
 
+// Catalogul de modele (etapa E) — încărcat o singură dată, de la server, ca
+// lista să nu fie duplicată aici și în webui/settings.js.
+let MODEL_OPTIONS = [{ id: "deepseek-flash", label: "deepseek-flash" }];
+async function loadModelOptions() {
+  try {
+    MODEL_OPTIONS = await api("/api/models");
+  } catch (e) {
+    /* indisponibil — rămâne fallback-ul minimal de mai sus */
+  }
+}
+
 function renderProject(project) {
   const card = document.createElement("div");
   card.className = "project-card";
@@ -58,12 +69,9 @@ function renderProject(project) {
 
   const modelSelect = document.createElement("select");
   modelSelect.className = "project-model-select";
-  for (const [value, label] of [
-    ["deepseek-flash", "deepseek-flash (implicit, ieftin)"],
-    ["deepseek-v4-pro", "deepseek-v4-pro (opțional, mai scump)"],
-  ]) {
+  for (const { id, label } of MODEL_OPTIONS) {
     const opt = document.createElement("option");
-    opt.value = value;
+    opt.value = id;
     opt.textContent = label;
     modelSelect.appendChild(opt);
   }
@@ -213,4 +221,4 @@ newBtn.addEventListener("click", async () => {
   }
 });
 
-loadProjects();
+loadModelOptions().then(loadProjects);

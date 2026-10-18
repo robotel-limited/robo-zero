@@ -9,6 +9,8 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+import llm
+
 _PROJECT_ROOT = Path(__file__).resolve().parent
 _DB_PATH = _PROJECT_ROOT / "data" / "projects.db"
 _DB_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -16,7 +18,7 @@ _DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 _ALLOWED_FIELDS = {"title", "description", "prompt", "model"}
 # extracția (project_digest.py, kb_extract.py) rulează mereu pe flash,
 # indiferent de modelul ales aici — vezi llm.py
-_MODELS = {"deepseek-flash", "deepseek-v4-pro"}
+_MODELS = set(llm.MODEL_CATALOG)
 
 
 def _connect() -> sqlite3.Connection:

@@ -23,6 +23,7 @@ import folder_index
 import attachments
 import history
 import kb_ingest
+import llm
 import project_hooks
 import projects_store
 import settings_store
@@ -120,7 +121,17 @@ async def get_settings():
 
 @app.put("/api/settings")
 async def put_settings(body: dict):
-    return settings_store.save(body or {})
+    try:
+        return settings_store.save(body or {})
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/models")
+async def list_models():
+    """Catalog de modele disponibile (etapa E) — sursă pentru dropdown-urile
+    din /projects și /settings, ca lista să nu fie duplicată în JS."""
+    return [{"id": model_id, "label": cfg["label"]} for model_id, cfg in llm.MODEL_CATALOG.items()]
 
 
 def _get_project_or_404(project_id: str) -> dict:

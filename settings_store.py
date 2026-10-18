@@ -6,12 +6,15 @@ import json
 from pathlib import Path
 from typing import Any
 
+import llm
+
 _PATH = Path(__file__).resolve().parent / "conf" / "user_settings.json"
 
 _DEFAULTS: dict[str, Any] = {
     "verbose": True,  # afișează tool_call/tool_result în conversație, nu doar răspunsul final
     "notify_telegram": False,  # trimite "Task ready - [nume]" pe Telegram la finalul rulării
     "notify_sms": False,  # trimite "Task ready - [nume]" prin SMS la finalul rulării
+    "default_model": llm.MODEL,  # model folosit de chat-urile neafiliate unui proiect (etapa E)
 }
 
 
@@ -26,6 +29,8 @@ def load() -> dict[str, Any]:
 
 
 def save(partial: dict[str, Any]) -> dict[str, Any]:
+    if "default_model" in partial and partial["default_model"] not in llm.MODEL_CATALOG:
+        raise ValueError(f"Model necunoscut: {partial['default_model']}")
     current = load()
     current.update({k: v for k, v in partial.items() if k in _DEFAULTS})
     _PATH.write_text(json.dumps(current, ensure_ascii=False, indent=2), encoding="utf-8")

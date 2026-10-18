@@ -37,18 +37,36 @@ class ChatSession:
         # momentul în care acest chat a primit ultima oară fișa proiectului
         # (0 = niciodată) — baza diferențelor trimise la turele următoare
         self.facts_seen_at = 0.0
+        # tura curentă (vezi start_run/_run) — permite ștergerea ei ulterioară
+        # din agent.history, nu doar din jurnalul UI (vezi delete_turn)
+        self._current_turn_id: str | None = None
+        self._turn_history_start = 0
+        self._turn_invalidated_by_compaction = False
         self.agent = Agent(
             confirm=self._confirm,
             on_event=self._on_agent_event,
             project_id=project_id,
             workdir=path_access.project_workdir(project_id),
         )
-        self.agent.on_compacted = self._refresh_project_context
+        self.agent.on_compacted = self._on_history_compacted
         self._subscribers: list[asyncio.Queue] = []
         self._running_task: asyncio.Task | None = None
         self._pending_approval: asyncio.Future | None = None
 
     # --- memoria proiectului în context ------------------------------------------
+
+    def _on_history_compacted(self) -> None:
+        """Compactarea (history.py) rescrie agent.history într-un rezumat —
+        orice limite de tură memorate pe mesaje deja absorbite în rezumat nu
+        mai corespund la nimic ștergibil, așa că le invalidăm (delete_turn
+        nu le va mai găsi ca ștergibile). Dacă e în curs o tură activă,
+        marcăm și pe ea ca nemaifiind ștergibilă (vezi _run)."""
+        for entry in self.log:
+            entry.pop("history_start", None)
+            entry.pop("history_end", None)
+        if self._current_turn_id is not None:
+            self._turn_invalidated_by_compaction = True
+        self._refresh_project_context()
 
     def _refresh_project_context(self) -> None:
         """(Re)construiește blocul de proiect din system prompt; dacă system
@@ -89,6 +107,14 @@ class ChatSession:
             raise RuntimeError("Există deja o rulare activă pentru acest chat.")
         images = images or []
         self.agent.cancelled = False
+        self._current_turn_id = uuid.uuid4().hex[:8]
+        # oglindește verificarea din Agent._run — dacă e primul mesaj al
+        # chat-ului, prompt-ul de system trebuie exclus din tura ștergibilă
+        # (altfel ștergerea primei ture l-ar lua cu ea)
+        if not self.agent.history:
+            self.agent.history.append({"role": "system", "content": self.agent._system_prompt()})
+        self._turn_history_start = len(self.agent.history)
+        self._turn_invalidated_by_compaction = False
         self._append_log("user", text=user_message, **({"images": images} if images else {}))
         self._running_task = asyncio.create_task(self._run(self._prepare_message(user_message), images))
 
@@ -104,12 +130,30 @@ class ChatSession:
         except Exception as e:  # defensiv: o eroare neprevăzută nu trebuie să rămână tăcută
             self._append_log("error", text=f"Eroare neprevăzută: {e}")
         finally:
+            self._close_turn()
             self._save()
             try:
                 project_hooks.after_run(self)
             except Exception as e:  # memoria proiectului nu trebuie să strice chat-ul
                 self._append_log("error", text=f"Memoria proiectului: {e}")
             notify_task_ready(self.title, settings_store.load())
+
+    def _close_turn(self) -> None:
+        """Fixează limitele turei curente ([history_start, history_end)) pe
+        entry-ul terminal (final/error/cancelled) din jurnal, dacă tura n-a
+        fost invalidată de o compactare în timpul rulării (vezi
+        _on_history_compacted). Permite delete_turn să șteargă exact mesajele
+        acelei ture din agent.history, nimic mai mult/puțin."""
+        turn_id = self._current_turn_id
+        self._current_turn_id = None
+        if turn_id is None or self._turn_invalidated_by_compaction:
+            return
+        history_end = len(self.agent.history)
+        for entry in reversed(self.log):
+            if entry.get("turn_id") == turn_id and entry.get("type") in ("final", "error", "cancelled"):
+                entry["history_start"] = self._turn_history_start
+                entry["history_end"] = history_end
+                return
 
     def rename(self, title: str) -> None:
         self.title = title[:TITLE_MAX_CHARS]
@@ -136,6 +180,37 @@ class ChatSession:
         self.agent.request_cancel()
         if self._pending_approval is not None and not self._pending_approval.done():
             self._pending_approval.set_result(False)
+        return True
+
+    # --- ștergerea unei ture (mesaj user + tool calls + răspuns final) -----
+
+    def delete_turn(self, turn_id: str) -> bool:
+        """Șterge o tură întreagă — din jurnalul UI ȚI din agent.history —
+        identificată prin turn_id (vezi _append_log/_close_turn). Nu se poate
+        șterge doar bula de răspuns: modelul ar rămâne cu mesajul user care a
+        provocat-o (adică exact informația greșită pe care utilizatorul vrea
+        eliminată) sau cu un `tool_calls` fără rezultatele lui, pe care
+        DeepSeek îl respinge. Întoarce False dacă tura nu mai poate fi
+        ștears (deja compactată într-un rezumat, sau încă în curs)."""
+        if self.is_running:
+            raise RuntimeError("Nu se poate șterge cât timp o rulare este activă.")
+        terminal = next(
+            (e for e in self.log if e.get("turn_id") == turn_id and "history_start" in e),
+            None,
+        )
+        if terminal is None:
+            return False
+        start, end = terminal["history_start"], terminal["history_end"]
+        removed = end - start
+        del self.agent.history[start:end]
+        self.log = [e for e in self.log if e.get("turn_id") != turn_id]
+        for entry in self.log:
+            if entry.get("history_start") is not None and entry["history_start"] >= end:
+                entry["history_start"] -= removed
+                entry["history_end"] -= removed
+        self.updated_at = time.time()
+        self._save()
+        self._broadcast({"type": "turn_deleted", "ts": self.updated_at, "turn_id": turn_id})
         return True
 
     # --- aprobare -----------------------------------------------------------
@@ -168,6 +243,8 @@ class ChatSession:
 
     def _append_log(self, event_type: str, **data: Any) -> None:
         entry = {"type": event_type, "ts": time.time(), **data}
+        if self._current_turn_id is not None:
+            entry["turn_id"] = self._current_turn_id
         self.log.append(entry)
         self.updated_at = entry["ts"]
         if event_type == "user" and self.title == "Conversație nouă" and str(data.get("text", "")).strip():

@@ -117,9 +117,36 @@ function copyMessageText(text, btn) {
   }
 }
 
-function appendMessage(cls, text, images) {
+const DELETE_ICON =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>';
+
+async function deleteTurn(turnId) {
+  if (!turnId) return;
+  if (!confirm("Ștergi acest schimb? Mesajul tău și acest răspuns vor fi eliminate și din contextul conversației.")) {
+    return;
+  }
+  try {
+    const res = await fetch(`/api/chats/${currentChatId}/turns/${turnId}`, { method: "DELETE" });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      alert(body.detail || "Nu s-a putut șterge (poate a fost deja rezumat în context).");
+      return;
+    }
+  } catch {
+    alert("Nu s-a putut contacta serverul.");
+    return;
+  }
+  removeTurnFromDom(turnId);
+}
+
+function removeTurnFromDom(turnId) {
+  messagesEl.querySelectorAll(`[data-turn-id="${turnId}"]`).forEach((el) => el.remove());
+}
+
+function appendMessage(cls, text, images, turnId) {
   const div = document.createElement("div");
   div.className = `message ${cls}`;
+  if (turnId) div.dataset.turnId = turnId;
   const imageMatch = text.match(IMAGE_PATH_RE);
   if (imageMatch) {
     div.appendChild(document.createTextNode(text.slice(0, imageMatch.index)));
@@ -144,6 +171,16 @@ function appendMessage(cls, text, images) {
     copyBtn.innerHTML = COPY_ICON;
     copyBtn.addEventListener("click", () => copyMessageText(text, copyBtn));
     div.appendChild(copyBtn);
+
+    if (turnId) {
+      const deleteBtn = document.createElement("button");
+      deleteBtn.type = "button";
+      deleteBtn.className = "message-delete-btn";
+      deleteBtn.title = "Șterge schimbul (și din context)";
+      deleteBtn.innerHTML = DELETE_ICON;
+      deleteBtn.addEventListener("click", () => deleteTurn(turnId));
+      div.appendChild(deleteBtn);
+    }
   }
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -153,20 +190,24 @@ function appendMessage(cls, text, images) {
 function renderLogEntry(entry) {
   switch (entry.type) {
     case "user":
-      appendMessage("message-user", entry.text, entry.images);
+      appendMessage("message-user", entry.text, entry.images, entry.turn_id);
       break;
     case "tool_call":
-      if (settings.verbose) appendMessage("message-tool-call", `→ ${entry.name}(${entry.arguments})`);
+      if (settings.verbose)
+        appendMessage("message-tool-call", `→ ${entry.name}(${entry.arguments})`, null, entry.turn_id);
       break;
     case "tool_result":
       // conținut produs efectiv (ex. imagine generată) rămâne vizibil chiar la
       // verbose=off — doar raționamentul (apeluri/rezultate text) se ascunde
       if (settings.verbose || IMAGE_PATH_RE.test(entry.message)) {
-        appendMessage("message-tool-result", `${entry.name}: ${entry.message}`);
+        appendMessage("message-tool-result", `${entry.name}: ${entry.message}`, null, entry.turn_id);
       }
       break;
+    case "turn_deleted":
+      removeTurnFromDom(entry.turn_id);
+      break;
     case "final":
-      appendMessage("message-agent-response", entry.text);
+      appendMessage("message-agent-response", entry.text, null, entry.turn_id);
       setRunning(false);
       notifyIfHidden();
       break;

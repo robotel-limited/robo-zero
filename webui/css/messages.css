@@ -235,6 +235,34 @@ body {
   color: #8ee08e;
 }
 
+.message-delete-btn {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #cfcfcf;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.message:hover .message-delete-btn {
+  opacity: 1;
+}
+
+.message-delete-btn:hover {
+  background: rgba(150, 30, 30, 0.6);
+  color: #ffd0d0;
+}
+
 .message-user {
   align-self: flex-end;
   background: var(--color-accent);
@@ -264,6 +292,7 @@ body {
   align-self: flex-start;
   min-width: 255px;
   padding-right: 32px;
+  padding-left: 32px;
   background-color: #1f3c1e;
   color: #e0e0e0;
 }

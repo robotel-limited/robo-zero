@@ -257,6 +257,21 @@ async def post_message(chat_id: str, body: dict):
     return {"status": "started"}
 
 
+@app.delete("/api/chats/{chat_id}/turns/{turn_id}")
+async def delete_turn(chat_id: str, turn_id: str):
+    session = _get_chat_or_404(chat_id)
+    try:
+        deleted = session.delete_turn(turn_id)
+    except RuntimeError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    if not deleted:
+        raise HTTPException(
+            status_code=409,
+            detail="Schimbul nu mai poate fi șters — probabil a fost deja rezumat în context.",
+        )
+    return {"status": "ok"}
+
+
 @app.post("/api/chats/{chat_id}/approve")
 async def post_approve(chat_id: str, body: dict):
     session = _get_chat_or_404(chat_id)

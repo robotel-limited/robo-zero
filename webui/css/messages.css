@@ -1,10 +1,14 @@
 :root {
-  --color-bg: #11161c;
-  --color-panel: #1a242f;
-  --color-border: #2a3340;
-  --color-text: #e0e0e0;
-  --color-muted: #8a97a6;
-  --color-accent: #356ca3;
+  --color-bg: #0b0b0d;
+  --color-panel: #16151a;
+  --color-panel-2: #1d1c22;
+  --color-border: #7a6631;
+  --color-text: #f1e9d8;
+  --color-muted: #7a6631;
+  --color-accent: #c9a24b;
+  --color-accent-bright: #e6c470;
+  --font-head: 'Cinzel', Georgia, serif;
+  --font-body: 'Josefin Sans', system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 * {
@@ -13,9 +17,21 @@
 
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-body);
   background: var(--color-bg);
   color: var(--color-text);
+}
+
+.zigzag {
+  height: 10px;
+  flex-shrink: 0;
+  background:
+    repeating-linear-gradient(135deg, var(--color-accent) 0 7px, transparent 7px 14px),
+    repeating-linear-gradient(45deg, var(--color-accent) 0 7px, transparent 7px 14px);
+  background-position: left top, left bottom;
+  background-size: 100% 5px;
+  background-repeat: repeat-x;
+  opacity: .8;
 }
 
 #app {
@@ -31,9 +47,9 @@ body {
   width: 32px;
   height: 32px;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: 0;
   background: var(--color-panel);
-  color: var(--color-text);
+  color: var(--color-accent);
   cursor: pointer;
   font-size: 1em;
   line-height: 1;
@@ -80,9 +96,11 @@ body {
 
 .chat-list-item {
   padding: 8px 10px;
-  border-radius: 6px;
+  border-radius: 0;
+  border-left: 2px solid transparent;
   cursor: pointer;
   font-size: 0.9em;
+  letter-spacing: .02em;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -119,8 +137,9 @@ body {
 
 .chat-list-item:hover,
 .chat-list-item.active {
-  background: var(--color-accent);
-  color: #fff;
+  background: var(--color-panel-2);
+  border-left-color: var(--color-accent);
+  color: var(--color-accent-bright);
 }
 
 #new-chat-btn,
@@ -128,18 +147,28 @@ body {
 #cancel-btn,
 .approval-actions button {
   padding: 8px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: 1px solid var(--color-accent);
+  border-radius: 0;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-bg);
   cursor: pointer;
-  font-size: 0.9em;
+  font-family: var(--font-head);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  font-size: 0.8em;
+}
+
+#new-chat-btn:hover,
+#send-btn:hover,
+.approval-actions button:hover {
+  background: var(--color-accent-bright);
 }
 
 #token-count {
   padding: 6px 12px;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: 0;
   color: var(--color-muted);
   font-size: 0.85em;
   text-align: center;
@@ -187,10 +216,14 @@ body {
 
 #cancel-btn {
   background: #8a3030;
+  border-color: #8a3030;
+  color: var(--color-text);
 }
 
 #approve-no {
   background: #8a3030;
+  border-color: #8a3030;
+  color: var(--color-text);
 }
 
 #main {
@@ -213,7 +246,7 @@ body {
   position: relative;
   max-width: 75%;
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 0;
   white-space: pre-wrap;
   word-break: break-word;
   font-size: 0.95em;
@@ -282,7 +315,8 @@ body {
 .message-user {
   align-self: flex-end;
   background: var(--color-accent);
-  color: #fff;
+  border: 1px solid var(--color-accent-bright);
+  color: var(--color-bg);
 }
 
 .message-tool-call,
@@ -290,7 +324,7 @@ body {
   align-self: flex-start;
   background: var(--color-panel);
   border: 1px solid var(--color-border);
-  color: var(--color-muted);
+  color: var(--color-text);
   font-family: ui-monospace, monospace;
   font-size: 0.85em;
 }
@@ -318,8 +352,8 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
-  background: #3a3010;
-  border-top: 1px solid var(--color-border);
+  background: var(--color-panel-2);
+  border-top: 1px solid var(--color-accent);
   gap: 12px;
 }
 
@@ -333,13 +367,20 @@ body {
   display: block;
   padding: 8px 12px;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: 0;
   background: var(--color-panel);
   color: var(--color-text);
   cursor: pointer;
   font-size: 0.9em;
+  letter-spacing: .03em;
   text-align: left;
   text-decoration: none;
+}
+
+#settings-btn:hover,
+#projects-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent-bright);
 }
 
 .chat-group {
@@ -353,7 +394,7 @@ body {
   padding: 6px 10px;
   margin: 2px 0;
   border: none;
-  border-radius: 6px;
+  border-radius: 0;
   background: none;
   font-size: 0.75em;
   text-transform: uppercase;
@@ -384,7 +425,7 @@ body {
   background: var(--color-bg);
   color: var(--color-muted);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 0;
   font-size: 0.75em;
   padding: 2px;
 }
@@ -410,6 +451,10 @@ body {
 }
 
 #settings-header h1 {
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--color-accent-bright);
   font-size: 1.3em;
   margin: 0;
 }
@@ -426,7 +471,7 @@ body {
   gap: 14px;
   padding: 14px 16px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--color-panel);
 }
 
@@ -449,13 +494,17 @@ body {
 
 #usage-section {
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--color-panel);
   padding: 14px 16px;
 }
 
 #usage-section h2 {
-  font-size: 0.95em;
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--color-accent);
+  font-size: 0.9em;
   font-weight: 600;
   margin: 0 0 12px;
 }
@@ -550,12 +599,17 @@ body {
   flex: 1;
   resize: none;
   padding: 10px;
-  border-radius: 6px;
+  border-radius: 0;
   border: 1px solid var(--color-border);
-  background: var(--color-panel);
+  background: var(--color-panel-2);
   color: var(--color-text);
   font-family: inherit;
   font-size: 0.95em;
+}
+
+#compose-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
 }
 
 .message-image {
@@ -588,18 +642,30 @@ body {
 
 #projects-header h1 {
   flex: 1;
+  font-family: var(--font-head);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--color-accent-bright);
   font-size: 1.3em;
   margin: 0;
 }
 
 #new-project-btn {
   padding: 8px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: 1px solid var(--color-accent);
+  border-radius: 0;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-bg);
   cursor: pointer;
-  font-size: 0.9em;
+  font-family: var(--font-head);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  font-size: 0.8em;
+}
+
+#new-project-btn:hover {
+  background: var(--color-accent-bright);
 }
 
 .project-empty {
@@ -609,7 +675,7 @@ body {
 
 .project-card {
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--color-panel);
   margin-bottom: 6px;
   overflow: hidden;
@@ -671,12 +737,20 @@ body {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-bg);
+  border-radius: 0;
+  background: var(--color-panel-2);
   color: var(--color-text);
   font-family: inherit;
   font-size: 0.95em;
   resize: vertical;
+}
+
+.project-title-input:focus,
+.project-desc-input:focus,
+.project-prompt-input:focus,
+.project-model-select:focus {
+  outline: none;
+  border-color: var(--color-accent);
 }
 
 .project-title-input {
@@ -702,15 +776,18 @@ body {
 
 .project-card-actions button {
   padding: 6px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: 1px solid var(--color-accent);
+  border-radius: 0;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-bg);
   cursor: pointer;
+  letter-spacing: .03em;
   font-size: 0.85em;
 }
 
 .project-card-actions button.danger {
   background: #8a3030;
+  border-color: #8a3030;
+  color: var(--color-text);
   margin-left: auto;
 }

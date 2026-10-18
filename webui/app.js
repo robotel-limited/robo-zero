@@ -207,6 +207,7 @@ function renderLogEntry(entry) {
     case "tool_call":
       if (settings.verbose)
         appendMessage("message-tool-call", `→ ${entry.name}(${entry.arguments})`, null, entry.turn_id);
+      if (document.getElementById("typing-indicator")) showTypingIndicator();
       break;
     case "tool_result":
       // conținut produs efectiv (ex. imagine generată) rămâne vizibil chiar la
@@ -214,6 +215,7 @@ function renderLogEntry(entry) {
       if (settings.verbose || IMAGE_PATH_RE.test(entry.message)) {
         appendMessage("message-tool-result", `${entry.name}: ${entry.message}`, null, entry.turn_id);
       }
+      if (document.getElementById("typing-indicator")) showTypingIndicator();
       break;
     case "turn_deleted":
       removeTurnFromDom(entry.turn_id);
@@ -274,6 +276,24 @@ function setRunning(running) {
   cancelBtn.classList.toggle("hidden", !running);
   sendBtn.disabled = running;
   if (!running) hideApproval();
+  if (running) showTypingIndicator();
+  else hideTypingIndicator();
+}
+
+function showTypingIndicator() {
+  let div = document.getElementById("typing-indicator");
+  if (!div) {
+    div = document.createElement("div");
+    div.id = "typing-indicator";
+    div.className = "message message-typing";
+    div.innerHTML = "<span></span><span></span><span></span>";
+  }
+  messagesEl.appendChild(div); // appendChild pe un nod deja atașat îl mută la final
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  document.getElementById("typing-indicator")?.remove();
 }
 
 async function api(path, options) {

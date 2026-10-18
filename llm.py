@@ -56,12 +56,15 @@ def _api_key() -> str:
 async def chat(
     messages: list[dict[str, Any]],
     tools: list[dict[str, Any]] | None = None,
+    response_format: dict[str, Any] | None = None,
 ) -> LlmResponse:
     """Trimite istoricul + schema tool-urilor la DeepSeek, cu retry/backoff
     pe 429/5xx. Ridică LlmError după epuizarea reîncercărilor."""
     payload: dict[str, Any] = {"model": MODEL, "messages": messages}
     if tools:
         payload["tools"] = tools
+    if response_format:
+        payload["response_format"] = response_format
 
     headers = {
         "Authorization": f"Bearer {_api_key()}",

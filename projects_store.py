@@ -50,11 +50,6 @@ def get(project_id: str) -> dict[str, Any] | None:
     return dict(row) if row else None
 
 
-def get_prompt(project_id: str) -> str | None:
-    project = get(project_id)
-    return project["prompt"] if project else None
-
-
 def create(title: str, description: str = "", prompt: str = "") -> dict[str, Any]:
     title = title.strip()
     if not title:

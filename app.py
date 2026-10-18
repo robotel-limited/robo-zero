@@ -20,9 +20,11 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 import chat_store
 import history
+import project_hooks
 import projects_store
 import settings_store
 from chat_session import ChatSession
+from project_memory_routes import router as project_memory_router
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 _WEBUI_DIR = _PROJECT_ROOT / "webui"
@@ -63,6 +65,7 @@ async def _lifespan(_: FastAPI):
 
 app = FastAPI(title="agent-zero-light", lifespan=_lifespan)
 app.add_middleware(OriginCheckMiddleware)
+app.include_router(project_memory_router)
 app.mount("/static", StaticFiles(directory=_WEBUI_DIR), name="static")
 # fișiere produse de agent în workdir (ex. imagini generate) — servite direct în chat.
 _WORKDIR.mkdir(parents=True, exist_ok=True)
@@ -156,6 +159,7 @@ async def delete_project(project_id: str):
         )
     for session in linked:
         chat_store.delete(session.id)
+    project_hooks.on_project_deleted(project_id)
     projects_store.delete(project_id)
     return {"status": "ok"}
 

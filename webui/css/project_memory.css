@@ -1,0 +1,59 @@
+/* fișa proiectului (pagina /projects) */
+.memory-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-bg);
+}
+
+.memory-category {
+  font-weight: 600;
+  font-size: 0.85em;
+  margin-top: 4px;
+}
+
+.memory-facts {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.9em;
+}
+
+.memory-facts li {
+  margin: 2px 0;
+}
+
+.memory-superseded li {
+  text-decoration: line-through;
+  color: var(--color-muted);
+}
+
+.memory-meta {
+  color: var(--color-muted);
+  font-size: 0.85em;
+}
+
+.memory-collapsible summary {
+  cursor: pointer;
+  color: var(--color-muted);
+  font-size: 0.85em;
+  margin-top: 4px;
+}
+
+.memory-summary {
+  font-size: 0.85em;
+  margin: 6px 0 0 12px;
+}
+
+/* linii de eveniment în chat: fișă actualizată / context primit */
+.message-memory {
+  align-self: center;
+  max-width: 90%;
+  background: transparent;
+  border: 1px dashed var(--color-border);
+  color: var(--color-muted);
+  font-size: 0.8em;
+  white-space: pre-wrap;
+}

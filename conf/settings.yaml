@@ -56,3 +56,8 @@ history:
   context_tokens: 128000   # fereastră de context deepseek-flash (estimativ)
   trigger_fraction: 0.7
   keep_last_messages: 20
+
+project_memory:
+  chunk_tokens: 20000         # conținut nou mai mare se procesează pe bucăți
+  context_budget_tokens: 6000 # buget pentru rezumatele celorlalte chat-uri în system prompt
+  tool_result_max_chars: 2000 # cât dintr-un rezultat de tool intră în extragere

@@ -62,6 +62,7 @@ function renderProject(project) {
 
   actions.append(newChatBtn, saveBtn, deleteBtn);
   card.append(titleInput, descInput, promptLabel, promptInput, actions);
+  loadMemoryInto(card, project.id);
   return card;
 }
 

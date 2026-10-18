@@ -10,7 +10,8 @@ from pathlib import Path
 from typing import Any
 
 import history
-import projects_store
+import project_context
+import project_hooks
 import settings_store
 from agent import Agent, AgentCancelled, AgentError
 from notifications import notify_task_ready
@@ -31,17 +32,45 @@ class ChatSession:
         self.updated_at = self.created_at
         self.project_id = project_id
         self.log: list[dict[str, Any]] = []  # jurnal pentru UI, persistat
+        # momentul în care acest chat a primit ultima oară fișa proiectului
+        # (0 = niciodată) — baza diferențelor trimise la turele următoare
+        self.facts_seen_at = 0.0
         self.agent = Agent(
             confirm=self._confirm,
             on_event=self._on_agent_event,
-            project_prompt=self._project_prompt(),
+            project_id=project_id,
         )
+        self.agent.on_compacted = self._refresh_project_context
         self._subscribers: list[asyncio.Queue] = []
         self._running_task: asyncio.Task | None = None
         self._pending_approval: asyncio.Future | None = None
 
-    def _project_prompt(self) -> str | None:
-        return projects_store.get_prompt(self.project_id) if self.project_id else None
+    # --- memoria proiectului în context ------------------------------------------
+
+    def _refresh_project_context(self) -> None:
+        """(Re)construiește blocul de proiect din system prompt; dacă system
+        prompt-ul există deja (chat mutat între proiecte, istoric compactat),
+        îl înlocuiește pe loc."""
+        self.facts_seen_at = time.time()
+        self.agent.project_prompt = (
+            project_context.build_initial(self.project_id, self.id) if self.project_id else None
+        )
+        if self.agent.history and self.agent.history[0].get("role") == "system":
+            self.agent.history[0] = {"role": "system", "content": self.agent._system_prompt()}
+
+    def _prepare_message(self, user_message: str) -> str:
+        if not self.project_id:
+            return user_message
+        if not self.agent.history or self.facts_seen_at == 0:
+            self._refresh_project_context()
+            return user_message
+        since = self.facts_seen_at
+        self.facts_seen_at = time.time()
+        lines = project_context.diff_since(self.project_id, since, self.id)
+        if not lines:
+            return user_message
+        self._append_log("project_context_refreshed", lines=lines)
+        return project_context.diff_prefix(lines) + user_message
 
     # --- stare rulare -----------------------------------------------------
 
@@ -55,7 +84,7 @@ class ChatSession:
             raise RuntimeError("Există deja o rulare activă pentru acest chat.")
         self.agent.cancelled = False
         self._append_log("user", text=user_message)
-        self._running_task = asyncio.create_task(self._run(user_message))
+        self._running_task = asyncio.create_task(self._run(self._prepare_message(user_message)))
 
     async def _run(self, user_message: str) -> None:
         try:
@@ -69,6 +98,10 @@ class ChatSession:
             self._append_log("error", text=f"Eroare neprevăzută: {e}")
         finally:
             self._save()
+            try:
+                project_hooks.after_run(self)
+            except Exception as e:  # memoria proiectului nu trebuie să strice chat-ul
+                self._append_log("error", text=f"Memoria proiectului: {e}")
             notify_task_ready(self.title, settings_store.load())
 
     def rename(self, title: str) -> None:
@@ -78,12 +111,16 @@ class ChatSession:
 
     def set_project(self, project_id: str | None) -> None:
         """Atribuie/dezatribuie chat-ul unui proiect (din pagina de chat sau
-        din pagina Proiecte). Promptul proiectului e aplicat doar dacă system
-        prompt-ul nu a fost încă generat (prima rulare) — vezi Agent._system_prompt."""
+        din pagina Proiecte). Contextul de proiect din system prompt se
+        înlocuiește imediat, inclusiv într-un chat cu istoric."""
+        old_project_id = self.project_id
         self.project_id = project_id
-        self.agent.project_prompt = self._project_prompt()
+        self.agent.project_id = project_id
+        self.agent.tools = self.agent._build_tools()
+        self._refresh_project_context()
         self.updated_at = time.time()
         self._save()
+        project_hooks.on_project_changed(self, old_project_id)
 
     def request_cancel(self) -> bool:
         if not self.is_running:
@@ -156,6 +193,7 @@ class ChatSession:
             "id": self.id,
             "title": self.title,
             "project_id": self.project_id,
+            "facts_seen_at": self.facts_seen_at,
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "log": self.log,
@@ -171,5 +209,6 @@ class ChatSession:
         session.created_at = data.get("created_at", time.time())
         session.updated_at = data.get("updated_at", session.created_at)
         session.log = data.get("log", [])
+        session.facts_seen_at = data.get("facts_seen_at", 0.0)
         session.agent.history = history.sanitize(data.get("agent_history", []))
         return session

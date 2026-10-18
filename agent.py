@@ -19,6 +19,7 @@ from tools.call_subordinate import CallSubordinate
 from tools.fs_tool import FsList, FsRead, FsWrite
 from tools.image_generate import ImageGenerate
 from tools.memory_tool import MemoryRecall, MemoryRemember
+from tools.project_search import ProjectSearch
 from tools.response import FinalResponse
 from tools.robo_rag_tool import RoboRagQuery
 from tools.shell_tool import ShellExecute
@@ -57,15 +58,18 @@ class Agent:
         depth: int = 0,
         on_event: EventCallback | None = None,
         browser_box: BrowserBox | None = None,
-        project_prompt: str | None = None,
+        project_id: str | None = None,
     ) -> None:
         self.workdir = workdir or _AGENT_CFG["workdir"]
         self.shell_timeout_seconds = _SHELL_CFG["timeout_seconds"]
         self.confirm = confirm
-        # prompt-ul proiectului căruia îi e legat chat-ul (dacă e legat) — citit
-        # live de _system_prompt() la prima rulare; chat_session.py îl actualizează
-        # și după construcție, dacă proiectul se schimbă înainte de primul mesaj.
-        self.project_prompt = project_prompt
+        # blocul de proiect (prompt + fișă + rezumate) — setat de chat_session.py
+        # (project_context.build_initial) și citit de _system_prompt()
+        self.project_prompt: str | None = None
+        self.project_id = project_id
+        # apelat după compactarea istoricului — chat_session.py regenerează acolo
+        # contextul de proiect din history[0] (fișa curentă, nu cea de la început)
+        self.on_compacted: Callable[[], None] | None = None
         self.depth = depth  # adâncime delegare sub-agenți (folosit de call_subordinate, etapa 3)
         self.on_event = on_event
         # sesiune de browser partajată cu sub-agenții aceleiași rulări (etapa 5) —
@@ -122,13 +126,18 @@ class Agent:
             ShellExecute(self),
             CallSubordinate(self),
             MemoryRecall(self),
-            MemoryRemember(self),
             ImageGenerate(self),
             WebRead(self),
             BrowserTool(self),
             RoboRagQuery(self),
             FinalResponse(self),
         ]
+        if self.project_id:
+            # memoria proiectului e locală și izolată; memory_remember ar scrie
+            # în vault-ul dimag federat (partajat între mașini și agenți)
+            instances.append(ProjectSearch(self))
+        else:
+            instances.append(MemoryRemember(self))
         return {t.name: t for t in instances}
 
     def _system_prompt(self) -> str:
@@ -168,6 +177,8 @@ class Agent:
             compacted = await history.compact_if_needed(self.history)
             if compacted is not self.history:
                 self.history = compacted
+                if self.on_compacted is not None:
+                    self.on_compacted()
                 self._emit("history_compacted", kept_messages=len(self.history))
 
             response = await llm.chat(self.history, tools=tool_schemas)

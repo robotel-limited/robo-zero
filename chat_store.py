@@ -3,6 +3,7 @@ disc la pornirea serviciului (vezi plan, secțiunea „Funcții preluate din
 cele 22 de hook-uri": salvare chat-uri, reîncărcate la pornire).
 """
 
+import project_hooks
 from chat_session import CHATS_DIR, ChatSession
 
 _sessions: dict[str, ChatSession] = {}
@@ -17,6 +18,9 @@ def load_all() -> None:
         except Exception:
             continue
         _sessions[session.id] = session
+        # arhivă la zi + mesajele rămase neprocesate (ex. serviciu repornit în
+        # timpul unei extrageri) — altfel ar aștepta următorul mesaj din chat
+        project_hooks.after_run(session)
 
 
 def create(project_id: str | None = None) -> ChatSession:
@@ -34,6 +38,7 @@ def delete(chat_id: str) -> bool:
     if session is None:
         return False
     session._path().unlink(missing_ok=True)
+    project_hooks.on_chat_deleted(chat_id)
     return True
 
 

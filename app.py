@@ -31,6 +31,7 @@ from project_folder_routes import router as project_folder_router
 from project_memory_routes import router as project_memory_router
 from project_rules_routes import router as project_rules_router
 from upload_routes import router as upload_router
+from usage_routes import router as usage_router
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 _WEBUI_DIR = _PROJECT_ROOT / "webui"
@@ -77,6 +78,7 @@ app.include_router(project_memory_router)
 app.include_router(project_folder_router)
 app.include_router(project_rules_router)
 app.include_router(upload_router)
+app.include_router(usage_router)
 app.mount("/static", StaticFiles(directory=_WEBUI_DIR), name="static")
 # fișiere produse de agent în workdir (ex. imagini generate) — servite direct în chat.
 _WORKDIR.mkdir(parents=True, exist_ok=True)

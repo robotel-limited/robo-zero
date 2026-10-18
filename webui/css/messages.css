@@ -111,6 +111,12 @@ body {
   opacity: 1;
 }
 
+.chat-list-cost {
+  flex-shrink: 0;
+  font-size: 0.8em;
+  color: var(--color-muted);
+}
+
 .chat-list-item:hover,
 .chat-list-item.active {
   background: var(--color-accent);
@@ -137,6 +143,30 @@ body {
   color: var(--color-muted);
   font-size: 0.85em;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.rate-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.rate-dot--offpeak {
+  background: #3fae4f;
+}
+
+.rate-dot--peak {
+  background: #c0392b;
+}
+
+.cost-estimate {
+  color: var(--color-muted);
+  font-size: 0.85em;
 }
 
 #cancel-btn {

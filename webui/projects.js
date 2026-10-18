@@ -104,7 +104,27 @@ function renderProject(project) {
   loadFoldersInto(card, project.id);
   loadMemoryInto(card, project.id);
   loadRulesInto(card, project.id);
+  loadCostInto(card, project.id);
   return card;
+}
+
+function formatCost(usd) {
+  if (!usd) return "$0";
+  if (usd < 0.0001) return "<$0.0001";
+  return "$" + usd.toFixed(4);
+}
+
+async function loadCostInto(card, projectId) {
+  const el = document.createElement("div");
+  el.className = "cost-estimate";
+  el.title = "Estimat din consumul de tokeni (cache hit/miss + output, tarif DeepSeek la ora fiecărui apel); ignoră excepția sărbătorilor chinezești din orele de vârf.";
+  try {
+    const totals = await api("/api/usage/cost");
+    el.textContent = `Cost estimat: ${formatCost(totals.by_project[projectId] || 0)}`;
+  } catch (e) {
+    el.textContent = `Cost estimat: indisponibil (${e.message})`;
+  }
+  card.querySelector(".project-card-actions").before(el);
 }
 
 async function loadProjects() {

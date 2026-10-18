@@ -10,6 +10,8 @@ const approvalBar = document.getElementById("approval-bar");
 const approvalText = document.getElementById("approval-text");
 const newChatBtn = document.getElementById("new-chat-btn");
 const tokenCountEl = document.getElementById("token-count");
+const tokenCountTextEl = document.getElementById("token-count-text");
+const rateDotEl = document.getElementById("rate-dot");
 
 let currentChatId = null;
 let eventSource = null;
@@ -46,8 +48,29 @@ function formatTokenCount(count) {
 }
 
 function setTokenCount(count) {
-  tokenCountEl.textContent = `${formatTokenCount(count)} tokeni`;
+  tokenCountTextEl.textContent = `${formatTokenCount(count)} tokeni`;
 }
+
+// Peak = 01:00-04:00 și 06:00-10:00 UTC, luni-vineri (prețuri DeepSeek
+// dublate față de off-peak) — vezi cost.py pentru aceeași regulă pe server,
+// folosită la calculul costului; aici doar indicăm starea curentă.
+function isPeakNow() {
+  const now = new Date();
+  const day = now.getUTCDay();
+  if (day === 0 || day === 6) return false;
+  const hour = now.getUTCHours();
+  return (hour >= 1 && hour < 4) || (hour >= 6 && hour < 10);
+}
+
+function refreshRateDot() {
+  const peak = isPeakNow();
+  rateDotEl.classList.toggle("rate-dot--peak", peak);
+  rateDotEl.classList.toggle("rate-dot--offpeak", !peak);
+  rateDotEl.title = peak ? "no-discount (oră de vârf DeepSeek)" : "discount (tarif redus DeepSeek, ~jumătate)";
+}
+
+refreshRateDot();
+setInterval(refreshRateDot, 60_000);
 
 async function refreshTokenCount(chatId) {
   try {
@@ -167,6 +190,14 @@ async function api(path, options) {
   return resp.status === 204 ? null : resp.json();
 }
 
+function formatCost(usd) {
+  if (!usd) return "$0";
+  if (usd < 0.0001) return "<$0.0001";
+  return "$" + usd.toFixed(4);
+}
+
+let costCache = { by_chat: {}, by_project: {} };
+
 function renderChatItem(chat) {
   const item = document.createElement("div");
   item.className = "chat-list-item" + (chat.id === currentChatId ? " active" : "");
@@ -176,6 +207,12 @@ function renderChatItem(chat) {
   titleEl.textContent = chat.title;
   titleEl.addEventListener("click", () => selectChat(chat.id));
   item.appendChild(titleEl);
+
+  const costEl = document.createElement("span");
+  costEl.className = "chat-list-cost";
+  costEl.title = "Cost estimat al conversației (cache hit/miss + output, tarif DeepSeek la ora apelului)";
+  costEl.textContent = formatCost(costCache.by_chat[chat.id] || 0);
+  item.appendChild(costEl);
 
   const projectSelect = document.createElement("select");
   projectSelect.className = "chat-list-project-select";
@@ -273,8 +310,13 @@ async function setChatProject(chatId, projectId) {
 }
 
 async function loadChatList() {
-  const [chats, projects] = await Promise.all([api("/api/chats"), api("/api/projects")]);
+  const [chats, projects, costTotals] = await Promise.all([
+    api("/api/chats"),
+    api("/api/projects"),
+    api("/api/usage/cost"),
+  ]);
   projectsCache = projects;
+  costCache = costTotals;
   chatListEl.innerHTML = "";
   if (chats.length === 0) return;
 

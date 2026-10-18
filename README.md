@@ -30,6 +30,16 @@ each for most concerns — no heavy agent framework underneath.
   (`call_subordinate`), and project-scoped memory/search tools.
 - **Usage tracking** — per-model call count, tokens, latency and cost,
   filterable by date, stored in SQLite (not just a flat log).
+- **Session token counter, color-coded** — the sidebar shows the running
+  token count for the current chat against its model's context window,
+  colored by how full that window is: green under 50%, blue 50-70%,
+  amber 70-90%, red above 90%.
+- **DeepSeek rate indicator** — a small dot next to the token counter
+  shows whether DeepSeek's current off-peak discount applies: green for
+  discount (~half price), red for peak hour (no discount). Peak is
+  01:00-04:00 and 06:00-10:00 UTC, Monday-Friday; the same rule is used
+  server-side (`cost.py`) to price completed calls, and client-side
+  (`app.js`) just to display the live state.
 - **Task-ready notifications** — Telegram and/or SMS when a run finishes
   while you're not watching the tab (see below).
 

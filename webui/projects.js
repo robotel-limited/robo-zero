@@ -52,6 +52,23 @@ function renderProject(project) {
   descInput.rows = 2;
   descInput.value = project.description;
 
+  const modelLabel = document.createElement("div");
+  modelLabel.className = "project-field-label";
+  modelLabel.textContent = "Model chat (extracția KB/memorie rulează mereu pe deepseek-flash)";
+
+  const modelSelect = document.createElement("select");
+  modelSelect.className = "project-model-select";
+  for (const [value, label] of [
+    ["deepseek-flash", "deepseek-flash (implicit, ieftin)"],
+    ["deepseek-v4-pro", "deepseek-v4-pro (opțional, mai scump)"],
+  ]) {
+    const opt = document.createElement("option");
+    opt.value = value;
+    opt.textContent = label;
+    modelSelect.appendChild(opt);
+  }
+  modelSelect.value = project.model || "deepseek-flash";
+
   const promptLabel = document.createElement("div");
   promptLabel.className = "project-field-label";
   promptLabel.textContent = "Prompt injectat la fiecare chat din acest proiect";
@@ -75,6 +92,7 @@ function renderProject(project) {
       title: titleInput.value.trim(),
       description: descInput.value,
       prompt: promptInput.value,
+      model: modelSelect.value,
     })
   );
 
@@ -84,7 +102,7 @@ function renderProject(project) {
   deleteBtn.addEventListener("click", () => deleteProject(project.id, project.title));
 
   actions.append(newChatBtn, saveBtn, deleteBtn);
-  details.append(titleInput, descInput, promptLabel, promptInput, actions);
+  details.append(titleInput, descInput, modelLabel, modelSelect, promptLabel, promptInput, actions);
   card.appendChild(details);
 
   const setExpanded = (expanded) => {

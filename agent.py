@@ -14,6 +14,7 @@ import yaml
 import attachments
 import history
 import llm
+import projects_store
 import safety
 from tools.browser_tool import BrowserBox, BrowserTool
 from tools.call_subordinate import CallSubordinate
@@ -142,6 +143,16 @@ class Agent:
             instances.append(MemoryRemember(self))
         return {t.name: t for t in instances}
 
+    def _chat_model(self) -> str | None:
+        """Modelul proiectului (etapa D), citit live din projects_store la
+        fiecare tură — ca schimbarea din /projects să se aplice imediat,
+        inclusiv sub-agenților (project_id se propagă prin call_subordinate).
+        None (implicit/flash) pentru chat-urile neafiliate."""
+        if not self.project_id:
+            return None
+        project = projects_store.get(self.project_id)
+        return project["model"] if project else None
+
     def _system_prompt(self) -> str:
         template = (_PROJECT_ROOT / "prompts" / "agent.system.md").read_text(encoding="utf-8")
         base = template.format(datetime=datetime.now().isoformat(timespec="seconds"))
@@ -184,7 +195,7 @@ class Agent:
                     self.on_compacted()
                 self._emit("history_compacted", kept_messages=len(self.history))
 
-            response = await llm.chat(self.history, tools=tool_schemas)
+            response = await llm.chat(self.history, tools=tool_schemas, model=self._chat_model())
 
             if not response.tool_calls:
                 final_text = response.content or ""

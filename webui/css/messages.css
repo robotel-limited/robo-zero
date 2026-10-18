@@ -552,7 +552,8 @@ body {
 
 .project-title-input,
 .project-desc-input,
-.project-prompt-input {
+.project-prompt-input,
+.project-model-select {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid var(--color-border);

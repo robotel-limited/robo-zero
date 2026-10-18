@@ -61,12 +61,17 @@ async def chat(
     tools: list[dict[str, Any]] | None = None,
     response_format: dict[str, Any] | None = None,
     purpose: str = "chat",
+    model: str | None = None,
 ) -> LlmResponse:
     """Trimite istoricul + schema tool-urilor la DeepSeek, cu retry/backoff
     pe 429/5xx. Ridică LlmError după epuizarea reîncercărilor. `purpose`
-    etichetează consumul de tokeni în data/usage.jsonl (vezi usage_log.py)."""
+    etichetează consumul de tokeni în data/usage.jsonl (vezi usage_log.py).
+    `model` suprascrie modelul implicit (etapa D: ales per proiect) — lăsat
+    nespecificat de extracția de fundal (project_digest.py, kb_extract.py,
+    history.py), care rulează mereu pe modelul implicit (flash)."""
+    model = model or MODEL
     # imaginile atașate stau în istoric ca /files/uploads/...; modelul le primește base64
-    payload: dict[str, Any] = {"model": MODEL, "messages": attachments.inline_images(messages)}
+    payload: dict[str, Any] = {"model": model, "messages": attachments.inline_images(messages)}
     if tools:
         payload["tools"] = tools
     if response_format:
@@ -101,7 +106,7 @@ async def chat(
                     )
                 else:
                     data = resp.json()
-                    usage_log.record(MODEL, purpose, data.get("usage"))
+                    usage_log.record(model, purpose, data.get("usage"))
                     return _parse_response(data)
 
             if attempt < MAX_RETRIES:

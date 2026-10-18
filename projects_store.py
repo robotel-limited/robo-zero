@@ -13,7 +13,10 @@ _PROJECT_ROOT = Path(__file__).resolve().parent
 _DB_PATH = _PROJECT_ROOT / "data" / "projects.db"
 _DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-_ALLOWED_FIELDS = {"title", "description", "prompt"}
+_ALLOWED_FIELDS = {"title", "description", "prompt", "model"}
+# extracția (project_digest.py, kb_extract.py) rulează mereu pe flash,
+# indiferent de modelul ales aici — vezi llm.py
+_MODELS = {"deepseek-flash", "deepseek-v4-pro"}
 
 
 def _connect() -> sqlite3.Connection:
@@ -31,11 +34,17 @@ def init_db() -> None:
                 title TEXT NOT NULL UNIQUE,
                 description TEXT NOT NULL DEFAULT '',
                 prompt TEXT NOT NULL DEFAULT '',
+                model TEXT NOT NULL DEFAULT 'deepseek-flash',
                 created_at REAL NOT NULL,
                 updated_at REAL NOT NULL
             )
             """
         )
+        columns = {r["name"] for r in conn.execute("PRAGMA table_info(projects)")}
+        if "model" not in columns:  # tabel creat înainte de coloană
+            conn.execute(
+                "ALTER TABLE projects ADD COLUMN model TEXT NOT NULL DEFAULT 'deepseek-flash'"
+            )
 
 
 def list_all() -> list[dict[str, Any]]:
@@ -74,6 +83,8 @@ def update(project_id: str, **fields: Any) -> dict[str, Any] | None:
         updates["title"] = updates["title"].strip()
         if not updates["title"]:
             raise ValueError("Titlul e vid.")
+    if "model" in updates and updates["model"] not in _MODELS:
+        raise ValueError(f"Model necunoscut: {updates['model']}")
     if not updates:
         return get(project_id)
     updates["updated_at"] = time.time()

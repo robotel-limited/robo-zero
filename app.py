@@ -73,7 +73,7 @@ async def _lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="agent-zero-light", lifespan=_lifespan)
+app = FastAPI(title="robo-zero", lifespan=_lifespan)
 app.add_middleware(OriginCheckMiddleware)
 app.include_router(project_memory_router)
 app.include_router(project_folder_router)

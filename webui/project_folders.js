@@ -1,6 +1,6 @@
-/* folderele de pe disc legate de un proiect (pagina /projects): cale,
-mod ro/rw, notă, indexare în căutare, harta compactă pe care o vede
-agentul. Cât timp un folder se indexează, lista se reîncarcă singură. */
+/* on-disk folders linked to a project (the /projects page): path,
+ro/rw mode, note, search indexing, the compact map the agent sees.
+While a folder is indexing, the list reloads itself. */
 
 const FOLDER_POLL_MS = 3000;
 
@@ -18,14 +18,14 @@ function folderJson(method, body) {
 }
 
 function folderStatusLabel(folder) {
-  if (!folder.indexable) return "neindexat";
-  if (folder.index_status === "indexing") return "se indexează…";
-  if (folder.index_status === "error") return `eroare: ${folder.index_error}`;
+  if (!folder.indexable) return "not indexed";
+  if (folder.index_status === "indexing") return "indexing…";
+  if (folder.index_status === "error") return `error: ${folder.index_error}`;
   if (folder.index_status === "ready") {
     const note = folder.index_error ? ` (${folder.index_error})` : "";
-    return `${folder.indexed_files} fișiere indexate${note}`;
+    return `${folder.indexed_files} files indexed${note}`;
   }
-  return "în așteptare";
+  return "pending";
 }
 
 function folderItem(projectId, folder, onChange) {
@@ -34,7 +34,7 @@ function folderItem(projectId, folder, onChange) {
     try {
       await folderApi(base, folderJson("PATCH", fields));
     } catch (e) {
-      window.alert(`Eroare: ${e.message}`);
+      window.alert(`Error: ${e.message}`);
     }
     onChange();
   };
@@ -50,7 +50,7 @@ function folderItem(projectId, folder, onChange) {
   path.textContent = folder.path;
 
   const mode = document.createElement("select");
-  for (const m of ["ro", "rw"]) mode.add(new Option(m === "ro" ? "ro (citire)" : "rw (scriere)", m));
+  for (const m of ["ro", "rw"]) mode.add(new Option(m === "ro" ? "ro (read)" : "rw (write)", m));
   mode.value = folder.mode;
   mode.addEventListener("change", () => patch({ mode: mode.value }));
 
@@ -60,7 +60,7 @@ function folderItem(projectId, folder, onChange) {
   indexBox.type = "checkbox";
   indexBox.checked = folder.indexable;
   indexBox.addEventListener("change", () => patch({ indexable: indexBox.checked }));
-  indexLabel.append(indexBox, " indexabil");
+  indexLabel.append(indexBox, " indexable");
 
   const status = document.createElement("span");
   status.className = "kb-file-status" + (folder.index_status === "error" ? " error" : "");
@@ -71,13 +71,13 @@ function folderItem(projectId, folder, onChange) {
   if (folder.indexable) {
     const reindexBtn = document.createElement("button");
     reindexBtn.className = "kb-file-delete";
-    reindexBtn.title = "Reindexează";
+    reindexBtn.title = "Reindex";
     reindexBtn.textContent = "⟳";
     reindexBtn.addEventListener("click", async () => {
       try {
         await folderApi(`${base}/reindex`, { method: "POST" });
       } catch (e) {
-        window.alert(`Eroare: ${e.message}`);
+        window.alert(`Error: ${e.message}`);
       }
       onChange();
     });
@@ -86,10 +86,10 @@ function folderItem(projectId, folder, onChange) {
 
   const delBtn = document.createElement("button");
   delBtn.className = "kb-file-delete";
-  delBtn.title = "Dezleagă folderul (fișierele de pe disc rămân neatinse)";
+  delBtn.title = "Unlink the folder (files on disk stay untouched)";
   delBtn.textContent = "✕";
   delBtn.addEventListener("click", async () => {
-    if (!window.confirm(`Dezlegi ${folder.path} de proiect? Fișierele de pe disc rămân neatinse.`)) return;
+    if (!window.confirm(`Unlink ${folder.path} from the project? Files on disk stay untouched.`)) return;
     await fetch(base, { method: "DELETE" });
     onChange();
   });
@@ -97,17 +97,17 @@ function folderItem(projectId, folder, onChange) {
 
   const note = document.createElement("input");
   note.className = "folder-note";
-  note.placeholder = "Notă pentru agent (ce e aici, la ce folosește)";
+  note.placeholder = "Note for the agent (what's here, what it's for)";
   note.value = folder.note;
   note.addEventListener("change", () => patch({ note: note.value }));
 
   const map = document.createElement("details");
   map.className = "memory-collapsible";
   const summary = document.createElement("summary");
-  summary.textContent = "Harta văzută de agent";
+  summary.textContent = "Map seen by the agent";
   const pre = document.createElement("pre");
   pre.className = "folder-map";
-  pre.textContent = folder.map_text || "(încă negenerată — apare la primul chat din proiect)";
+  pre.textContent = folder.map_text || "(not generated yet — appears on the project's first chat)";
   map.append(summary, pre);
 
   li.append(top, note, map);
@@ -120,20 +120,20 @@ function folderAddRow(projectId, onChange) {
 
   const path = document.createElement("input");
   path.className = "folder-add-path";
-  path.placeholder = "/cale/absolută/către/folder";
+  path.placeholder = "/absolute/path/to/folder";
 
   const mode = document.createElement("select");
-  mode.add(new Option("ro (citire)", "ro"));
-  mode.add(new Option("rw (scriere)", "rw"));
+  mode.add(new Option("ro (read)", "ro"));
+  mode.add(new Option("rw (write)", "rw"));
 
   const indexLabel = document.createElement("label");
   indexLabel.className = "folder-check";
   const indexBox = document.createElement("input");
   indexBox.type = "checkbox";
-  indexLabel.append(indexBox, " indexabil");
+  indexLabel.append(indexBox, " indexable");
 
   const addBtn = document.createElement("button");
-  addBtn.textContent = "Leagă";
+  addBtn.textContent = "Link";
   addBtn.addEventListener("click", async () => {
     if (!path.value.trim()) return;
     try {
@@ -144,7 +144,7 @@ function folderAddRow(projectId, onChange) {
       path.value = "";
       indexBox.checked = false;
     } catch (e) {
-      window.alert(`Eroare: ${e.message}`);
+      window.alert(`Error: ${e.message}`);
     }
     onChange();
   });
@@ -159,13 +159,13 @@ function renderFolders(projectId, list, onChange) {
 
   const heading = document.createElement("div");
   heading.className = "project-field-label";
-  heading.textContent = "Foldere legate (acces direct pentru agent; indexabil = căutabil cu project_search)";
+  heading.textContent = "Linked folders (direct access for the agent; indexable = searchable with project_search)";
   box.append(heading, folderAddRow(projectId, onChange));
 
   if (list.length === 0) {
     const empty = document.createElement("div");
     empty.className = "kb-empty";
-    empty.textContent = "Niciun folder legat.";
+    empty.textContent = "No linked folders.";
     box.appendChild(empty);
   } else {
     const ul = document.createElement("ul");
@@ -191,7 +191,7 @@ async function loadFoldersInto(card, projectId) {
     } catch (e) {
       const err = document.createElement("div");
       err.className = "kb-empty";
-      err.textContent = `Folderele nu s-au putut încărca: ${e.message}`;
+      err.textContent = `Folders could not be loaded: ${e.message}`;
       current.replaceWith(err);
       current = err;
     }

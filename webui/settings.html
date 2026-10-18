@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>agent-zero-light — Setări</title>
+  <title>robo-zero — Settings</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,21 +13,21 @@
 <body>
   <div id="settings-page">
     <header id="settings-header">
-      <a id="settings-back-btn" href="/">← Înapoi</a>
-      <h1>Setări</h1>
+      <a id="settings-back-btn" href="/">← Back</a>
+      <h1>Settings</h1>
     </header>
     <div id="settings-body">
       <div class="settings-row">
         <div class="settings-row-text">
-          <span class="settings-row-label">Model implicit</span>
-          <span class="settings-row-desc">Folosit de chat-urile neafiliate unui proiect (proiectele își pot alege propriul model din pagina Proiecte).</span>
+          <span class="settings-row-label">Default model</span>
+          <span class="settings-row-desc">Used by chats not linked to a project (projects can pick their own model from the Projects page).</span>
         </div>
         <select id="default-model-select"></select>
       </div>
       <div class="settings-row">
         <div class="settings-row-text">
           <span class="settings-row-label">Verbose</span>
-          <span class="settings-row-desc">Afișează raționamentul agentului — apeluri și rezultate de tool, nu doar răspunsul final.</span>
+          <span class="settings-row-desc">Show the agent's reasoning — tool calls and results, not just the final answer.</span>
         </div>
         <label class="switch">
           <input type="checkbox" id="verbose-toggle" />
@@ -37,8 +37,8 @@
       </div>
       <div class="settings-row">
         <div class="settings-row-text">
-          <span class="settings-row-label">Notificare Telegram</span>
-          <span class="settings-row-desc">Trimite "Task ready - [nume conversație]" pe Telegram când rularea se termină.</span>
+          <span class="settings-row-label">Telegram notifications</span>
+          <span class="settings-row-desc">Send "Task ready - [chat name]" on Telegram when the run finishes.</span>
         </div>
         <label class="switch">
           <input type="checkbox" id="notify-telegram-toggle" />
@@ -48,8 +48,8 @@
       </div>
       <div class="settings-row">
         <div class="settings-row-text">
-          <span class="settings-row-label">Notificare SMS</span>
-          <span class="settings-row-desc">Trimite "Task ready - [nume conversație]" prin SMS când rularea se termină.</span>
+          <span class="settings-row-label">SMS notifications</span>
+          <span class="settings-row-desc">Send "Task ready - [chat name]" by SMS when the run finishes.</span>
         </div>
         <label class="switch">
           <input type="checkbox" id="notify-sms-toggle" />
@@ -58,23 +58,23 @@
         <span id="notify-sms-state" class="switch-state">OFF</span>
       </div>
       <div id="usage-section">
-        <h2>Consum per model</h2>
+        <h2>Usage per model</h2>
         <div id="usage-filters">
           <select id="usage-model-filter">
-            <option value="">Toate modelele</option>
+            <option value="">All models</option>
           </select>
-          <label>De la <input type="date" id="usage-since" /></label>
-          <label>Până la <input type="date" id="usage-until" /></label>
-          <button id="usage-filter-btn" type="button">Filtrează</button>
+          <label>From <input type="date" id="usage-since" /></label>
+          <label>To <input type="date" id="usage-until" /></label>
+          <button id="usage-filter-btn" type="button">Filter</button>
         </div>
         <table id="usage-table">
           <thead>
             <tr>
               <th>Model</th>
-              <th>Apeluri</th>
-              <th>Tokeni intrare</th>
-              <th>Tokeni ieșire</th>
-              <th>Latență medie</th>
+              <th>Calls</th>
+              <th>Input tokens</th>
+              <th>Output tokens</th>
+              <th>Avg latency</th>
               <th>Cost</th>
             </tr>
           </thead>

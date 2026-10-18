@@ -52,7 +52,7 @@ class ShellExecute(Tool):
         if not command:
             return ToolResult(message="Eroare: parametrul 'command' e obligatoriu.")
 
-        workdir = getattr(self.agent, "workdir", "/srv/agent-zero-light/workdir")
+        workdir = getattr(self.agent, "workdir", "/srv/robo-zero/workdir")
         timeout = getattr(self.agent, "shell_timeout_seconds", safety.SHELL_TIMEOUT_SECONDS)
 
         try:

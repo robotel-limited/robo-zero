@@ -8,7 +8,7 @@ import asyncio
 import logging
 from pathlib import Path
 
-logger = logging.getLogger("agent-zero-light.notifications")
+logger = logging.getLogger("robo-zero.notifications")
 
 _HERMES_SCRIPTS = Path.home() / ".hermes" / "scripts"
 _TELEGRAM_SCRIPT = _HERMES_SCRIPTS / "claude_notify_telegram.py"

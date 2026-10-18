@@ -1,9 +1,8 @@
-/* notificare "task terminat" când tab-ul nu e activ: beep scurt (Web Audio,
-   fără fișier audio) + favicon care pâlpâie (alternează cu un pătrat galben
-   solid, vizibil și la dimensiunea mică a unui tab). Nu facem nimic dacă
-   tabul e vizibil. Folosit din app.js la fiecare eveniment terminal
-   (final/error/cancelled) — pot fi mai multe task-uri într-un chat,
-   notificăm la fiecare. */
+/* "task finished" notification when the tab isn't active: short beep (Web
+   Audio, no audio file) + flashing favicon (alternates with a solid yellow
+   square, visible even at a tab's small size). Does nothing if the tab is
+   visible. Used from app.js on every terminal event (final/error/cancelled)
+   — a chat can have several tasks, we notify on each. */
 
 const ALERT_FAVICON_HREF =
   "data:image/svg+xml;base64," +
@@ -21,8 +20,8 @@ let flashTimer = null;
 let flashOn = false;
 
 function unlockAudio() {
-  // AudioContext poate porni doar după un gest al utilizatorului — "unlock"
-  // la trimiterea mesajului, mult înainte ca task-ul să se termine.
+  // AudioContext can only start after a user gesture — "unlock" it on
+  // sending a message, well before the task finishes.
   if (!audioCtx) {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (Ctx) audioCtx = new Ctx();
@@ -43,7 +42,7 @@ function playBeep() {
     gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
     osc.stop(audioCtx.currentTime + 0.3);
   } catch (e) {
-    /* audio indisponibil — ignorăm */
+    /* audio unavailable — ignore */
   }
 }
 

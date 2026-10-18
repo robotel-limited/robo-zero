@@ -1,7 +1,7 @@
-/* regulile învățate ale unui proiect (pagina /projects): propuneri extrase
-automat din corecțiile lui Sorin, care intră în contextul agentului doar
-după aprobare de aici. Respinsele rămân arhivate, pliabile, ca extragerea
-să nu le repropună. */
+/* a project's learned rules (the /projects page): proposals extracted
+automatically from Sorin's corrections, which enter the agent's context
+only after approval here. Rejected ones stay archived, collapsible, so
+extraction doesn't re-propose them. */
 
 async function rulesApi(path, options) {
   const resp = await fetch(path, options);
@@ -28,33 +28,33 @@ function pendingRuleItem(projectId, rule, onChange) {
     try {
       await rulesApi(base, rulesJson("PATCH", { text: text.value }));
     } catch (e) {
-      window.alert(`Eroare: ${e.message}`);
+      window.alert(`Error: ${e.message}`);
     }
     onChange();
   });
 
   const approveBtn = document.createElement("button");
   approveBtn.className = "kb-file-delete";
-  approveBtn.title = "Aprobă regula (intră în contextul agentului)";
+  approveBtn.title = "Approve rule (enters the agent's context)";
   approveBtn.textContent = "✓";
   approveBtn.addEventListener("click", async () => {
     try {
       await rulesApi(`${base}/approve`, { method: "POST" });
     } catch (e) {
-      window.alert(`Eroare: ${e.message}`);
+      window.alert(`Error: ${e.message}`);
     }
     onChange();
   });
 
   const rejectBtn = document.createElement("button");
   rejectBtn.className = "kb-file-delete";
-  rejectBtn.title = "Respinge regula";
+  rejectBtn.title = "Reject rule";
   rejectBtn.textContent = "✕";
   rejectBtn.addEventListener("click", async () => {
     try {
       await rulesApi(`${base}/reject`, { method: "POST" });
     } catch (e) {
-      window.alert(`Eroare: ${e.message}`);
+      window.alert(`Error: ${e.message}`);
     }
     onChange();
   });
@@ -69,7 +69,7 @@ function readonlyRuleItem(rule, struck) {
   if (struck) li.classList.add("memory-superseded");
   const meta = document.createElement("span");
   meta.className = "memory-meta";
-  meta.textContent = ` — (${rule.category || "Altele"})`;
+  meta.textContent = ` — (${rule.category || "Other"})`;
   li.appendChild(meta);
   return li;
 }
@@ -80,7 +80,7 @@ function renderRules(projectId, list, onChange) {
 
   const heading = document.createElement("div");
   heading.className = "project-field-label";
-  heading.textContent = "Reguli învățate (propuneri extrase din corecțiile tale — aprobă-le ca să intre în context)";
+  heading.textContent = "Learned rules (proposals extracted from your corrections — approve them to enter context)";
   box.appendChild(heading);
 
   const pending = list.filter((r) => r.status === "pending");
@@ -90,14 +90,14 @@ function renderRules(projectId, list, onChange) {
   if (pending.length === 0 && approved.length === 0) {
     const empty = document.createElement("div");
     empty.className = "kb-empty";
-    empty.textContent = "Nicio regulă propusă încă.";
+    empty.textContent = "No rules proposed yet.";
     box.appendChild(empty);
   }
 
   if (pending.length > 0) {
     const label = document.createElement("div");
     label.className = "memory-meta";
-    label.textContent = "În așteptare:";
+    label.textContent = "Pending:";
     const ul = document.createElement("ul");
     ul.className = "kb-file-list";
     pending.forEach((r) => ul.appendChild(pendingRuleItem(projectId, r, onChange)));
@@ -115,7 +115,7 @@ function renderRules(projectId, list, onChange) {
     const ul = document.createElement("ul");
     ul.className = "memory-facts memory-superseded";
     rejected.forEach((r) => ul.appendChild(readonlyRuleItem(r, true)));
-    box.appendChild(memoryCollapsible(`Respinse/înlocuite (${rejected.length})`, [ul]));
+    box.appendChild(memoryCollapsible(`Rejected/replaced (${rejected.length})`, [ul]));
   }
 
   return box;
@@ -133,7 +133,7 @@ async function loadRulesInto(card, projectId) {
     } catch (e) {
       const err = document.createElement("div");
       err.className = "kb-empty";
-      err.textContent = `Regulile nu s-au putut încărca: ${e.message}`;
+      err.textContent = `Rules could not be loaded: ${e.message}`;
       current.replaceWith(err);
       current = err;
     }

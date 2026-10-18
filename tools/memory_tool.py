@@ -20,7 +20,7 @@ with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
 _MEMORY_CFG = _SETTINGS["memory"]
 _GATEWAY_URL = _MEMORY_CFG["gateway_url"]
 _TIMEOUT = _MEMORY_CFG["timeout_seconds"]
-_CALLER = "agent-zero-light"
+_CALLER = "robo-zero"
 
 
 class MemoryRecall(Tool):

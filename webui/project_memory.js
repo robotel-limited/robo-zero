@@ -1,9 +1,9 @@
-/* Fișa proiectului pe cardul din /projects — read-only: faptele active pe
-categorii, cu sursă și dată, plus istoricul înlocuirilor și rezumatele
-discuțiilor (pliabile). Corecțiile se fac din chat, nu de aici. */
+/* Project fact sheet on the /projects card — read-only: active facts by
+category, with source and date, plus the replacement history and chat
+summaries (collapsible). Corrections happen from the chat, not here. */
 
 function memoryDay(ts) {
-  return new Date(ts * 1000).toLocaleDateString("sv-SE"); // YYYY-MM-DD, ora locală
+  return new Date(ts * 1000).toLocaleDateString("sv-SE"); // YYYY-MM-DD, local time
 }
 
 function memoryFactItem(fact) {
@@ -12,8 +12,8 @@ function memoryFactItem(fact) {
   const meta = document.createElement("span");
   meta.className = "memory-meta";
   const parts = [];
-  if (fact.event_date) parts.push(`eveniment: ${fact.event_date}`);
-  parts.push(`sursa: „${fact.source_chat_title || "discuție ștearsă"}”, ${memoryDay(fact.created_at)}`);
+  if (fact.event_date) parts.push(`event: ${fact.event_date}`);
+  parts.push(`source: "${fact.source_chat_title || "deleted chat"}", ${memoryDay(fact.created_at)}`);
   meta.textContent = ` — ${parts.join("; ")}`;
   li.appendChild(meta);
   return li;
@@ -34,18 +34,18 @@ function renderMemory(memory) {
 
   const heading = document.createElement("div");
   heading.className = "project-field-label";
-  heading.textContent = "Fișa proiectului (extrasă automat din discuții — corecțiile se fac din chat)";
+  heading.textContent = "Project fact sheet (extracted automatically from chats — corrections happen from the chat)";
   box.appendChild(heading);
 
   if (memory.facts.length === 0) {
     const empty = document.createElement("div");
     empty.className = "memory-meta";
-    empty.textContent = "Încă goală.";
+    empty.textContent = "Still empty.";
     box.appendChild(empty);
   }
   const byCategory = new Map();
   for (const fact of memory.facts) {
-    const cat = fact.category || "Altele";
+    const cat = fact.category || "Other";
     if (!byCategory.has(cat)) byCategory.set(cat, []);
     byCategory.get(cat).push(fact);
   }
@@ -63,7 +63,7 @@ function renderMemory(memory) {
     const ul = document.createElement("ul");
     ul.className = "memory-facts memory-superseded";
     memory.superseded.forEach((f) => ul.appendChild(memoryFactItem(f)));
-    box.appendChild(memoryCollapsible(`Istoric înlocuiri (${memory.superseded.length})`, [ul]));
+    box.appendChild(memoryCollapsible(`Replacement history (${memory.superseded.length})`, [ul]));
   }
 
   if (memory.chat_summaries.length > 0) {
@@ -77,7 +77,7 @@ function renderMemory(memory) {
       div.append(title, text);
       return div;
     });
-    box.appendChild(memoryCollapsible(`Rezumatele discuțiilor (${items.length})`, items));
+    box.appendChild(memoryCollapsible(`Chat summaries (${items.length})`, items));
   }
   return box;
 }
@@ -90,13 +90,13 @@ async function loadMemoryInto(card, projectId) {
   } catch (e) {
     const err = document.createElement("div");
     err.className = "memory-meta";
-    err.textContent = `Fișa nu s-a putut încărca: ${e.message}`;
+    err.textContent = `Fact sheet could not be loaded: ${e.message}`;
     card.querySelector(".project-card-actions").before(err);
   }
 }
 
-/* baza de cunoștințe a proiectului — upload fără multipart (body brut,
-numele în query string), vezi upload_routes.py */
+/* the project's knowledge base — upload without multipart (raw body,
+filename in query string), see upload_routes.py */
 
 function kbFormatSize(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -105,9 +105,9 @@ function kbFormatSize(bytes) {
 }
 
 function kbStatusLabel(file) {
-  if (file.status === "processing") return "se procesează…";
-  if (file.status === "error") return `eroare: ${file.error}`;
-  return `${kbFormatSize(file.size)} · ${file.chars} caractere extrase`;
+  if (file.status === "processing") return "processing…";
+  if (file.status === "error") return `error: ${file.error}`;
+  return `${kbFormatSize(file.size)} · ${file.chars} characters extracted`;
 }
 
 function kbFileItem(projectId, file, onChange) {
@@ -130,9 +130,9 @@ function kbFileItem(projectId, file, onChange) {
   const delBtn = document.createElement("button");
   delBtn.className = "kb-file-delete";
   delBtn.textContent = "🗑";
-  delBtn.title = "Șterge fișierul";
+  delBtn.title = "Delete file";
   delBtn.addEventListener("click", async () => {
-    if (!window.confirm(`Ștergi „${file.filename}” din baza de cunoștințe?`)) return;
+    if (!window.confirm(`Delete "${file.filename}" from the knowledge base?`)) return;
     await fetch(`/api/projects/${projectId}/kb/${file.id}`, { method: "DELETE" });
     onChange();
   });
@@ -148,7 +148,7 @@ async function kbUpload(projectId, file, onChange) {
   );
   if (!resp.ok) {
     const body = await resp.json().catch(() => ({}));
-    window.alert(`Eroare la încărcare: ${body.detail || resp.status}`);
+    window.alert(`Error uploading: ${body.detail || resp.status}`);
     return;
   }
   onChange();
@@ -160,7 +160,7 @@ function renderKb(projectId, files, onChange) {
 
   const heading = document.createElement("div");
   heading.className = "project-field-label";
-  heading.textContent = "Baza de cunoștințe (fișiere text, PDF, DOCX, imagini)";
+  heading.textContent = "Knowledge base (text, PDF, DOCX, image files)";
   box.appendChild(heading);
 
   const uploadRow = document.createElement("div");
@@ -178,7 +178,7 @@ function renderKb(projectId, files, onChange) {
   if (files.length === 0) {
     const empty = document.createElement("div");
     empty.className = "kb-empty";
-    empty.textContent = "Niciun fișier încă.";
+    empty.textContent = "No files yet.";
     box.appendChild(empty);
   } else {
     const ul = document.createElement("ul");
@@ -203,7 +203,7 @@ async function loadKbInto(card, projectId) {
     } catch (e) {
       const err = document.createElement("div");
       err.className = "kb-empty";
-      err.textContent = `Baza de cunoștințe nu s-a putut încărca: ${e.message}`;
+      err.textContent = `Knowledge base could not be loaded: ${e.message}`;
       current.replaceWith(err);
       current = err;
     }

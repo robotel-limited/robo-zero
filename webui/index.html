@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>agent-zero-light</title>
+  <title>robo-zero</title>
   <link rel="icon" type="image/svg+xml" href="/static/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,18 +12,18 @@
   <link rel="stylesheet" href="/static/css/project_memory.css" />
 </head>
 <body>
-  <button id="toggle-main-btn" title="Arată/ascunde panoul din dreapta">☰</button>
-  <button id="toggle-sidebar-btn" title="Arată/ascunde panoul din stânga">☰</button>
+  <button id="toggle-main-btn" title="Show/hide right panel">☰</button>
+  <button id="toggle-sidebar-btn" title="Show/hide left panel">☰</button>
   <div id="app">
     <aside id="sidebar">
       <div class="zigzag"></div>
-      <button id="new-chat-btn">+ Conversație nouă</button>
+      <button id="new-chat-btn">+ New chat</button>
       <div id="chat-list"></div>
-      <a id="projects-btn" href="/projects" title="Proiecte">📁 Proiecte</a>
-      <a id="settings-btn" href="/settings" title="Setări">⚙ Setări</a>
-      <div id="token-count" title="Tokeni estimați în conversație">
+      <a id="projects-btn" href="/projects" title="Projects">📁 Projects</a>
+      <a id="settings-btn" href="/settings" title="Settings">⚙ Settings</a>
+      <div id="token-count" title="Estimated tokens in conversation">
         <span id="rate-dot" class="rate-dot"></span>
-        <span id="token-count-text">0 tokeni</span>
+        <span id="token-count-text">0 tokens</span>
       </div>
     </aside>
     <main id="main">
@@ -31,17 +31,17 @@
       <div id="approval-bar" class="hidden">
         <div id="approval-text"></div>
         <div class="approval-actions">
-          <button id="approve-yes">Aprobă</button>
-          <button id="approve-no">Refuză</button>
+          <button id="approve-yes">Approve</button>
+          <button id="approve-no">Reject</button>
         </div>
       </div>
       <div id="compose-attachments"></div>
       <form id="compose-form">
         <input id="attach-image-input" type="file" accept="image/*" multiple style="display: none" />
-        <button id="attach-image-btn" type="button" title="Atașează o imagine">📎</button>
-        <textarea id="compose-input" placeholder="Scrie un mesaj… (poți lipi o captură de ecran)" rows="2"></textarea>
-        <button id="cancel-btn" type="button" class="hidden">Anulează</button>
-        <button id="send-btn" type="submit">Trimite</button>
+        <button id="attach-image-btn" type="button" title="Attach an image">📎</button>
+        <textarea id="compose-input" placeholder="Write a message… (you can paste a screenshot)" rows="2"></textarea>
+        <button id="cancel-btn" type="button" class="hidden">Cancel</button>
+        <button id="send-btn" type="submit">Send</button>
       </form>
     </main>
   </div>

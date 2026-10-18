@@ -1,6 +1,6 @@
-/* pagina Proiecte — titlu, descriere, prompt injectat la fiecare chat legat
-de proiect; crearea chat-urilor dintr-un proiect se face de aici (butonul
-"+ Chat nou" al fiecărui proiect), nu din sintaxă de text la redenumire. */
+/* Projects page — title, description, prompt injected into every chat linked
+to the project; creating chats from a project happens here (each project's
+"+ New chat" button), not via text syntax on rename. */
 
 const listEl = document.getElementById("project-list");
 const newBtn = document.getElementById("new-project-btn");
@@ -14,19 +14,18 @@ async function api(path, options) {
   return resp.status === 204 ? null : resp.json();
 }
 
-// id-urile proiectelor expandate — supraviețuiesc unui loadProjects() (după
-// salvare/ștergere) cât timp pagina rămâne încărcată, ca accordionul să nu
-// se închidă la fiecare salvare.
+// expanded project ids — survive a loadProjects() (after save/delete) while
+// the page stays loaded, so the accordion doesn't close on every save.
 const expandedIds = new Set();
 
-// Catalogul de modele (etapa E) — încărcat o singură dată, de la server, ca
-// lista să nu fie duplicată aici și în webui/settings.js.
+// Model catalog (stage E) — loaded once from the server, so the list isn't
+// duplicated here and in webui/settings.js.
 let MODEL_OPTIONS = [{ id: "deepseek-flash", label: "deepseek-flash" }];
 async function loadModelOptions() {
   try {
     MODEL_OPTIONS = await api("/api/models");
   } catch (e) {
-    /* indisponibil — rămâne fallback-ul minimal de mai sus */
+    /* unavailable — keep the minimal fallback above */
   }
 }
 
@@ -40,7 +39,7 @@ function renderProject(project) {
   const titleToggle = document.createElement("button");
   titleToggle.type = "button";
   titleToggle.className = "project-card-title";
-  titleToggle.textContent = project.title || "(fără titlu)";
+  titleToggle.textContent = project.title || "(untitled)";
 
   const descPreview = document.createElement("div");
   descPreview.className = "project-card-desc";
@@ -55,17 +54,17 @@ function renderProject(project) {
   const titleInput = document.createElement("input");
   titleInput.className = "project-title-input";
   titleInput.value = project.title;
-  titleInput.placeholder = "Titlu proiect";
+  titleInput.placeholder = "Project title";
 
   const descInput = document.createElement("textarea");
   descInput.className = "project-desc-input";
-  descInput.placeholder = "Descriere";
+  descInput.placeholder = "Description";
   descInput.rows = 2;
   descInput.value = project.description;
 
   const modelLabel = document.createElement("div");
   modelLabel.className = "project-field-label";
-  modelLabel.textContent = "Model chat (extracția KB/memorie rulează mereu pe deepseek-flash)";
+  modelLabel.textContent = "Chat model (KB/memory extraction always runs on deepseek-flash)";
 
   const modelSelect = document.createElement("select");
   modelSelect.className = "project-model-select";
@@ -79,7 +78,7 @@ function renderProject(project) {
 
   const promptLabel = document.createElement("div");
   promptLabel.className = "project-field-label";
-  promptLabel.textContent = "Prompt injectat la fiecare chat din acest proiect";
+  promptLabel.textContent = "Prompt injected into every chat in this project";
 
   const promptInput = document.createElement("textarea");
   promptInput.className = "project-prompt-input";
@@ -90,11 +89,11 @@ function renderProject(project) {
   actions.className = "project-card-actions";
 
   const newChatBtn = document.createElement("button");
-  newChatBtn.textContent = "+ Chat nou";
+  newChatBtn.textContent = "+ New chat";
   newChatBtn.addEventListener("click", () => createChatForProject(project.id));
 
   const saveBtn = document.createElement("button");
-  saveBtn.textContent = "Salvează";
+  saveBtn.textContent = "Save";
   saveBtn.addEventListener("click", () =>
     saveProject(project.id, {
       title: titleInput.value.trim(),
@@ -106,7 +105,7 @@ function renderProject(project) {
 
   const deleteBtn = document.createElement("button");
   deleteBtn.className = "danger";
-  deleteBtn.textContent = "Șterge proiect";
+  deleteBtn.textContent = "Delete project";
   deleteBtn.addEventListener("click", () => deleteProject(project.id, project.title));
 
   actions.append(newChatBtn, saveBtn, deleteBtn);
@@ -143,12 +142,12 @@ function formatCost(usd) {
 async function loadCostInto(card, projectId) {
   const el = document.createElement("div");
   el.className = "cost-estimate";
-  el.title = "Estimat din consumul de tokeni (cache hit/miss + output, tarif DeepSeek la ora fiecărui apel); ignoră excepția sărbătorilor chinezești din orele de vârf.";
+  el.title = "Estimated from token usage (cache hit/miss + output, DeepSeek rate at each call's time); ignores the Chinese-holiday exception to peak hours.";
   try {
     const totals = await api("/api/usage/cost");
-    el.textContent = `Cost estimat: ${formatCost(totals.by_project[projectId] || 0)}`;
+    el.textContent = `Estimated cost: ${formatCost(totals.by_project[projectId] || 0)}`;
   } catch (e) {
-    el.textContent = `Cost estimat: indisponibil (${e.message})`;
+    el.textContent = `Estimated cost: unavailable (${e.message})`;
   }
   card.querySelector(".project-card-actions").before(el);
 }
@@ -159,7 +158,7 @@ async function loadProjects() {
   if (projects.length === 0) {
     const empty = document.createElement("div");
     empty.className = "project-empty";
-    empty.textContent = "Niciun proiect încă.";
+    empty.textContent = "No projects yet.";
     listEl.appendChild(empty);
     return;
   }
@@ -168,7 +167,7 @@ async function loadProjects() {
 
 async function saveProject(id, fields) {
   if (!fields.title) {
-    window.alert("Titlul e vid.");
+    window.alert("Title is empty.");
     return;
   }
   try {
@@ -179,17 +178,17 @@ async function saveProject(id, fields) {
     });
     await loadProjects();
   } catch (e) {
-    window.alert(`Eroare la salvare: ${e.message}`);
+    window.alert(`Error saving: ${e.message}`);
   }
 }
 
 async function deleteProject(id, title) {
-  if (!window.confirm(`Ștergi proiectul "${title}" și toate chat-urile lui?`)) return;
+  if (!window.confirm(`Delete project "${title}" and all its chats?`)) return;
   try {
     await api(`/api/projects/${id}`, { method: "DELETE" });
     await loadProjects();
   } catch (e) {
-    window.alert(`Eroare la ștergere: ${e.message}`);
+    window.alert(`Error deleting: ${e.message}`);
   }
 }
 
@@ -202,12 +201,12 @@ async function createChatForProject(id) {
     });
     window.location.href = `/?chat=${chat.id}`;
   } catch (e) {
-    window.alert(`Eroare la creare chat: ${e.message}`);
+    window.alert(`Error creating chat: ${e.message}`);
   }
 }
 
 newBtn.addEventListener("click", async () => {
-  const title = window.prompt("Titlu proiect:");
+  const title = window.prompt("Project title:");
   if (!title || !title.trim()) return;
   try {
     await api("/api/projects", {
@@ -217,7 +216,7 @@ newBtn.addEventListener("click", async () => {
     });
     await loadProjects();
   } catch (e) {
-    window.alert(`Eroare la creare proiect: ${e.message}`);
+    window.alert(`Error creating project: ${e.message}`);
   }
 });
 

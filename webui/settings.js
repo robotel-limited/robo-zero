@@ -1,4 +1,4 @@
-/* pagina Setări — separată de index.html, ca să poată crește cu mai multe opțiuni. */
+/* Settings page — separate from index.html, so it can grow with more options. */
 
 async function api(path, options) {
   const resp = await fetch(path, options);
@@ -9,7 +9,7 @@ async function api(path, options) {
   return resp.status === 204 ? null : resp.json();
 }
 
-// un toggle = {toggleId, stateId, settingsKey} — citește/scrie o cheie din /api/settings.
+// a toggle = {toggleId, stateId, settingsKey} — reads/writes a key in /api/settings.
 const TOGGLES = [
   { toggleId: "verbose-toggle", stateId: "verbose-state", settingsKey: "verbose" },
   { toggleId: "notify-telegram-toggle", stateId: "notify-telegram-state", settingsKey: "notify_telegram" },
@@ -36,7 +36,7 @@ function bindToggle({ toggleId, stateId, settingsKey }) {
       });
     } catch (e) {
       setState(!on);
-      window.alert(`Eroare la salvarea setărilor: ${e.message}`);
+      window.alert(`Error saving settings: ${e.message}`);
     }
   });
 
@@ -80,10 +80,10 @@ async function loadUsageTable() {
       tbody.appendChild(tr);
     }
     if (rows.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6">Niciun consum în perioada selectată.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6">No usage in the selected period.</td></tr>';
     }
   } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="6">Eroare: ${e.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6">Error: ${e.message}</td></tr>`;
   }
 }
 
@@ -98,7 +98,7 @@ function bindModelSelect() {
         body: JSON.stringify({ default_model: value }),
       });
     } catch (e) {
-      window.alert(`Eroare la salvarea modelului implicit: ${e.message}`);
+      window.alert(`Error saving default model: ${e.message}`);
     }
   });
   return select;
@@ -119,7 +119,7 @@ function bindModelSelect() {
       usageModelFilter.appendChild(filterOpt);
     }
   } catch (e) {
-    /* indisponibil — select rămâne vid */
+    /* unavailable — select stays empty */
   }
   document.getElementById("usage-filter-btn").addEventListener("click", loadUsageTable);
   document.getElementById("usage-model-filter").addEventListener("change", loadUsageTable);
@@ -129,6 +129,6 @@ function bindModelSelect() {
     TOGGLES.forEach((t, i) => setters[i](!!settings[t.settingsKey]));
     if (settings.default_model) modelSelect.value = settings.default_model;
   } catch (e) {
-    /* indisponibil — rămâne starea implicită a elementelor din HTML */
+    /* unavailable — keep the HTML elements' default state */
   }
 })();

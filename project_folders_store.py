@@ -70,7 +70,7 @@ def _validate_path(path: str) -> str:
         raise ValueError("Rădăcina sistemului nu poate fi legată de un proiect.")
     for root in _FORBIDDEN_ROOTS:
         if os.path.commonpath([root, resolved]) == root:
-            raise ValueError("Datele interne ale a0-light nu pot fi legate de un proiect.")
+            raise ValueError("Datele interne ale robo-zero nu pot fi legate de un proiect.")
     return resolved
 
 

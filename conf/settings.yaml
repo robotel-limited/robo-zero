@@ -1,4 +1,4 @@
-# Configurație agent-zero-light — etapa 1
+# Configurație robo-zero — etapa 1
 llm:
   provider: deepseek
   model: deepseek-flash     # cel mai ieftin model curent DeepSeek (V4.1-Flash); deepseek-v4-pro rămâne opțiune
@@ -8,7 +8,7 @@ llm:
   retry_backoff_seconds: [2, 4, 8]
 
 agent:
-  workdir: /srv/agent-zero-light/workdir
+  workdir: /srv/robo-zero/workdir
   max_iterations: 50
   max_subordinate_depth: 3
   repetition_warn_count: 3

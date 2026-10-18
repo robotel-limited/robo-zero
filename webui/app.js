@@ -1,4 +1,4 @@
-/* webui pentru agent-zero-light — fără framework, fără librării vendor. */
+/* webui for robo-zero — no framework, no vendor libraries. */
 
 const messagesEl = document.getElementById("messages");
 const chatListEl = document.getElementById("chat-list");
@@ -17,7 +17,7 @@ let currentChatId = null;
 let eventSource = null;
 let settings = { verbose: true };
 let projectsCache = [];
-let pendingAttachments = []; // [{url, previewUrl}] — imagini urcate, nu încă trimise
+let pendingAttachments = []; // [{url, previewUrl}] — uploaded images, not sent yet
 
 const attachImageBtn = document.getElementById("attach-image-btn");
 const attachImageInput = document.getElementById("attach-image-input");
@@ -37,8 +37,8 @@ function setupPanelToggle(btnId, cssClass, storageKey) {
   });
 }
 
-setupPanelToggle("toggle-main-btn", "hide-main", "a0-hide-main");
-setupPanelToggle("toggle-sidebar-btn", "hide-sidebar", "a0-hide-sidebar");
+setupPanelToggle("toggle-main-btn", "hide-main", "robo-zero-hide-main");
+setupPanelToggle("toggle-sidebar-btn", "hide-sidebar", "robo-zero-hide-sidebar");
 
 function formatTokenCount(count) {
   if (count < 1000) return `${count}`;
@@ -48,7 +48,7 @@ function formatTokenCount(count) {
 }
 
 function setTokenCount(count, contextTokens) {
-  tokenCountTextEl.textContent = `${formatTokenCount(count)} tokeni`;
+  tokenCountTextEl.textContent = `${formatTokenCount(count)} tokens`;
   const fraction = contextTokens ? count / contextTokens : 0;
   let level = "low";
   if (fraction >= 0.9) level = "critical";
@@ -63,9 +63,9 @@ function setTokenCount(count, contextTokens) {
   tokenCountTextEl.classList.add(`token-count--${level}`);
 }
 
-// Peak = 01:00-04:00 și 06:00-10:00 UTC, luni-vineri (prețuri DeepSeek
-// dublate față de off-peak) — vezi cost.py pentru aceeași regulă pe server,
-// folosită la calculul costului; aici doar indicăm starea curentă.
+// Peak = 01:00-04:00 and 06:00-10:00 UTC, Mon-Fri (DeepSeek prices
+// doubled vs off-peak) — see cost.py for the same rule on the server,
+// used for cost calculation; here we only show the current state.
 function isPeakNow() {
   const now = new Date();
   const day = now.getUTCDay();
@@ -78,7 +78,7 @@ function refreshRateDot() {
   const peak = isPeakNow();
   rateDotEl.classList.toggle("rate-dot--peak", peak);
   rateDotEl.classList.toggle("rate-dot--offpeak", !peak);
-  rateDotEl.title = peak ? "no-discount (oră de vârf DeepSeek)" : "discount (tarif redus DeepSeek, ~jumătate)";
+  rateDotEl.title = peak ? "no-discount (DeepSeek peak hour)" : "discount (reduced DeepSeek rate, ~half)";
 }
 
 refreshRateDot();
@@ -89,11 +89,11 @@ async function refreshTokenCount(chatId) {
     const chat = await api(`/api/chats/${chatId}`);
     if (chatId === currentChatId) setTokenCount(chat.token_count, chat.context_tokens);
   } catch (e) {
-    /* ignorat — contorul rămâne la ultima valoare cunoscută */
+    /* ignored — counter stays at the last known value */
   }
 }
 
-// tool_result de la image_generate întoarce mesajul "Imagine generată: /files/images/<id>.jpg"
+// tool_result from image_generate returns the message "Image generated: /files/images/<id>.jpg"
 const IMAGE_PATH_RE = /\/files\/images\/[\w.-]+\.(?:jpg|jpeg|png)\b/;
 
 const COPY_ICON =
@@ -134,18 +134,18 @@ const DELETE_ICON =
 
 async function deleteTurn(turnId) {
   if (!turnId) return;
-  if (!confirm("Ștergi acest schimb? Mesajul tău și acest răspuns vor fi eliminate și din contextul conversației.")) {
+  if (!confirm("Delete this exchange? Your message and this response will also be removed from the conversation context.")) {
     return;
   }
   try {
     const res = await fetch(`/api/chats/${currentChatId}/turns/${turnId}`, { method: "DELETE" });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
-      alert(body.detail || "Nu s-a putut șterge (poate a fost deja rezumat în context).");
+      alert(body.detail || "Could not delete (it may have already been summarized into the context).");
       return;
     }
   } catch {
-    alert("Nu s-a putut contacta serverul.");
+    alert("Could not reach the server.");
     return;
   }
   removeTurnFromDom(turnId);
@@ -179,7 +179,7 @@ function appendMessage(cls, text, images, turnId) {
     const copyBtn = document.createElement("button");
     copyBtn.type = "button";
     copyBtn.className = "message-copy-btn";
-    copyBtn.title = "Copiază răspunsul";
+    copyBtn.title = "Copy response";
     copyBtn.innerHTML = COPY_ICON;
     copyBtn.addEventListener("click", () => copyMessageText(text, copyBtn));
     div.appendChild(copyBtn);
@@ -188,7 +188,7 @@ function appendMessage(cls, text, images, turnId) {
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
       deleteBtn.className = "message-delete-btn";
-      deleteBtn.title = "Șterge schimbul (și din context)";
+      deleteBtn.title = "Delete exchange (and from context)";
       deleteBtn.innerHTML = DELETE_ICON;
       deleteBtn.addEventListener("click", () => deleteTurn(turnId));
       div.appendChild(deleteBtn);
@@ -210,8 +210,8 @@ function renderLogEntry(entry) {
       if (document.getElementById("typing-indicator")) showTypingIndicator();
       break;
     case "tool_result":
-      // conținut produs efectiv (ex. imagine generată) rămâne vizibil chiar la
-      // verbose=off — doar raționamentul (apeluri/rezultate text) se ascunde
+      // actual produced content (e.g. a generated image) stays visible even with
+      // verbose=off — only the reasoning (text calls/results) is hidden
       if (settings.verbose || IMAGE_PATH_RE.test(entry.message)) {
         appendMessage("message-tool-result", `${entry.name}: ${entry.message}`, null, entry.turn_id);
       }
@@ -226,7 +226,7 @@ function renderLogEntry(entry) {
       notifyIfHidden();
       break;
     case "error":
-      appendMessage("message-error", `Eroare: ${entry.text}`);
+      appendMessage("message-error", `Error: ${entry.text}`);
       setRunning(false);
       notifyIfHidden();
       break;
@@ -244,17 +244,17 @@ function renderLogEntry(entry) {
     case "project_memory_updated":
       appendMessage(
         "message-memory",
-        "Fișa proiectului actualizată:\n" +
+        "Project fact sheet updated:\n" +
           [...entry.added.map((t) => `+ ${t}`), ...entry.replaced.map((r) => `~ ${r.old} → ${r.new}`)].join("\n")
       );
       break;
     case "project_context_refreshed":
-      appendMessage("message-memory", "Context nou primit din alte discuții ale proiectului:\n" + entry.lines.join("\n"));
+      appendMessage("message-memory", "New context received from other project chats:\n" + entry.lines.join("\n"));
       break;
     case "project_rules_proposed":
       appendMessage(
         "message-memory",
-        "Reguli noi propuse (așteaptă aprobare pe cardul proiectului din /projects):\n" +
+        "New rules proposed (awaiting approval on the project card in /projects):\n" +
           entry.added.map((t) => `+ ${t}`).join("\n")
       );
       break;
@@ -264,7 +264,7 @@ function renderLogEntry(entry) {
 }
 
 function showApproval(toolName, args) {
-  approvalText.textContent = `Aprobi execuția? ${toolName}(${args})`;
+  approvalText.textContent = `Approve execution? ${toolName}(${args})`;
   approvalBar.classList.remove("hidden");
 }
 
@@ -288,7 +288,7 @@ function showTypingIndicator() {
     div.className = "message message-typing";
     div.innerHTML = "<span></span><span></span><span></span>";
   }
-  messagesEl.appendChild(div); // appendChild pe un nod deja atașat îl mută la final
+  messagesEl.appendChild(div); // appendChild on an already-attached node moves it to the end
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
@@ -325,16 +325,16 @@ function renderChatItem(chat) {
 
   const costEl = document.createElement("span");
   costEl.className = "chat-list-cost";
-  costEl.title = "Cost estimat al conversației (cache hit/miss + output, tarif DeepSeek la ora apelului)";
+  costEl.title = "Estimated conversation cost (cache hit/miss + output, DeepSeek rate at call time)";
   costEl.textContent = formatCost(costCache.by_chat[chat.id] || 0);
   item.appendChild(costEl);
 
   const projectSelect = document.createElement("select");
   projectSelect.className = "chat-list-project-select";
-  projectSelect.title = "Proiect";
+  projectSelect.title = "Project";
   const noneOpt = document.createElement("option");
   noneOpt.value = "";
-  noneOpt.textContent = "Fără proiect";
+  noneOpt.textContent = "No project";
   projectSelect.appendChild(noneOpt);
   for (const project of projectsCache) {
     const opt = document.createElement("option");
@@ -353,7 +353,7 @@ function renderChatItem(chat) {
   const renameBtn = document.createElement("button");
   renameBtn.className = "chat-list-action";
   renameBtn.textContent = "✎";
-  renameBtn.title = "Redenumește";
+  renameBtn.title = "Rename";
   renameBtn.addEventListener("click", (ev) => {
     ev.stopPropagation();
     renameChat(chat.id, chat.title);
@@ -363,7 +363,7 @@ function renderChatItem(chat) {
   const deleteBtn = document.createElement("button");
   deleteBtn.className = "chat-list-action";
   deleteBtn.textContent = "🗑";
-  deleteBtn.title = "Șterge";
+  deleteBtn.title = "Delete";
   deleteBtn.addEventListener("click", (ev) => {
     ev.stopPropagation();
     deleteChat(chat.id);
@@ -373,9 +373,9 @@ function renderChatItem(chat) {
   return item;
 }
 
-// chei de grup expandate — persistă peste loadChatList() (apelat după orice
-// acțiune: trimitere mesaj, redenumire, ștergere) cât timp pagina rămâne
-// încărcată, ca accordionul să nu se închidă la fiecare refresh.
+// expanded group keys — persist across loadChatList() (called after any
+// action: sending a message, renaming, deleting) while the page stays
+// loaded, so the accordion doesn't close on every refresh.
 const expandedGroups = new Set();
 
 function renderChatGroup(key, label, chats) {
@@ -395,8 +395,8 @@ function renderChatGroup(key, label, chats) {
     body.hidden = !expanded;
     header.textContent = `${expanded ? "▾" : "▸"} ${label} (${chats.length})`;
   };
-  // grupul care conține chat-ul activ e mereu vizibil, altfel ar rămâne
-  // ascuns în spatele propriului header colapsat
+  // the group containing the active chat is always visible, otherwise it
+  // would stay hidden behind its own collapsed header
   const containsActive = chats.some((c) => c.id === currentChatId);
   setExpanded(expandedGroups.has(key) || containsActive);
 
@@ -419,7 +419,7 @@ async function setChatProject(chatId, projectId) {
       body: JSON.stringify({ project_id: projectId }),
     });
   } catch (e) {
-    appendMessage("message-error", `Eroare la atribuirea proiectului: ${e.message}`);
+    appendMessage("message-error", `Error assigning project: ${e.message}`);
   }
   await loadChatList();
 }
@@ -453,27 +453,27 @@ async function loadChatList() {
   }
 
   if (unassigned.length > 0) {
-    chatListEl.appendChild(renderChatGroup("__unassigned__", "Neafiliat", unassigned));
+    chatListEl.appendChild(renderChatGroup("__unassigned__", "Unassigned", unassigned));
   }
 }
 
 async function renameChat(chatId, currentTitle) {
-  const title = window.prompt("Titlu nou:", currentTitle);
+  const title = window.prompt("New title:", currentTitle);
   if (!title || !title.trim()) return;
   await api(`/api/chats/${chatId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ title: title.trim() }),
-  }).catch((e) => appendMessage("message-error", `Eroare la redenumire: ${e.message}`));
+  }).catch((e) => appendMessage("message-error", `Error renaming: ${e.message}`));
   await loadChatList();
 }
 
 async function deleteChat(chatId) {
-  if (!window.confirm("Ștergi definitiv această conversație?")) return;
+  if (!window.confirm("Permanently delete this conversation?")) return;
   try {
     await api(`/api/chats/${chatId}`, { method: "DELETE" });
   } catch (e) {
-    appendMessage("message-error", `Eroare la ștergere: ${e.message}`);
+    appendMessage("message-error", `Error deleting: ${e.message}`);
     return;
   }
   if (chatId === currentChatId) {
@@ -492,7 +492,7 @@ async function selectChat(chatId) {
   currentChatId = chatId;
   if (appEl && appEl.classList.contains("hide-main")) {
     appEl.classList.remove("hide-main");
-    localStorage.setItem("a0-hide-main", "0");
+    localStorage.setItem("robo-zero-hide-main", "0");
   }
   messagesEl.innerHTML = "";
   hideApproval();
@@ -553,7 +553,7 @@ async function uploadAttachment(file) {
     pendingAttachments.push({ url });
     renderAttachments();
   } catch (e) {
-    appendMessage("message-error", `Eroare la atașarea imaginii: ${e.message}`);
+    appendMessage("message-error", `Error attaching image: ${e.message}`);
   }
 }
 
@@ -591,7 +591,7 @@ composeForm.addEventListener("submit", async (ev) => {
       body: JSON.stringify({ text, images }),
     });
   } catch (e) {
-    appendMessage("message-error", `Eroare la trimitere: ${e.message}`);
+    appendMessage("message-error", `Error sending: ${e.message}`);
     setRunning(false);
   }
 });
@@ -621,7 +621,7 @@ approvalBar.querySelector("#approve-no").addEventListener("click", async () => {
   try {
     settings = await api("/api/settings");
   } catch (e) {
-    /* indisponibil — rămân valorile implicite */
+    /* unavailable — keep default values */
   }
 
   const requestedChatId = new URLSearchParams(window.location.search).get("chat");

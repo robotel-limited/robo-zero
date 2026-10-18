@@ -40,8 +40,9 @@ each for most concerns — no heavy agent framework underneath.
   01:00-04:00 and 06:00-10:00 UTC, Monday-Friday; the same rule is used
   server-side (`cost.py`) to price completed calls, and client-side
   (`app.js`) just to display the live state.
-- **Task-ready notifications** — Telegram and/or SMS when a run finishes
-  while you're not watching the tab (see below).
+- **Task-ready notifications** — in-tab (flashing favicon + a short beep,
+  always on), plus optional Telegram and/or SMS, when a run finishes while
+  you're not watching the tab (see below).
 
 ## Running it
 
@@ -56,12 +57,33 @@ cp .env.example .env   # set your LLM endpoint + API key
 Config lives in `conf/settings.yaml` (workdir, model endpoint) and
 `conf/user_settings.json` (runtime toggles, written by `/settings`).
 
-## Notifications: Telegram and SMS
+## Notifications: in-tab, Telegram, SMS
 
-A run can take a while (browsing, multi-step tool use). `notifications.py`
-fires a best-effort, fire-and-forget "Task ready — <chat title>" message
-when a run ends (`final`/`error`/`cancelled`), so you don't have to keep a
-tab open and watch the typing indicator. Both channels are off by default;
+A run can take a while (browsing, multi-step tool use). Three independent
+channels tell you when a run ends (`final`/`error`/`cancelled`):
+
+### In-tab: flashing favicon + beep
+
+Handled client-side by `webui/notify.js`, with no setting to toggle — it's
+always on and fires only when the tab is hidden (`document.hidden`) at the
+moment a chat's run ends. It does two things in parallel until the tab
+becomes visible again:
+
+- plays a short 880Hz sine beep via Web Audio (no audio file);
+- flashes the favicon every 500ms, alternating between the normal icon and
+  a solid yellow square data-URI SVG, so it's visible even at a tab's small
+  size.
+
+The `AudioContext` is unlocked on sending a message (browsers require a
+user gesture before audio can play), well before the run actually
+finishes. `app.js` calls `notifyIfHidden()` on every terminal event — a
+chat can have several tasks, so it fires once per task.
+
+### Telegram and SMS
+
+`notifications.py` fires a best-effort, fire-and-forget "Task ready —
+<chat title>" message when a run ends, so you don't have to keep a tab
+open and watch the typing indicator. Both channels are off by default;
 toggle them per-install from `/settings` (`notify_telegram`,
 `notify_sms` in `conf/user_settings.json`).
 

@@ -15,6 +15,8 @@ import httpx
 import yaml
 from dotenv import load_dotenv
 
+import attachments
+
 _PROJECT_ROOT = Path(__file__).resolve().parent
 load_dotenv(_PROJECT_ROOT / ".env")
 
@@ -60,7 +62,8 @@ async def chat(
 ) -> LlmResponse:
     """Trimite istoricul + schema tool-urilor la DeepSeek, cu retry/backoff
     pe 429/5xx. Ridică LlmError după epuizarea reîncercărilor."""
-    payload: dict[str, Any] = {"model": MODEL, "messages": messages}
+    # imaginile atașate stau în istoric ca /files/uploads/...; modelul le primește base64
+    payload: dict[str, Any] = {"model": MODEL, "messages": attachments.inline_images(messages)}
     if tools:
         payload["tools"] = tools
     if response_format:

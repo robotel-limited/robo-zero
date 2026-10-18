@@ -9,6 +9,7 @@ from typing import Any
 
 import yaml
 
+import attachments
 import llm
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
@@ -134,4 +135,4 @@ def _format_message(message: dict[str, Any]) -> str:
             for tc in message["tool_calls"]
         )
         return f"[{role}] apel tool: {calls}"
-    return f"[{role}] {message.get('content') or ''}"
+    return f"[{role}] {attachments.text_of(message.get('content'))}"

@@ -81,7 +81,7 @@ def remove_project(project_id: str) -> None:
         conn.execute("DELETE FROM project_archive WHERE project_id = ?", (project_id,))
 
 
-def _fts_query(query: str) -> str:
+def fts_query(query: str) -> str:
     # fiecare termen între ghilimele (fără sintaxă FTS acceptată de la LLM),
     # legați cu OR — clasarea bm25 aduce sus fragmentele cu cei mai mulți termeni
     terms = re.findall(r"\w+", query)
@@ -89,7 +89,7 @@ def _fts_query(query: str) -> str:
 
 
 def search(project_id: str, query: str, limit: int = 8) -> list[dict[str, Any]]:
-    fts = _fts_query(query)
+    fts = fts_query(query)
     if not fts:
         return []
     with _connect() as conn:

@@ -11,6 +11,7 @@ from typing import Any, Awaitable, Callable
 
 import yaml
 
+import attachments
 import history
 import llm
 import safety
@@ -18,6 +19,7 @@ from tools.browser_tool import BrowserBox, BrowserTool
 from tools.call_subordinate import CallSubordinate
 from tools.fs_tool import FsList, FsRead, FsWrite
 from tools.image_generate import ImageGenerate
+from tools.kb_read import KbRead
 from tools.memory_tool import MemoryRecall, MemoryRemember
 from tools.project_search import ProjectSearch
 from tools.response import FinalResponse
@@ -135,7 +137,7 @@ class Agent:
         if self.project_id:
             # memoria proiectului e locală și izolată; memory_remember ar scrie
             # în vault-ul dimag federat (partajat între mașini și agenți)
-            instances.append(ProjectSearch(self))
+            instances += [ProjectSearch(self), KbRead(self)]
         else:
             instances.append(MemoryRemember(self))
         return {t.name: t for t in instances}
@@ -147,11 +149,12 @@ class Agent:
             return f"{base}\n\n---\n\n{self.project_prompt}"
         return base
 
-    async def run(self, user_message: str) -> str:
+    async def run(self, user_message: str, images: list[str] | None = None) -> str:
         """Rulează bucla agentului pentru un mesaj de utilizator și întoarce
-        textul răspunsului final (cel care devine mesajul verde în UI)."""
+        textul răspunsului final (cel care devine mesajul verde în UI).
+        `images` = căi locale /files/uploads/... ale capturilor atașate."""
         try:
-            return await self._run(user_message)
+            return await self._run(user_message, images or [])
         finally:
             # Browserul (dacă a fost pornit de browser_tool) se închide o
             # singură dată, la finalul rulării rădăcină — sub-agenții (depth > 0)
@@ -163,10 +166,10 @@ class Agent:
                     pass
                 self.browser_box.session = None
 
-    async def _run(self, user_message: str) -> str:
+    async def _run(self, user_message: str, images: list[str]) -> str:
         if not self.history:
             self.history.append({"role": "system", "content": self._system_prompt()})
-        self.history.append({"role": "user", "content": user_message})
+        self.history.append({"role": "user", "content": attachments.user_content(user_message, images)})
 
         tool_schemas = [t.schema() for t in self.tools.values()]
 

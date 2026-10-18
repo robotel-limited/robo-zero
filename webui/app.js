@@ -15,6 +15,11 @@ let currentChatId = null;
 let eventSource = null;
 let settings = { verbose: true };
 let projectsCache = [];
+let pendingAttachments = []; // [{url, previewUrl}] — imagini urcate, nu încă trimise
+
+const attachImageBtn = document.getElementById("attach-image-btn");
+const attachImageInput = document.getElementById("attach-image-input");
+const composeAttachmentsEl = document.getElementById("compose-attachments");
 
 const appEl = document.getElementById("app");
 
@@ -56,7 +61,7 @@ async function refreshTokenCount(chatId) {
 // tool_result de la image_generate întoarce mesajul "Imagine generată: /files/images/<id>.jpg"
 const IMAGE_PATH_RE = /\/files\/images\/[\w.-]+\.(?:jpg|jpeg|png)\b/;
 
-function appendMessage(cls, text) {
+function appendMessage(cls, text, images) {
   const div = document.createElement("div");
   div.className = `message ${cls}`;
   const imageMatch = text.match(IMAGE_PATH_RE);
@@ -66,8 +71,14 @@ function appendMessage(cls, text) {
     img.src = imageMatch[0];
     img.className = "message-image";
     div.appendChild(img);
-  } else {
+  } else if (text) {
     div.textContent = text;
+  }
+  for (const url of images || []) {
+    const img = document.createElement("img");
+    img.src = url;
+    img.className = "message-image";
+    div.appendChild(img);
   }
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -77,7 +88,7 @@ function appendMessage(cls, text) {
 function renderLogEntry(entry) {
   switch (entry.type) {
     case "user":
-      appendMessage("message-user", entry.text);
+      appendMessage("message-user", entry.text, entry.images);
       break;
     case "tool_call":
       if (settings.verbose) appendMessage("message-tool-call", `→ ${entry.name}(${entry.arguments})`);
@@ -296,6 +307,8 @@ async function selectChat(chatId) {
   }
   messagesEl.innerHTML = "";
   hideApproval();
+  pendingAttachments = [];
+  renderAttachments();
   const chat = await api(`/api/chats/${chatId}`);
   for (const entry of chat.log) renderLogEntry(entry);
   setRunning(chat.is_running);
@@ -322,18 +335,71 @@ async function createChat() {
 
 newChatBtn.addEventListener("click", () => createChat());
 
+function renderAttachments() {
+  composeAttachmentsEl.innerHTML = "";
+  pendingAttachments.forEach((att, i) => {
+    const box = document.createElement("div");
+    box.className = "compose-attachment";
+    const img = document.createElement("img");
+    img.src = att.url;
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.textContent = "×";
+    removeBtn.addEventListener("click", () => {
+      pendingAttachments.splice(i, 1);
+      renderAttachments();
+    });
+    box.append(img, removeBtn);
+    composeAttachmentsEl.appendChild(box);
+  });
+}
+
+async function uploadAttachment(file) {
+  try {
+    const { url } = await api("/api/attachments", {
+      method: "POST",
+      headers: { "Content-Type": file.type || "application/octet-stream" },
+      body: file,
+    });
+    pendingAttachments.push({ url });
+    renderAttachments();
+  } catch (e) {
+    appendMessage("message-error", `Eroare la atașarea imaginii: ${e.message}`);
+  }
+}
+
+attachImageBtn.addEventListener("click", () => attachImageInput.click());
+
+attachImageInput.addEventListener("change", async () => {
+  for (const file of attachImageInput.files) await uploadAttachment(file);
+  attachImageInput.value = "";
+});
+
+composeInput.addEventListener("paste", async (ev) => {
+  const files = [...(ev.clipboardData?.items || [])]
+    .filter((item) => item.type.startsWith("image/"))
+    .map((item) => item.getAsFile())
+    .filter(Boolean);
+  if (files.length === 0) return;
+  ev.preventDefault();
+  for (const file of files) await uploadAttachment(file);
+});
+
 composeForm.addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const text = composeInput.value.trim();
-  if (!text || !currentChatId) return;
+  const images = pendingAttachments.map((a) => a.url);
+  if ((!text && images.length === 0) || !currentChatId) return;
   unlockAudio();
   composeInput.value = "";
+  pendingAttachments = [];
+  renderAttachments();
   setRunning(true);
   try {
     await api(`/api/chats/${currentChatId}/messages`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, images }),
     });
   } catch (e) {
     appendMessage("message-error", `Eroare la trimitere: ${e.message}`);

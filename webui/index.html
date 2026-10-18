@@ -28,8 +28,11 @@
           <button id="approve-no">Refuză</button>
         </div>
       </div>
+      <div id="compose-attachments"></div>
       <form id="compose-form">
-        <textarea id="compose-input" placeholder="Scrie un mesaj…" rows="2"></textarea>
+        <input id="attach-image-input" type="file" accept="image/*" multiple class="hidden" />
+        <button id="attach-image-btn" type="button" title="Atașează o imagine">📎</button>
+        <textarea id="compose-input" placeholder="Scrie un mesaj… (poți lipi o captură de ecran)" rows="2"></textarea>
         <button id="cancel-btn" type="button" class="hidden">Anulează</button>
         <button id="send-btn" type="submit">Trimite</button>
       </form>

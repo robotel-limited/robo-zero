@@ -78,17 +78,19 @@ class ChatSession:
     def is_running(self) -> bool:
         return self._running_task is not None and not self._running_task.done()
 
-    def start_run(self, user_message: str) -> None:
-        """Pornește bucla agentului ca task asyncio (un singur run activ per chat)."""
+    def start_run(self, user_message: str, images: list[str] | None = None) -> None:
+        """Pornește bucla agentului ca task asyncio (un singur run activ per chat).
+        `images` = capturile atașate (căi /files/uploads/..., vezi attachments.py)."""
         if self.is_running:
             raise RuntimeError("Există deja o rulare activă pentru acest chat.")
+        images = images or []
         self.agent.cancelled = False
-        self._append_log("user", text=user_message)
-        self._running_task = asyncio.create_task(self._run(self._prepare_message(user_message)))
+        self._append_log("user", text=user_message, **({"images": images} if images else {}))
+        self._running_task = asyncio.create_task(self._run(self._prepare_message(user_message), images))
 
-    async def _run(self, user_message: str) -> None:
+    async def _run(self, user_message: str, images: list[str]) -> None:
         try:
-            await self.agent.run(user_message)
+            await self.agent.run(user_message, images)
         except AgentCancelled:
             self.agent.history = history.sanitize(self.agent.history)
             self._append_log("cancelled", text="Rulare anulată de utilizator.")
@@ -162,7 +164,7 @@ class ChatSession:
         entry = {"type": event_type, "ts": time.time(), **data}
         self.log.append(entry)
         self.updated_at = entry["ts"]
-        if event_type == "user" and self.title == "Conversație nouă":
+        if event_type == "user" and self.title == "Conversație nouă" and str(data.get("text", "")).strip():
             text = str(data.get("text", ""))
             self.title = text[:TITLE_MAX_CHARS] + ("…" if len(text) > TITLE_MAX_CHARS else "")
         self._broadcast(entry)

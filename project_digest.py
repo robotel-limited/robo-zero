@@ -57,7 +57,8 @@ def _entry_line(entry: dict[str, Any]) -> str | None:
     kind = entry.get("type")
     when = datetime.fromtimestamp(entry.get("ts", 0)).strftime("%Y-%m-%d %H:%M")
     if kind == "user":
-        return f"[utilizator {when}] {entry.get('text', '')}"
+        images = f" [{len(entry['images'])} captură/i atașate]" if entry.get("images") else ""
+        return f"[utilizator {when}] {entry.get('text', '')}{images}"
     if kind == "final":
         return f"[agent {when}] {entry.get('text', '')}"
     if kind == "tool_result" and entry.get("name") not in _SKIPPED_TOOLS:

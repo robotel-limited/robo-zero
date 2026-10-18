@@ -19,12 +19,15 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 
 import chat_store
+import attachments
 import history
+import kb_ingest
 import project_hooks
 import projects_store
 import settings_store
 from chat_session import ChatSession
 from project_memory_routes import router as project_memory_router
+from upload_routes import router as upload_router
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 _WEBUI_DIR = _PROJECT_ROOT / "webui"
@@ -59,6 +62,7 @@ class OriginCheckMiddleware(BaseHTTPMiddleware):
 @asynccontextmanager
 async def _lifespan(_: FastAPI):
     chat_store.load_all()
+    kb_ingest.resume_pending()
     _WORKDIR.mkdir(parents=True, exist_ok=True)
     yield
 
@@ -66,6 +70,7 @@ async def _lifespan(_: FastAPI):
 app = FastAPI(title="agent-zero-light", lifespan=_lifespan)
 app.add_middleware(OriginCheckMiddleware)
 app.include_router(project_memory_router)
+app.include_router(upload_router)
 app.mount("/static", StaticFiles(directory=_WEBUI_DIR), name="static")
 # fișiere produse de agent în workdir (ex. imagini generate) — servite direct în chat.
 _WORKDIR.mkdir(parents=True, exist_ok=True)
@@ -221,10 +226,13 @@ async def delete_chat(chat_id: str):
 async def post_message(chat_id: str, body: dict):
     session = _get_chat_or_404(chat_id)
     text = (body or {}).get("text", "").strip()
-    if not text:
+    images = (body or {}).get("images") or []
+    if not isinstance(images, list) or not all(attachments.is_local_image(u) for u in images):
+        raise HTTPException(status_code=400, detail="Imagini atașate invalide.")
+    if not text and not images:
         raise HTTPException(status_code=400, detail="Mesajul e vid.")
     try:
-        session.start_run(text)
+        session.start_run(text, images)
     except RuntimeError as e:
         raise HTTPException(status_code=409, detail=str(e))
     return {"status": "started"}

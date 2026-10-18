@@ -54,6 +54,30 @@
         </label>
         <span id="notify-sms-state" class="switch-state">OFF</span>
       </div>
+      <div id="usage-section">
+        <h2>Consum per model</h2>
+        <div id="usage-filters">
+          <select id="usage-model-filter">
+            <option value="">Toate modelele</option>
+          </select>
+          <label>De la <input type="date" id="usage-since" /></label>
+          <label>Până la <input type="date" id="usage-until" /></label>
+          <button id="usage-filter-btn" type="button">Filtrează</button>
+        </div>
+        <table id="usage-table">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Apeluri</th>
+              <th>Tokeni intrare</th>
+              <th>Tokeni ieșire</th>
+              <th>Latență medie</th>
+              <th>Cost</th>
+            </tr>
+          </thead>
+          <tbody id="usage-table-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
   <script src="/static/settings.js"></script>

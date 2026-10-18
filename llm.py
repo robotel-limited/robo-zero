@@ -10,6 +10,7 @@ din `content` către client pe măsură ce agent.py le produce.
 
 import asyncio
 import os
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -131,6 +132,7 @@ async def chat(
 
     async with httpx.AsyncClient(timeout=TIMEOUT_SECONDS) as client:
         for attempt in range(attempts):
+            attempt_start = time.perf_counter()
             try:
                 resp = await client.post(endpoint, json=payload, headers=headers)
             except httpx.TimeoutException as exc:
@@ -150,7 +152,8 @@ async def chat(
                     )
                 else:
                     data = resp.json()
-                    usage_log.record(model, purpose, data.get("usage"))
+                    latency_ms = (time.perf_counter() - attempt_start) * 1000
+                    usage_log.record(model, purpose, data.get("usage"), latency_ms)
                     return _parse_response(data)
 
             if attempt < MAX_RETRIES:

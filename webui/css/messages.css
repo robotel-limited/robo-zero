@@ -368,6 +368,41 @@ body {
   color: var(--color-muted);
 }
 
+#usage-section {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-panel);
+  padding: 14px 16px;
+}
+
+#usage-section h2 {
+  font-size: 0.95em;
+  font-weight: 600;
+  margin: 0 0 12px;
+}
+
+#usage-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 0.85em;
+  flex-wrap: wrap;
+}
+
+#usage-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+}
+
+#usage-table th,
+#usage-table td {
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+
 /* switch ON/OFF */
 .switch {
   position: relative;

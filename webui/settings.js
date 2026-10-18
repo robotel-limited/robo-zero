@@ -43,6 +43,50 @@ function bindToggle({ toggleId, stateId, settingsKey }) {
   return setState;
 }
 
+function formatLatency(ms) {
+  if (ms === null || ms === undefined) return "—";
+  return `${Math.round(ms)} ms`;
+}
+
+function formatCost(usd) {
+  if (!usd) return "$0";
+  return usd < 0.0001 ? "<$0.0001" : `$${usd.toFixed(4)}`;
+}
+
+async function loadUsageTable() {
+  const model = document.getElementById("usage-model-filter").value;
+  const since = document.getElementById("usage-since").value;
+  const until = document.getElementById("usage-until").value;
+  const params = new URLSearchParams();
+  if (model) params.set("model", model);
+  if (since) params.set("since", String(Date.parse(since) / 1000));
+  if (until) params.set("until", String(Date.parse(until) / 1000 + 86400));
+
+  const tbody = document.getElementById("usage-table-body");
+  try {
+    const { rows } = await api(`/api/usage/stats?${params}`);
+    tbody.innerHTML = "";
+    for (const row of rows) {
+      const tr = document.createElement("tr");
+      const tokensIn = row.prompt_tokens + row.cache_hit_tokens + row.cache_miss_tokens;
+      tr.innerHTML = `
+        <td>${row.model}</td>
+        <td>${row.calls}</td>
+        <td>${tokensIn}</td>
+        <td>${row.completion_tokens}</td>
+        <td>${formatLatency(row.avg_latency_ms)}</td>
+        <td>${formatCost(row.cost_usd)}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+    if (rows.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6">Niciun consum în perioada selectată.</td></tr>';
+    }
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="6">Eroare: ${e.message}</td></tr>`;
+  }
+}
+
 function bindModelSelect() {
   const select = document.getElementById("default-model-select");
   select.addEventListener("change", async () => {
@@ -65,15 +109,21 @@ function bindModelSelect() {
   const modelSelect = bindModelSelect();
   try {
     const models = await api("/api/models");
+    const usageModelFilter = document.getElementById("usage-model-filter");
     for (const { id, label } of models) {
       const opt = document.createElement("option");
       opt.value = id;
       opt.textContent = label;
       modelSelect.appendChild(opt);
+      const filterOpt = opt.cloneNode(true);
+      usageModelFilter.appendChild(filterOpt);
     }
   } catch (e) {
     /* indisponibil — select rămâne vid */
   }
+  document.getElementById("usage-filter-btn").addEventListener("click", loadUsageTable);
+  document.getElementById("usage-model-filter").addEventListener("change", loadUsageTable);
+  loadUsageTable();
   try {
     const settings = await api("/api/settings");
     TOGGLES.forEach((t, i) => setters[i](!!settings[t.settingsKey]));

@@ -9,4 +9,4 @@ workdir/*
 *.old
 data/*.db
 data/project_kb/
-data/usage.jsonl
+data/usage.jsonl*

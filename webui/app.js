@@ -47,8 +47,20 @@ function formatTokenCount(count) {
   return `${rounded}k`;
 }
 
-function setTokenCount(count) {
+function setTokenCount(count, contextTokens) {
   tokenCountTextEl.textContent = `${formatTokenCount(count)} tokeni`;
+  const fraction = contextTokens ? count / contextTokens : 0;
+  let level = "low";
+  if (fraction >= 0.9) level = "critical";
+  else if (fraction >= 0.7) level = "high";
+  else if (fraction >= 0.5) level = "medium";
+  tokenCountTextEl.classList.remove(
+    "token-count--low",
+    "token-count--medium",
+    "token-count--high",
+    "token-count--critical"
+  );
+  tokenCountTextEl.classList.add(`token-count--${level}`);
 }
 
 // Peak = 01:00-04:00 și 06:00-10:00 UTC, luni-vineri (prețuri DeepSeek
@@ -75,7 +87,7 @@ setInterval(refreshRateDot, 60_000);
 async function refreshTokenCount(chatId) {
   try {
     const chat = await api(`/api/chats/${chatId}`);
-    if (chatId === currentChatId) setTokenCount(chat.token_count);
+    if (chatId === currentChatId) setTokenCount(chat.token_count, chat.context_tokens);
   } catch (e) {
     /* ignorat — contorul rămâne la ultima valoare cunoscută */
   }
@@ -469,7 +481,7 @@ async function selectChat(chatId) {
   const chat = await api(`/api/chats/${chatId}`);
   for (const entry of chat.log) renderLogEntry(entry);
   setRunning(chat.is_running);
-  setTokenCount(chat.token_count);
+  setTokenCount(chat.token_count, chat.context_tokens);
   await loadChatList();
   connectEvents(chatId);
 }

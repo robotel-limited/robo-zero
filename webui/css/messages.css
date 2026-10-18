@@ -164,6 +164,22 @@ body {
   background: #c0392b;
 }
 
+#token-count-text.token-count--low {
+  color: #3fae4f;
+}
+
+#token-count-text.token-count--medium {
+  color: #2d7dd2;
+}
+
+#token-count-text.token-count--high {
+  color: #d4a017;
+}
+
+#token-count-text.token-count--critical {
+  color: #c0392b;
+}
+
 .cost-estimate {
   color: var(--color-muted);
   font-size: 0.85em;

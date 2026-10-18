@@ -119,6 +119,44 @@
   font-size: 0.9em;
 }
 
+/* foldere legate de proiect (/projects) */
+.folder-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.folder-path {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.folder-check {
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.folder-note,
+.folder-add-path {
+  flex: 1;
+  min-width: 0;
+}
+
+.folder-add-row {
+  flex-wrap: wrap;
+}
+
+.folder-map {
+  margin: 4px 0 0;
+  font-size: 0.8em;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow: auto;
+}
+
 /* imagini atașate în compose (chat) */
 #compose-attachments {
   display: flex;

@@ -271,7 +271,8 @@ class BrowserTool(Tool):
         return ToolResult(message=f"Text tastat în '{target}'.")
 
     async def _screenshot(self, page: Any) -> ToolResult:
-        workdir = getattr(self.agent, "workdir", _DEFAULT_WORKDIR)
+        # comun tuturor chat-urilor (nu workdir-ul proiectului): UI-ul o afișează din /files/images/
+        workdir = _DEFAULT_WORKDIR
         images_dir = Path(workdir) / "images"
         images_dir.mkdir(parents=True, exist_ok=True)
         filename = f"{uuid.uuid4().hex}.jpg"

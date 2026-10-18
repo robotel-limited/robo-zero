@@ -61,7 +61,8 @@ class ImageGenerate(Tool):
         if not prompt:
             return ToolResult(message="Eroare: parametrul 'prompt' e obligatoriu.")
 
-        workdir = getattr(self.agent, "workdir", _SETTINGS["agent"]["workdir"])
+        # comun tuturor chat-urilor (nu workdir-ul proiectului): UI-ul o afișează din /files/images/
+        workdir = _SETTINGS["agent"]["workdir"]
         images_dir = Path(workdir) / "images"
         images_dir.mkdir(parents=True, exist_ok=True)
 

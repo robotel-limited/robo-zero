@@ -112,7 +112,7 @@ def files_since(project_id: str, ts: float) -> list[dict[str, Any]]:
     return [f for f in list_files(project_id) if f["status"] == "ready" and f["ready_at"] > ts]
 
 
-def _chunks(text: str) -> list[str]:
+def chunk_text(text: str) -> list[str]:
     chunks: list[str] = [""]
     for para in re.split(r"\n\s*\n", text):
         para = para.strip()
@@ -137,7 +137,7 @@ def set_ready(file_id: str, project_id: str, text: str) -> None:
         conn.execute("DELETE FROM kb_chunks WHERE file_id = ?", (file_id,))
         conn.executemany(
             "INSERT INTO kb_chunks (content, project_id, file_id, chunk_no) VALUES (?, ?, ?, ?)",
-            [(c, project_id, file_id, i) for i, c in enumerate(_chunks(text))],
+            [(c, project_id, file_id, i) for i, c in enumerate(chunk_text(text))],
         )
 
 

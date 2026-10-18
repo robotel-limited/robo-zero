@@ -4,8 +4,11 @@ chat_session.py, chat_store.py și app.py apelează doar funcțiile de aici."""
 
 from typing import Any
 
+import folder_index
+import folder_index_store
 import project_archive
 import project_digest
+import project_folders_store
 import project_kb_store
 import project_memory_store
 
@@ -41,3 +44,12 @@ def on_project_deleted(project_id: str) -> None:
     project_archive.remove_project(project_id)
     project_memory_store.delete_project(project_id)
     project_kb_store.delete_project(project_id)
+    for folder_id in project_folders_store.delete_project(project_id):
+        folder_index_store.delete_folder(folder_id)
+
+
+def before_message(session: Any) -> None:
+    """Înainte de un mesaj nou într-un chat de proiect: folderele indexabile
+    se reverifică în fundal (fișiere modificate pe disc între timp)."""
+    if session.project_id:
+        folder_index.refresh_project(session.project_id)

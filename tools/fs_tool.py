@@ -1,13 +1,14 @@
 """Tool-uri de sistem de fișiere: citire, scriere, listare relativ la workdir.
 
 Trei clase separate FsRead, FsWrite, FsList pentru operații de fișiere.
-Toate operează relativ la agent.workdir și verifică escapare cu safety.path_escapes_workdir.
+Căile relative pornesc din agent.workdir; ce e permis (workdir, foldere
+legate de proiect ro/rw, fișiere cu secrete) decide path_access.py.
 """
 
 import os
 from typing import Any
 
-import safety
+import path_access
 from tools.tool_base import Tool, ToolResult
 
 _READ_PAGE_CHARS = 12000
@@ -18,7 +19,8 @@ class FsRead(Tool):
 
     name: str = "fs_read"
     description: str = (
-        "Citește conținutul unui fișier text (UTF-8). Calea e relativă la workdir. "
+        "Citește conținutul unui fișier text (UTF-8) din workdir sau dintr-un folder al proiectului "
+        "(cale relativă la workdir sau absolută). "
         f"Fișierele mai lungi de {_READ_PAGE_CHARS} caractere se citesc pe pagini."
     )
     parameters: dict[str, Any] = {
@@ -37,20 +39,11 @@ class FsRead(Tool):
             return ToolResult(message="Eroare: parametrul 'path' e obligatoriu.")
 
         try:
-            # Rezolvă calea relativ la workdir
-            workdir = getattr(self.agent, "workdir", "/srv/agent-zero-light/workdir")
-            if not os.path.isabs(path):
-                full_path = os.path.join(workdir, path)
-            else:
-                full_path = path
-
-            full_path = os.path.realpath(full_path)
-
-            # Verifică dacă calea e în afara workdir
-            if safety.path_escapes_workdir(full_path, workdir):
-                return ToolResult(
-                    message=f"Eroare: calea '{path}' iese în afara workdir. Acces refuzat."
-                )
+            # workdir-ul chat-ului sau un folder legat de proiect; fără fișiere cu secrete
+            full_path = path_access.resolve(self.agent, path)
+            denied = path_access.read_error(self.agent, full_path, path)
+            if denied:
+                return ToolResult(message=denied)
 
             # Citește fișierul
             if not os.path.exists(full_path):
@@ -115,18 +108,14 @@ class FsWrite(Tool):
             return ToolResult(message="Eroare: parametrul 'content' e obligatoriu.")
 
         try:
-            # Rezolvă calea relativ la workdir
-            workdir = getattr(self.agent, "workdir", "/srv/agent-zero-light/workdir")
-            if not os.path.isabs(path):
-                full_path = os.path.join(workdir, path)
-            else:
-                full_path = path
-
-            full_path = os.path.realpath(full_path)
-
-            # Scrierea în afara workdir e gated de agent.py (pre_check + confirmare
-            # în UI) ÎNAINTE de a apela execute() — aici presupunem că, dacă am
-            # ajuns la execute(), scrierea e deja aprobată (sau e în interiorul workdir).
+            full_path = path_access.resolve(self.agent, path)
+            # folder ro: refuz direct. În afara zonelor permise scrierea e gated
+            # de agent.py (pre_check + confirmare în UI) ÎNAINTE de execute() —
+            # dacă am ajuns aici, e în workdir, într-un folder rw sau aprobată.
+            if path_access.write_policy(self.agent, full_path) == "ro":
+                return ToolResult(
+                    message=f"Eroare: '{path}' e într-un folder doar-citire (ro) al proiectului. Scriere refuzată."
+                )
 
             # Creează directoare părinte
             parent_dir = os.path.dirname(full_path)
@@ -147,11 +136,10 @@ class FsWrite(Tool):
     def pre_check(self, args: dict[str, Any]) -> bool:
         """True dacă ținta scrierii e în afara workdir — agent.py cere
         confirmare în UI înainte de a apela execute()."""
-        workdir = getattr(self.agent, "workdir", "/srv/agent-zero-light/workdir")
         path = args.get("path", "")
         if not path:
             return False
-        return safety.path_escapes_workdir(path, workdir)
+        return path_access.write_policy(self.agent, path_access.resolve(self.agent, path)) == "confirm"
 
 
 class FsList(Tool):
@@ -160,7 +148,7 @@ class FsList(Tool):
     name: str = "fs_list"
     description: str = (
         "Listează fișiere și subdirectoare dintr-un director (non-recursiv). "
-        "Directoarele au suffix '/'. Calea e relativă la workdir."
+        "Directoarele au suffix '/'. Calea e relativă la workdir sau absolută (folder al proiectului)."
     )
     parameters: dict[str, Any] = {
         "path": {
@@ -175,20 +163,11 @@ class FsList(Tool):
         path = kwargs.get("path", ".")
 
         try:
-            # Rezolvă calea relativ la workdir
-            workdir = getattr(self.agent, "workdir", "/srv/agent-zero-light/workdir")
-            if not os.path.isabs(path):
-                full_path = os.path.join(workdir, path)
-            else:
-                full_path = path
-
-            full_path = os.path.realpath(full_path)
-
-            # Verifică dacă calea e în afara workdir
-            if safety.path_escapes_workdir(full_path, workdir):
-                return ToolResult(
-                    message=f"Eroare: calea '{path}' iese în afara workdir. Acces refuzat."
-                )
+            # workdir-ul chat-ului sau un folder legat de proiect; fără fișiere cu secrete
+            full_path = path_access.resolve(self.agent, path)
+            denied = path_access.read_error(self.agent, full_path, path)
+            if denied:
+                return ToolResult(message=denied)
 
             # Listează directorul
             if not os.path.exists(full_path):

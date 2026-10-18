@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 
 import chat_store
+import folder_index
 import attachments
 import history
 import kb_ingest
@@ -26,6 +27,7 @@ import project_hooks
 import projects_store
 import settings_store
 from chat_session import ChatSession
+from project_folder_routes import router as project_folder_router
 from project_memory_routes import router as project_memory_router
 from upload_routes import router as upload_router
 
@@ -63,6 +65,7 @@ class OriginCheckMiddleware(BaseHTTPMiddleware):
 async def _lifespan(_: FastAPI):
     chat_store.load_all()
     kb_ingest.resume_pending()
+    folder_index.resume_pending()
     _WORKDIR.mkdir(parents=True, exist_ok=True)
     yield
 
@@ -70,6 +73,7 @@ async def _lifespan(_: FastAPI):
 app = FastAPI(title="agent-zero-light", lifespan=_lifespan)
 app.add_middleware(OriginCheckMiddleware)
 app.include_router(project_memory_router)
+app.include_router(project_folder_router)
 app.include_router(upload_router)
 app.mount("/static", StaticFiles(directory=_WEBUI_DIR), name="static")
 # fișiere produse de agent în workdir (ex. imagini generate) — servite direct în chat.

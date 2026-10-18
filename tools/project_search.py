@@ -6,6 +6,7 @@ de un proiect (vezi Agent._build_tools)."""
 from datetime import datetime
 from typing import Any
 
+import folder_index_store
 import project_archive
 import project_kb_store
 from tools.tool_base import Tool, ToolResult
@@ -16,7 +17,7 @@ class ProjectSearch(Tool):
     description: str = (
         "Caută în textul integral al tuturor discuțiilor din proiectul curent "
         "(mesaje utilizator, răspunsuri, rezultate de tool-uri) și al fișierelor "
-        "din baza de cunoștințe a proiectului. Folosește-l "
+        "din baza de cunoștințe și din folderele proiectului marcate [indexat]. Folosește-l "
         "când ai nevoie de un detaliu exact (doză, dată, cifră, formulare) "
         "care nu apare în fișa proiectului sau în rezumatele din context."
     )
@@ -42,17 +43,22 @@ class ProjectSearch(Tool):
             limit = 8
 
         hits = project_archive.search(project_id, query, limit)
-        kb_hits = project_kb_store.search(project_id, project_archive.fts_query(query), limit)
-        if not hits and not kb_hits:
+        fts = project_archive.fts_query(query)
+        kb_hits = project_kb_store.search(project_id, fts, limit)
+        folder_hits = folder_index_store.search(project_id, fts, limit)
+        if not hits and not kb_hits and not folder_hits:
             return ToolResult(message=f"Nimic găsit în discuțiile și fișierele proiectului pentru „{query}”.")
         lines = [
+            f"- [{h['folder']}/{h['relpath']}] {h['snippet']}" for h in folder_hits
+        ] + [
             f"- [fișier KB {h['file_id']} · {h['filename']} · {_day(h['ts'])}] {h['snippet']}"
             for h in kb_hits
         ] + [
             f"- [{h['chat_title']} · {_day(h['ts'])} · {h['role']}] {h['snippet']}"
             for h in hits
         ]
-        return ToolResult(message="Fragmente găsite:\n" + "\n".join(lines))
+        note = "\n(Fișierele din foldere se citesc întregi cu fs_read pe calea afișată.)" if folder_hits else ""
+        return ToolResult(message="Fragmente găsite:\n" + "\n".join(lines) + note)
 
 
 def _day(ts: float) -> str:

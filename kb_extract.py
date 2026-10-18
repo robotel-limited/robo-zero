@@ -95,6 +95,21 @@ def _docx(path: Path) -> str:
     return text
 
 
+LOCAL_EXTENSIONS = _TEXT_EXTENSIONS | {"pdf", "docx"}
+
+
+async def extract_local(path: Path) -> str:
+    """Text fără apeluri LLM (pentru indexarea folderelor proiectului, unde
+    pot fi mii de fișiere): text/cod, PDF cu strat de text, DOCX. Un PDF
+    scanat întoarce text gol — se sare, nu trece prin modelul vision."""
+    ext = _ext(path.name)
+    if ext == "pdf":
+        return (await _run("pdftotext", "-layout", str(path), "-")).decode("utf-8", errors="replace")
+    if ext == "docx":
+        return _docx(path)
+    return path.read_bytes().decode("utf-8", errors="replace")
+
+
 async def extract(path: Path, filename: str, mime: str) -> str:
     """Textul complet al fișierului. Ridică ExtractError pentru tipuri
     neacceptate sau fișiere fără conținut extras."""

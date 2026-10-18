@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import history
+import path_access
 import project_context
 import project_hooks
 import settings_store
@@ -40,6 +41,7 @@ class ChatSession:
             confirm=self._confirm,
             on_event=self._on_agent_event,
             project_id=project_id,
+            workdir=path_access.project_workdir(project_id),
         )
         self.agent.on_compacted = self._refresh_project_context
         self._subscribers: list[asyncio.Queue] = []
@@ -62,6 +64,7 @@ class ChatSession:
     def _prepare_message(self, user_message: str) -> str:
         if not self.project_id:
             return user_message
+        project_hooks.before_message(self)
         if not self.agent.history or self.facts_seen_at == 0:
             self._refresh_project_context()
             return user_message
@@ -120,6 +123,7 @@ class ChatSession:
         old_project_id = self.project_id
         self.project_id = project_id
         self.agent.project_id = project_id
+        self.agent.workdir = path_access.project_workdir(project_id)
         self.agent.tools = self.agent._build_tools()
         self._refresh_project_context()
         self.updated_at = time.time()

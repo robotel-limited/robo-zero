@@ -13,6 +13,7 @@ import history
 import project_context
 import project_hooks
 import settings_store
+import usage_log
 from agent import Agent, AgentCancelled, AgentError
 from notifications import notify_task_ready
 
@@ -89,6 +90,7 @@ class ChatSession:
         self._running_task = asyncio.create_task(self._run(self._prepare_message(user_message), images))
 
     async def _run(self, user_message: str, images: list[str]) -> None:
+        usage_log.set_scope(chat_id=self.id, project_id=self.project_id)
         try:
             await self.agent.run(user_message, images)
         except AgentCancelled:

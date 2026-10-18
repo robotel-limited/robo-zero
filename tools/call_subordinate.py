@@ -55,7 +55,11 @@ class CallSubordinate(Tool):
             depth=parent.depth + 1,
             on_event=parent.on_event,
             browser_box=parent.browser_box,
+            # fără project_id sub-agentul ar primi memory_remember (vault dimag
+            # federat) în loc de project_search/kb_read — scurgere din proiect
+            project_id=parent.project_id,
         )
+        subordinate.project_prompt = parent.project_prompt
         parent.current_subordinate = subordinate
         try:
             result = await subordinate.run(message)

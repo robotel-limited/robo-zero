@@ -143,6 +143,7 @@ async def _call_llm(session: Any, project_id: str, lines: list[str]) -> dict[str
     response = await llm.chat(
         [{"role": "system", "content": _SYSTEM_PROMPT}, {"role": "user", "content": user_content}],
         response_format={"type": "json_object"},
+        purpose="digest",
     )
     data = json.loads(response.content or "")
     if not isinstance(data, dict):

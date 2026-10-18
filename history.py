@@ -123,7 +123,7 @@ async def _summarize(messages: list[dict[str, Any]]) -> str:
         },
         {"role": "user", "content": transcript},
     ]
-    response = await llm.chat(prompt)
+    response = await llm.chat(prompt, purpose="compaction")
     return response.content or "(rezumat indisponibil)"
 
 

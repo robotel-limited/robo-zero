@@ -9,6 +9,7 @@ from typing import Any
 import kb_extract
 import project_kb_store as store
 import projects_store
+import usage_log
 
 # referințe puternice: altfel un task fără referință poate fi colectat de GC
 _tasks: set[asyncio.Task] = set()
@@ -21,6 +22,7 @@ def schedule(file: dict[str, Any]) -> None:
 
 
 async def _ingest(file: dict[str, Any]) -> None:
+    usage_log.set_scope(project_id=file["project_id"])
     try:
         text = await kb_extract.extract(store.file_path(file), file["filename"], file["mime"])
     except Exception as e:  # orice eșec devine status vizibil, nu excepție pierdută

@@ -16,6 +16,7 @@ import yaml
 from dotenv import load_dotenv
 
 import attachments
+import usage_log
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 load_dotenv(_PROJECT_ROOT / ".env")
@@ -59,9 +60,11 @@ async def chat(
     messages: list[dict[str, Any]],
     tools: list[dict[str, Any]] | None = None,
     response_format: dict[str, Any] | None = None,
+    purpose: str = "chat",
 ) -> LlmResponse:
     """Trimite istoricul + schema tool-urilor la DeepSeek, cu retry/backoff
-    pe 429/5xx. Ridică LlmError după epuizarea reîncercărilor."""
+    pe 429/5xx. Ridică LlmError după epuizarea reîncercărilor. `purpose`
+    etichetează consumul de tokeni în data/usage.jsonl (vezi usage_log.py)."""
     # imaginile atașate stau în istoric ca /files/uploads/...; modelul le primește base64
     payload: dict[str, Any] = {"model": MODEL, "messages": attachments.inline_images(messages)}
     if tools:
@@ -97,7 +100,9 @@ async def chat(
                         f"DeepSeek a răspuns {resp.status_code}: {resp.text[:500]}"
                     )
                 else:
-                    return _parse_response(resp.json())
+                    data = resp.json()
+                    usage_log.record(MODEL, purpose, data.get("usage"))
+                    return _parse_response(data)
 
             if attempt < MAX_RETRIES:
                 backoff = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)]

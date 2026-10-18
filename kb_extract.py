@@ -49,7 +49,8 @@ async def describe_image(data: bytes, mime: str) -> str:
                 {"type": "text", "text": _VISION_PROMPT},
                 {"type": "image_url", "image_url": {"url": attachments.data_url(data, mime)}},
             ],
-        }]
+        }],
+        purpose="kb_extract",
     )
     return (response.content or "").strip()
 

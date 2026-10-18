@@ -10,17 +10,23 @@ from typing import Any
 import safety
 from tools.tool_base import Tool, ToolResult
 
+_READ_PAGE_CHARS = 12000
+
 
 class FsRead(Tool):
     """Tool pentru citirea fișierelor text relativ la workdir."""
 
     name: str = "fs_read"
-    description: str = "Citește conținutul unui fișier text (UTF-8). Calea e relativă la workdir."
+    description: str = (
+        "Citește conținutul unui fișier text (UTF-8). Calea e relativă la workdir. "
+        f"Fișierele mai lungi de {_READ_PAGE_CHARS} caractere se citesc pe pagini."
+    )
     parameters: dict[str, Any] = {
         "path": {
             "type": "string",
             "description": "Calea fișierului (relativă la workdir sau absolută).",
-        }
+        },
+        "page": {"type": "integer", "description": f"Pagina de {_READ_PAGE_CHARS} caractere, de la 1 (implicit 1)."},
     }
     required: list[str] = ["path"]
 
@@ -56,7 +62,18 @@ class FsRead(Tool):
             with open(full_path, "r", encoding="utf-8", errors="replace") as f:
                 content = f.read()
 
-            return ToolResult(message=content)
+            # fără plafon, un fișier mare intră întreg în istoric și e retrimis la fiecare iterație
+            if len(content) <= _READ_PAGE_CHARS:
+                return ToolResult(message=content)
+            try:
+                page = max(1, int(kwargs.get("page") or 1))
+            except (TypeError, ValueError):
+                page = 1
+            pages = -(-len(content) // _READ_PAGE_CHARS)
+            if page > pages:
+                return ToolResult(message=f"Eroare: fișierul '{path}' are doar {pages} pagini.")
+            body = content[(page - 1) * _READ_PAGE_CHARS : page * _READ_PAGE_CHARS]
+            return ToolResult(message=f"[{path} — pagina {page}/{pages}, {len(content)} caractere în total]\n{body}")
 
         except Exception as e:
             return ToolResult(message=f"Eroare la citirea fișierului: {str(e)}")

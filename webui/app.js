@@ -84,6 +84,39 @@ async function refreshTokenCount(chatId) {
 // tool_result de la image_generate întoarce mesajul "Imagine generată: /files/images/<id>.jpg"
 const IMAGE_PATH_RE = /\/files\/images\/[\w.-]+\.(?:jpg|jpeg|png)\b/;
 
+const COPY_ICON =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+const COPIED_ICON =
+  '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>';
+
+function copyMessageText(text, btn) {
+  const done = () => {
+    btn.classList.add("copied");
+    btn.innerHTML = COPIED_ICON;
+    setTimeout(() => {
+      btn.classList.remove("copied");
+      btn.innerHTML = COPY_ICON;
+    }, 1200);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(done);
+  } else {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand("copy");
+    } catch {
+      /* ignorat — fallback best-effort */
+    }
+    document.body.removeChild(ta);
+    done();
+  }
+}
+
 function appendMessage(cls, text, images) {
   const div = document.createElement("div");
   div.className = `message ${cls}`;
@@ -102,6 +135,15 @@ function appendMessage(cls, text, images) {
     img.src = url;
     img.className = "message-image";
     div.appendChild(img);
+  }
+  if (cls === "message-agent-response" && text) {
+    const copyBtn = document.createElement("button");
+    copyBtn.type = "button";
+    copyBtn.className = "message-copy-btn";
+    copyBtn.title = "Copiază răspunsul";
+    copyBtn.innerHTML = COPY_ICON;
+    copyBtn.addEventListener("click", () => copyMessageText(text, copyBtn));
+    div.appendChild(copyBtn);
   }
   messagesEl.appendChild(div);
   messagesEl.scrollTop = messagesEl.scrollHeight;

@@ -194,12 +194,45 @@ body {
 }
 
 .message {
+  position: relative;
   max-width: 75%;
   padding: 10px 14px;
   border-radius: 10px;
   white-space: pre-wrap;
   word-break: break-word;
   font-size: 0.95em;
+}
+
+.message-copy-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #cfcfcf;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.message:hover .message-copy-btn {
+  opacity: 1;
+}
+
+.message-copy-btn:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.message-copy-btn.copied {
+  opacity: 1;
+  color: #8ee08e;
 }
 
 .message-user {
@@ -230,6 +263,7 @@ body {
 .message-agent-response {
   align-self: flex-start;
   min-width: 255px;
+  padding-right: 32px;
   background-color: #1f3c1e;
   color: #e0e0e0;
 }

@@ -8,3 +8,4 @@ workdir/*
 *.bak
 *.old
 data/*.db
+data/project_kb/

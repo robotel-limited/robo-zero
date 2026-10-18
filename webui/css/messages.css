@@ -436,14 +436,60 @@ body {
 }
 
 .project-card {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  margin-bottom: 16px;
   border: 1px solid var(--color-border);
   border-radius: 8px;
   background: var(--color-panel);
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.project-card-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 9px 14px;
+}
+
+.project-card-title {
+  flex: 0 1 auto;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.95em;
+  cursor: pointer;
+  text-align: left;
+}
+
+.project-card-title:hover {
+  color: var(--color-accent);
+}
+
+.project-card-desc {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-muted);
+  font-size: 0.9em;
+}
+
+.project-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 14px 14px;
+}
+
+.project-card-details[hidden] {
+  display: none;
 }
 
 .project-title-input,

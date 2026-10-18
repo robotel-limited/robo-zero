@@ -14,9 +14,32 @@ async function api(path, options) {
   return resp.status === 204 ? null : resp.json();
 }
 
+// id-urile proiectelor expandate — supraviețuiesc unui loadProjects() (după
+// salvare/ștergere) cât timp pagina rămâne încărcată, ca accordionul să nu
+// se închidă la fiecare salvare.
+const expandedIds = new Set();
+
 function renderProject(project) {
   const card = document.createElement("div");
   card.className = "project-card";
+
+  const row = document.createElement("div");
+  row.className = "project-card-row";
+
+  const titleToggle = document.createElement("button");
+  titleToggle.type = "button";
+  titleToggle.className = "project-card-title";
+  titleToggle.textContent = project.title || "(fără titlu)";
+
+  const descPreview = document.createElement("div");
+  descPreview.className = "project-card-desc";
+  descPreview.textContent = project.description || "";
+
+  row.append(titleToggle, descPreview);
+  card.appendChild(row);
+
+  const details = document.createElement("div");
+  details.className = "project-card-details";
 
   const titleInput = document.createElement("input");
   titleInput.className = "project-title-input";
@@ -61,7 +84,22 @@ function renderProject(project) {
   deleteBtn.addEventListener("click", () => deleteProject(project.id, project.title));
 
   actions.append(newChatBtn, saveBtn, deleteBtn);
-  card.append(titleInput, descInput, promptLabel, promptInput, actions);
+  details.append(titleInput, descInput, promptLabel, promptInput, actions);
+  card.appendChild(details);
+
+  const setExpanded = (expanded) => {
+    card.classList.toggle("project-card--expanded", expanded);
+    details.hidden = !expanded;
+  };
+  setExpanded(expandedIds.has(project.id));
+
+  titleToggle.addEventListener("click", () => {
+    const expand = !expandedIds.has(project.id);
+    if (expand) expandedIds.add(project.id);
+    else expandedIds.delete(project.id);
+    setExpanded(expand);
+  });
+
   loadKbInto(card, project.id);
   loadMemoryInto(card, project.id);
   return card;

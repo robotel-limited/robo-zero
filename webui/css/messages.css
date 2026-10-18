@@ -233,12 +233,40 @@ body {
   text-decoration: none;
 }
 
+.chat-group {
+  display: flex;
+  flex-direction: column;
+}
+
 .chat-group-header {
-  padding: 6px 10px 2px;
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  margin: 2px 0;
+  border: none;
+  border-radius: 6px;
+  background: none;
   font-size: 0.75em;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: var(--color-muted);
+  text-align: left;
+  cursor: pointer;
+}
+
+.chat-group-header:hover {
+  background: var(--color-panel);
+  color: var(--color-text);
+}
+
+.chat-group-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chat-group-body[hidden] {
+  display: none;
 }
 
 .chat-list-project-select {

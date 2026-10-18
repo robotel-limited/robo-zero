@@ -214,11 +214,42 @@ function renderChatItem(chat) {
   return item;
 }
 
-function renderChatGroupHeader(label) {
-  const header = document.createElement("div");
+// chei de grup expandate — persistă peste loadChatList() (apelat după orice
+// acțiune: trimitere mesaj, redenumire, ștergere) cât timp pagina rămâne
+// încărcată, ca accordionul să nu se închidă la fiecare refresh.
+const expandedGroups = new Set();
+
+function renderChatGroup(key, label, chats) {
+  const group = document.createElement("div");
+  group.className = "chat-group";
+
+  const header = document.createElement("button");
+  header.type = "button";
   header.className = "chat-group-header";
-  header.textContent = label;
-  return header;
+
+  const body = document.createElement("div");
+  body.className = "chat-group-body";
+  for (const chat of chats) body.appendChild(renderChatItem(chat));
+
+  const setExpanded = (expanded) => {
+    group.classList.toggle("chat-group--expanded", expanded);
+    body.hidden = !expanded;
+    header.textContent = `${expanded ? "▾" : "▸"} ${label} (${chats.length})`;
+  };
+  // grupul care conține chat-ul activ e mereu vizibil, altfel ar rămâne
+  // ascuns în spatele propriului header colapsat
+  const containsActive = chats.some((c) => c.id === currentChatId);
+  setExpanded(expandedGroups.has(key) || containsActive);
+
+  header.addEventListener("click", () => {
+    const expand = !expandedGroups.has(key);
+    if (expand) expandedGroups.add(key);
+    else expandedGroups.delete(key);
+    setExpanded(expand);
+  });
+
+  group.append(header, body);
+  return group;
 }
 
 async function setChatProject(chatId, projectId) {
@@ -238,11 +269,7 @@ async function loadChatList() {
   const [chats, projects] = await Promise.all([api("/api/chats"), api("/api/projects")]);
   projectsCache = projects;
   chatListEl.innerHTML = "";
-
-  if (projects.length === 0) {
-    for (const chat of chats) chatListEl.appendChild(renderChatItem(chat));
-    return;
-  }
+  if (chats.length === 0) return;
 
   const byProject = new Map();
   const unassigned = [];
@@ -258,13 +285,11 @@ async function loadChatList() {
   for (const project of projects) {
     const chatsInProject = byProject.get(project.id);
     if (!chatsInProject || chatsInProject.length === 0) continue;
-    chatListEl.appendChild(renderChatGroupHeader(project.title));
-    for (const chat of chatsInProject) chatListEl.appendChild(renderChatItem(chat));
+    chatListEl.appendChild(renderChatGroup(project.id, project.title, chatsInProject));
   }
 
   if (unassigned.length > 0) {
-    chatListEl.appendChild(renderChatGroupHeader("Fără proiect"));
-    for (const chat of unassigned) chatListEl.appendChild(renderChatItem(chat));
+    chatListEl.appendChild(renderChatGroup("__unassigned__", "Neafiliat", unassigned));
   }
 }
 

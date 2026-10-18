@@ -1,4 +1,4 @@
-# robo-zero
+# RoboZero
 
 A lightweight [Agent-Zero](https://github.com/agent0ai/agent-zero)-inspired
 autonomous agent: a FastAPI backend + a framework-free webUI, chat-based,

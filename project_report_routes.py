@@ -17,6 +17,8 @@ router = APIRouter()
 # md-reader (separate app, /srv/md-reader) renders .md reports formatted
 # instead of as plain text; it exposes robo-zero's workdir under the
 # 'robo-zero' source (see its SOURCES dict).
+# Rulează pe SVL (10.22.22.2) și e accesibil de pe ambele r0 (SVL/SVAI) pe ZeroTier.
+MD_READER_HOST = "10.22.22.2"  # SVL IP on ZeroTier robo-net
 MD_READER_PORT = 7194
 
 
@@ -30,7 +32,7 @@ def _as_api(report: dict, host: str) -> dict:
     rel = os.path.realpath(report["path"])[len(workdir):].lstrip(os.sep).replace(os.sep, "/")
     raw_url = f"/files/{rel}"
     if report["path"].lower().endswith(".md"):
-        url = f"http://{host}:{MD_READER_PORT}/?source=robo-zero&file={quote(rel)}"
+        url = f"http://{MD_READER_HOST}:{MD_READER_PORT}/?source=robo-zero&file={quote(rel)}"
     else:
         url = raw_url
     chat = chat_store.get(report["chat_id"]) if report["chat_id"] else None

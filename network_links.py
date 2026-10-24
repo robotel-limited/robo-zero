@@ -7,13 +7,13 @@ import os
 
 import path_access
 
-_ZT_HOST = "10.22.22.2"  # IP-ul SVL în rețeaua ZeroTier "robo-net"
+_ZT_HOST = "192.168.0.160"  # IP-ul SVL în rețeaua LAN
 _SHARE_ROOT = "/srv"  # rădăcina share-ului Samba [Srv] din smb.conf
 _SHARE_NAME = "Srv"
 
 
 def to_network_link(local_path: str) -> str | None:
-    """Întoarce `\\\\10.22.22.2\\Srv\\rest\\of\\path` pentru o cale absolută
+    """Întoarce `\\\\192.168.0.160\\Srv\\rest\\of\\path` pentru o cale absolută
     din workdir-ul agentului, sau None dacă fișierul e în afara lui."""
     resolved = os.path.realpath(local_path)
     workdir = os.path.realpath(path_access.BASE_WORKDIR)

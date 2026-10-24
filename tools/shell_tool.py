@@ -5,10 +5,35 @@ comenzile din denylist (safety.requires_confirmation) și limite de timeout/outp
 import asyncio
 import os
 import signal
+import time
 from typing import Any
 
+import network_links
+import project_reports_store
 import safety
+import usage_log
 from tools.tool_base import Tool, ToolResult
+
+# directoare ignorate la detectarea fișierelor noi/modificate (zgomot, nu
+# fișiere "livrabile" pentru utilizator)
+_SKIP_DIRS = {".git", "__pycache__", "node_modules", ".venv", "venv"}
+
+
+def _new_files_since(workdir: str, start_ts: float) -> list[str]:
+    """Căile (absolute) ale fișierelor din workdir modificate/create în
+    timpul comenzii — aproximare prin mtime, nu un diff exact, dar suficient
+    pentru a semnala agentului ce a produs comanda și unde."""
+    found = []
+    for root, dirs, files in os.walk(workdir):
+        dirs[:] = [d for d in dirs if d not in _SKIP_DIRS]
+        for name in files:
+            full = os.path.join(root, name)
+            try:
+                if os.path.getmtime(full) >= start_ts - 1:
+                    found.append(full)
+            except OSError:
+                pass
+    return found
 
 
 def _kill_process_group(pid: int, sig: signal.Signals) -> None:
@@ -54,6 +79,7 @@ class ShellExecute(Tool):
 
         workdir = getattr(self.agent, "workdir", "/srv/robo-zero/workdir")
         timeout = getattr(self.agent, "shell_timeout_seconds", safety.SHELL_TIMEOUT_SECONDS)
+        start_ts = time.time()
 
         try:
             # start_new_session=True pune comanda într-un grup de procese nou,
@@ -88,9 +114,20 @@ class ShellExecute(Tool):
             output = safety.truncate(output, safety.SHELL_OUTPUT_LIMIT)
 
             exit_code = proc.returncode
+            links = []
+            for full in _new_files_since(workdir, start_ts):
+                link = network_links.to_network_link(full)
+                if link:
+                    links.append(link)
+                    if self.agent.project_id:
+                        project_reports_store.record(
+                            self.agent.project_id, usage_log.scope.get().get("chat_id"), full
+                        )
+            links_block = "\n\nFișiere noi/modificate (link de rețea):\n" + "\n".join(links) if links else ""
+
             if exit_code is not None and exit_code < 0:
-                return ToolResult(message=f"[întrerupt, exit code {exit_code}]\n{output}")
-            return ToolResult(message=f"[exit code {exit_code}]\n{output}")
+                return ToolResult(message=f"[întrerupt, exit code {exit_code}]\n{output}{links_block}")
+            return ToolResult(message=f"[exit code {exit_code}]\n{output}{links_block}")
 
         except Exception as e:
             return ToolResult(message=f"Eroare la execuția comenzii: {e}")

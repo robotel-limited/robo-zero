@@ -76,6 +76,18 @@ function renderProject(project) {
   }
   modelSelect.value = project.model || "deepseek-flash";
 
+  const voiceOnlyLabel = document.createElement("label");
+  voiceOnlyLabel.className = "project-field-label project-voice-only-label";
+  const voiceOnlyCheckbox = document.createElement("input");
+  voiceOnlyCheckbox.type = "checkbox";
+  voiceOnlyCheckbox.checked = Boolean(project.voice_only);
+  voiceOnlyLabel.append(
+    voiceOnlyCheckbox,
+    document.createTextNode(
+      " Voice-only (no UI to approve/deny — skip confirmation for shell/fs/browser actions)"
+    )
+  );
+
   const promptLabel = document.createElement("div");
   promptLabel.className = "project-field-label";
   promptLabel.textContent = "Prompt injected into every chat in this project";
@@ -100,6 +112,7 @@ function renderProject(project) {
       description: descInput.value,
       prompt: promptInput.value,
       model: modelSelect.value,
+      voice_only: voiceOnlyCheckbox.checked,
     })
   );
 
@@ -109,7 +122,16 @@ function renderProject(project) {
   deleteBtn.addEventListener("click", () => deleteProject(project.id, project.title));
 
   actions.append(newChatBtn, saveBtn, deleteBtn);
-  details.append(titleInput, descInput, modelLabel, modelSelect, promptLabel, promptInput, actions);
+  details.append(
+    titleInput,
+    descInput,
+    modelLabel,
+    modelSelect,
+    voiceOnlyLabel,
+    promptLabel,
+    promptInput,
+    actions
+  );
   card.appendChild(details);
 
   const setExpanded = (expanded) => {
@@ -127,6 +149,7 @@ function renderProject(project) {
 
   loadKbInto(card, project.id);
   loadFoldersInto(card, project.id);
+  loadReportsInto(card, project.id);
   loadMemoryInto(card, project.id);
   loadRulesInto(card, project.id);
   loadCostInto(card, project.id);

@@ -25,7 +25,7 @@ from tools.kb_read import KbRead
 from tools.memory_tool import MemoryRecall, MemoryRemember
 from tools.project_search import ProjectSearch
 from tools.response import FinalResponse
-from tools.robo_rag_tool import RoboRagQuery
+from tools.robo_med_tool import RoboMedIntake, RoboMedReport, RoboMedSearch
 from tools.shell_tool import ShellExecute
 from tools.tool_base import Tool
 from tools.web_read_tool import WebRead
@@ -133,7 +133,9 @@ class Agent:
             ImageGenerate(self),
             WebRead(self),
             BrowserTool(self),
-            RoboRagQuery(self),
+            RoboMedIntake(self),
+            RoboMedSearch(self),
+            RoboMedReport(self),
             FinalResponse(self),
         ]
         if self.project_id:
@@ -143,6 +145,17 @@ class Agent:
         else:
             instances.append(MemoryRemember(self))
         return {t.name: t for t in instances}
+
+    def _is_voice_only(self) -> bool:
+        """Proiectele voice-only (robo-audio, fără UI de approve/deny) nu pot
+        aproba niciodată o cerere de confirmare — vezi _execute_tool_call,
+        care sare peste pre_check/confirm complet pentru ele. Citit live din
+        projects_store, la fel ca _chat_model(), ca o schimbare din /projects
+        să se aplice imediat."""
+        if not self.project_id:
+            return False
+        project = projects_store.get(self.project_id)
+        return bool(project and project.get("voice_only"))
 
     def _chat_model(self) -> str | None:
         """Modelul proiectului (etapa D) are prioritate, citit live din
@@ -262,7 +275,7 @@ class Agent:
         repetition_note = self._check_repetition(name, raw_arguments)
 
         pre_check = getattr(tool, "pre_check", None)
-        if callable(pre_check) and pre_check(args):
+        if callable(pre_check) and pre_check(args) and not self._is_voice_only():
             approved = await self.confirm(name, raw_arguments)
             if not approved:
                 return (f"Acțiunea '{name}' a fost refuzată de utilizator.", False)

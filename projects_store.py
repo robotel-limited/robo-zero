@@ -15,7 +15,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent
 _DB_PATH = _PROJECT_ROOT / "data" / "projects.db"
 _DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-_ALLOWED_FIELDS = {"title", "description", "prompt", "model"}
+_ALLOWED_FIELDS = {"title", "description", "prompt", "model", "voice_only"}
 # extracția (project_digest.py, kb_extract.py) rulează mereu pe flash,
 # indiferent de modelul ales aici — vezi llm.py
 _MODELS = set(llm.MODEL_CATALOG)
@@ -37,6 +37,7 @@ def init_db() -> None:
                 description TEXT NOT NULL DEFAULT '',
                 prompt TEXT NOT NULL DEFAULT '',
                 model TEXT NOT NULL DEFAULT 'deepseek-flash',
+                voice_only INTEGER NOT NULL DEFAULT 0,
                 created_at REAL NOT NULL,
                 updated_at REAL NOT NULL
             )
@@ -46,6 +47,15 @@ def init_db() -> None:
         if "model" not in columns:  # tabel creat înainte de coloană
             conn.execute(
                 "ALTER TABLE projects ADD COLUMN model TEXT NOT NULL DEFAULT 'deepseek-flash'"
+            )
+        if "voice_only" not in columns:
+            # proiecte voice-only (fără UI de approve/deny, ex. robo-audio):
+            # niciun tool confirmabil nu poate fi vreodată aprobat prin voce,
+            # așa că cererea de confirmare blochează chat-ul până la timeout
+            # (incident Liliana/SVAI 2026-10-21) — pentru aceste proiecte
+            # agent.py sare peste pre_check/confirm complet (vezi _execute_tool_call).
+            conn.execute(
+                "ALTER TABLE projects ADD COLUMN voice_only INTEGER NOT NULL DEFAULT 0"
             )
 
 

@@ -30,6 +30,7 @@ import settings_store
 from chat_session import ChatSession
 from project_folder_routes import router as project_folder_router
 from project_memory_routes import router as project_memory_router
+from project_report_routes import router as project_report_router
 from project_rules_routes import router as project_rules_router
 from upload_routes import router as upload_router
 from usage_routes import router as usage_router
@@ -77,6 +78,7 @@ app = FastAPI(title="robo-zero", lifespan=_lifespan)
 app.add_middleware(OriginCheckMiddleware)
 app.include_router(project_memory_router)
 app.include_router(project_folder_router)
+app.include_router(project_report_router)
 app.include_router(project_rules_router)
 app.include_router(upload_router)
 app.include_router(usage_router)

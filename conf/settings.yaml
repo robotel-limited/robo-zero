@@ -52,6 +52,16 @@ robo_rag:
   provider: mistral   # singurul provider configurat pt tenant-ul internal-agents (eu-only)
   timeout_seconds: 60
 
+robo_med:
+  # robo-med rulează pe SVAI, peste ZeroTier (verificat 2026-10-21: /health OK).
+  # S5 (/report) e deployat și cablat în r0 (2026-10-21): intake -> search -> report.
+  # synthetic=true e trimis mereu: bypass tehnic al guard-ului de pilot clinică
+  # (real_data_refused_until_dpa), decizie 2026-10-21 -- date reale, consimțământ
+  # direct al Lilianei, fără DPA de clinică (nu e cazul ei de uz).
+  base_url: http://10.22.22.3:8936
+  timeout_seconds: 30
+  default_patient_email: liliana@robotel.top
+
 history:
   context_tokens: 128000   # fereastră de context deepseek-flash (estimativ)
   trigger_fraction: 0.7

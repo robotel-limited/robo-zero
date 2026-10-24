@@ -1,6 +1,6 @@
 {
   "verbose": false,
   "notify_telegram": false,
-  "notify_sms": false,
-  "default_model": "nvidia/nemotron-3-super-120b-a12b"
+  "notify_sms": true,
+  "default_model": "qwen-flash"
 }

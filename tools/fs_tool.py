@@ -8,7 +8,10 @@ legate de proiect ro/rw, fișiere cu secrete) decide path_access.py.
 import os
 from typing import Any
 
+import network_links
 import path_access
+import project_reports_store
+import usage_log
 from tools.tool_base import Tool, ToolResult
 
 _READ_PAGE_CHARS = 12000
@@ -128,6 +131,13 @@ class FsWrite(Tool):
                 f.write(content)
 
             char_count = len(content)
+            link = network_links.to_network_link(full_path)
+            if link:
+                if self.agent.project_id:
+                    project_reports_store.record(
+                        self.agent.project_id, usage_log.scope.get().get("chat_id"), full_path
+                    )
+                return ToolResult(message=f"Scris {char_count} caractere în {path}\nLink de rețea: {link}")
             return ToolResult(message=f"Scris {char_count} caractere în {path}")
 
         except Exception as e:

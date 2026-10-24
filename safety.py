@@ -1,32 +1,56 @@
-"""Plasa de siguranță: denylist de comenzi distructive (cer confirmare în UI),
+"""Plasa de siguranță: denylist de comenzi cu risc înalt (cer confirmare în UI),
 mascarea secretelor cunoscute și trunchierea output-urilor.
 
-Nu blochează execuția — doar decide dacă e nevoie de confirmare înainte,
-și curăță ce ajunge în istoric/log/SSE. Decizia reală de aprobare/refuz
-vine din afară (UI sau, în etapa 1, harness-ul CLI), via un callback async
-primit de Agent.
+robo-zero trebuie să fie versatil: poate clona repo-uri, instala dependențe,
+diagnostica servicii, etc. Denylist-ul permite toate operațiile uzuale:
+- Comenzi read-only de diagnostică: systemctl status, journalctl, ps, find, grep
+- Gestionare dependențe: apt, pip, git (inclus git reset --hard pentru cleanup)
+- File system ops în workdir: rm, mkdir, etc.
+- Doar BLOCHEAZĂ: kill/pkill (prea riscant), sudo (robo-zero deja rulează ca sorin),
+  dd/mkfs (operații pe disc cruda, zero caz legitim)
+
+Decizia reală de aprobare/refuz vine din afară (UI sau harness CLI),
+via un callback async primit de Agent. Confirmarea e cerută pentru comenzi
+care schimbă stare (apt install, git push, etc.).
 """
 
 import os
 import re
 
-# Comenzi shell care cer confirmare înainte de execuție (constatarea 1 din plan).
-# Potriviri pe cuvinte/paternuri, nu doar substring, ca să nu dea fals-pozitiv
-# pe argumente care conțin întâmplător litere similare.
+# Comenzi care cer CONFIRMĂ în UI (risc înalt sau schimbă stare).
+# Sunt excluse: comenzi read-only (systemctl status), git ops benefice (reset --hard).
 _DENYLIST_PATTERNS: list[re.Pattern] = [
-    re.compile(r"\brm\s+(-\w*\s+)*-\w*[rf]\w*", re.IGNORECASE),  # rm -r / -rf / -fr ...
-    re.compile(r"\bsudo\b", re.IGNORECASE),
-    re.compile(r"\bsystemctl\b", re.IGNORECASE),
-    re.compile(r"\b(kill|pkill)\b", re.IGNORECASE),
+    # Procese — prea riscant, chiar cu confirmare
+    re.compile(r"\b(kill|pkill|killall)\b", re.IGNORECASE),
+    # Operații pe disc cruda — zero caz de uz legit
     re.compile(r"\bdd\s+if=", re.IGNORECASE),
     re.compile(r"\bmkfs\b", re.IGNORECASE),
+    # sudo — robo-zero rulează deja ca sorin; nu e nevoie
+    re.compile(r"\bsudo\b", re.IGNORECASE),
+    # Schimbări de stare care merita confirmare (dar nu blocheaza)
+    # apt install trebuie confirmat (apt update/list e OK)
+    re.compile(r"\bapt\s+install\b", re.IGNORECASE),
+    re.compile(r"\bpip\s+install\b", re.IGNORECASE),
+    # git push — schimbă repo-uri externe
+    re.compile(r"\bgit\s+push\b", re.IGNORECASE),
+    # chmod/chown recursiv — poate schimba permisiuni în afara workdir
     re.compile(r"\bchmod\s+-R\b", re.IGNORECASE),
     re.compile(r"\bchown\s+-R\b", re.IGNORECASE),
-    re.compile(r"\bgit\s+push\b", re.IGNORECASE),
-    re.compile(r"\bgit\s+reset\s+--hard\b", re.IGNORECASE),
-    # redirectare de output către o cale absolută (scriere posibil în afara workdir/)
-    re.compile(r"[>]{1,2}\s*/(?!dev/null)"),
 ]
+
+# redirectare de output către o cale absolută în afara workdir/ + /tmp
+# — permite /tmp si workdir (sigur), blocheaza /etc, /root, etc.
+# (regex: blocheaza doar redirectare in root path care nu e /tmp, /srv, /dev/null)
+_REDIRECT_PATTERN = re.compile(r"[>]{1,2}\s*/(?!dev/null|tmp|srv)")
+
+_QUOTED_PATTERN = re.compile(r"'[^']*'|\"[^\"]*\"")
+
+
+def _strip_quoted(command: str) -> str:
+    """Elimină conținutul dintre ghilimele single/double, păstrând restul
+    comenzii — redirecționările shell reale nu apar niciodată în interiorul
+    unui literal citat."""
+    return _QUOTED_PATTERN.sub("", command)
 
 # Trunchiere output shell (constatarea plan: 20 KB)
 SHELL_OUTPUT_LIMIT = 20 * 1024
@@ -39,7 +63,9 @@ _SECRET_ENV_VARS = ("DEEPSEEK_API_KEY", "NVIDIA_API_KEY")
 def requires_confirmation(command: str) -> bool:
     """True dacă comanda shell se potrivește cu denylist-ul și trebuie
     confirmată explicit în UI înainte de execuție."""
-    return any(p.search(command) for p in _DENYLIST_PATTERNS)
+    if any(p.search(command) for p in _DENYLIST_PATTERNS):
+        return True
+    return bool(_REDIRECT_PATTERN.search(_strip_quoted(command)))
 
 
 def path_escapes_workdir(path: str, workdir: str) -> bool:

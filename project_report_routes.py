@@ -17,8 +17,10 @@ router = APIRouter()
 # md-reader (separate app, /srv/md-reader) renders .md reports formatted
 # instead of as plain text; it exposes robo-zero's workdir under the
 # 'robo-zero' source (see its SOURCES dict).
-# Rulează pe SVL (192.168.0.160) și e accesibil de pe ambele r0 (SVL/SVAI) pe LAN.
-MD_READER_HOST = "192.168.0.160"  # SVL IP on LAN
+# Rulează pe SVL (10.22.22.2). URL-ul e consumat de browser-ul utilizatorului,
+# nu de server (SVL/SVAI), deci trebuie IP-ul ZeroTier stabil din orice rețea
+# s-ar conecta clientul -- LAN-ul 192.168.0.x nu e accesibil de pe telefon/alt loc.
+MD_READER_HOST = "10.22.22.2"  # SVL IP on ZeroTier robo-net
 MD_READER_PORT = 7194
 
 

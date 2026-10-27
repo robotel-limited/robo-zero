@@ -23,7 +23,7 @@ from tools.tool_base import Tool, ToolResult
 
 # r0code poate fi suprascris din env (ex. pe fuji, unde e altă instalare)
 R0CODE_BIN = os.environ.get(
-    "R0CODE_BIN", "/srv/robo-zero/workdir/projects/ebcd14e0ea45/r0code/r0code.py"
+    "R0CODE_BIN", "/srv/robo-zero/r0code/r0code.py"
 )
 DEFAULT_TIMEOUT = 1200  # 20 min: un task real cu 15-25 de pași încape lejer
 

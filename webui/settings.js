@@ -14,6 +14,7 @@ const TOGGLES = [
   { toggleId: "verbose-toggle", stateId: "verbose-state", settingsKey: "verbose" },
   { toggleId: "notify-telegram-toggle", stateId: "notify-telegram-state", settingsKey: "notify_telegram" },
   { toggleId: "notify-sms-toggle", stateId: "notify-sms-state", settingsKey: "notify_sms" },
+  { toggleId: "code-guard-toggle", stateId: "code-guard-state", settingsKey: "code_guard" },
 ];
 
 function bindToggle({ toggleId, stateId, settingsKey }) {

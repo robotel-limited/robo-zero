@@ -100,7 +100,7 @@ class CodeTask(Tool):
         tier = kwargs.get("tier") or ("sub" if guarded else "auto")
         if guarded and tier != code_guard.ALLOWED_TIER:
             return ToolResult(
-                message=f"Eroare: proiectul are code_guard pornit — doar tier "
+                message=f"Eroare: code_guard e pornit — doar tier "
                         f"'{code_guard.ALLOWED_TIER}' (abonamentul MiMo) e permis, nu '{tier}'."
             )
         if tier not in ("auto", "free", "sub", "paid", "local"):
@@ -118,7 +118,7 @@ class CodeTask(Tool):
         verify = (kwargs.get("verify") or "").strip()
         if guarded and not verify:
             return ToolResult(
-                message="Eroare: proiectul are code_guard pornit — code_task cere `verify` "
+                message="Eroare: code_guard e pornit — code_task cere `verify` "
                         "(comanda de test care decide succesul), nu declarația modelului."
             )
         if verify:

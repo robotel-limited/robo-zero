@@ -15,6 +15,8 @@ _DEFAULTS: dict[str, Any] = {
     "notify_telegram": False,  # trimite "Task ready - [nume]" pe Telegram la finalul rulării
     "notify_sms": False,  # trimite "Task ready - [nume]" prin SMS la finalul rulării
     "default_model": llm.MODEL,  # model folosit de chat-urile neafiliate unui proiect (etapa E)
+    # codul îl scrie code_task (mimo); se oprește din UI când se termină cota MiMo — vezi code_guard.py
+    "code_guard": True,
 }
 
 

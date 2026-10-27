@@ -1,9 +1,11 @@
-"""Regula „codul îl scrie code_task” pentru proiectele marcate cu code_guard.
+"""Regula globală „codul îl scrie code_task”, pornită/oprită din Setări.
 
 De ce există: în proiectele în care planul cere ca programarea s-o facă
 modelul de coding delegat (mimo, prin code_task), agentul principal tindea
 să scrie singur fișierele de cod cu fs_write (incident robo-simulate,
-etapa 4-Core, 2026-10-27). Cu code_guard pornit pe proiect:
+etapa 4-Core, 2026-10-27). Mimo e plătit prin abonament tocmai ca să
+programeze, deci regula e generală (decizia Sorin 2026-10-27), cu un singur
+comutator în Setări — de oprit când se termină cota MiMo. Cu code_guard pornit:
   - fs_write refuză fișierele de cod (după extensie) și trimite la code_task;
   - code_task rulează doar pe abonamentul MiMo (tier „sub”), fără per token;
   - un code_task eșuat cere oprire și raport către om, nu scriere directă.
@@ -15,7 +17,7 @@ decizia Sorin 2026-10-27 (varianta B): o prinde auditul jurnalului.
 import os
 from typing import Any
 
-import projects_store
+import settings_store
 
 # Fișiere care sunt cod sau configurație de build; documentele (.md, .txt,
 # .json de raport) rămân scriibile direct de agent.
@@ -27,7 +29,7 @@ CODE_EXTENSIONS = {
 ALLOWED_TIER = "sub"
 
 FS_WRITE_REFUSAL = (
-    "Eroare: proiectul are code_guard pornit — fișierele de cod ({ext}) nu se scriu cu "
+    "Eroare: code_guard e pornit — fișierele de cod ({ext}) nu se scriu cu "
     "fs_write. Folosește code_task (cu `verify` = comanda de test), care deleagă la mimo. "
     "Nu ocoli regula prin shell_execute."
 )
@@ -40,12 +42,8 @@ CODE_TASK_FAILED = (
 
 
 def enabled(agent: Any) -> bool:
-    """Citit live din projects_store, ca o schimbare să se aplice imediat."""
-    project_id = getattr(agent, "project_id", None)
-    if not project_id:
-        return False
-    project = projects_store.get(project_id)
-    return bool(project and project.get("code_guard"))
+    """Citit live din Setări, ca oprirea (cota MiMo terminată) să se aplice imediat."""
+    return bool(settings_store.load().get("code_guard", True))
 
 
 def blocked_extension(full_path: str) -> str | None:

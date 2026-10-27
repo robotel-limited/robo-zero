@@ -8,6 +8,7 @@ legate de proiect ro/rw, fișiere cu secrete) decide path_access.py.
 import os
 from typing import Any
 
+import code_guard
 import network_links
 import path_access
 import project_reports_store
@@ -119,6 +120,9 @@ class FsWrite(Tool):
                 return ToolResult(
                     message=f"Eroare: '{path}' e într-un folder doar-citire (ro) al proiectului. Scriere refuzată."
                 )
+            ext = code_guard.blocked_extension(full_path)
+            if ext and code_guard.enabled(self.agent):
+                return ToolResult(message=code_guard.FS_WRITE_REFUSAL.format(ext=ext))
 
             # Creează directoare părinte
             parent_dir = os.path.dirname(full_path)

@@ -15,7 +15,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parent
 _DB_PATH = _PROJECT_ROOT / "data" / "projects.db"
 _DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-_ALLOWED_FIELDS = {"title", "description", "prompt", "model", "voice_only"}
+_ALLOWED_FIELDS = {"title", "description", "prompt", "model", "voice_only", "code_guard"}
 # extracția (project_digest.py, kb_extract.py) rulează mereu pe flash,
 # indiferent de modelul ales aici — vezi llm.py
 _MODELS = set(llm.MODEL_CATALOG)
@@ -56,6 +56,11 @@ def init_db() -> None:
             # agent.py sare peste pre_check/confirm complet (vezi _execute_tool_call).
             conn.execute(
                 "ALTER TABLE projects ADD COLUMN voice_only INTEGER NOT NULL DEFAULT 0"
+            )
+        if "code_guard" not in columns:
+            # proiecte în care codul îl scrie doar code_task (mimo) — vezi code_guard.py
+            conn.execute(
+                "ALTER TABLE projects ADD COLUMN code_guard INTEGER NOT NULL DEFAULT 0"
             )
 
 

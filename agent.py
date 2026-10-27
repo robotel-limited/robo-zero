@@ -18,6 +18,7 @@ import projects_store
 import safety
 import settings_store
 from tools.browser_tool import BrowserBox, BrowserTool
+from tools.code_task import CodeTask
 from tools.call_subordinate import CallSubordinate
 from tools.fs_tool import FsList, FsRead, FsWrite
 from tools.image_generate import ImageGenerate
@@ -128,6 +129,7 @@ class Agent:
             FsWrite(self),
             FsList(self),
             ShellExecute(self),
+            CodeTask(self),
             CallSubordinate(self),
             MemoryRecall(self),
             ImageGenerate(self),

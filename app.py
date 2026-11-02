@@ -28,6 +28,7 @@ import project_hooks
 import projects_store
 import settings_store
 from chat_session import ChatSession
+from fs_browse_routes import router as fs_browse_router
 from project_folder_routes import router as project_folder_router
 from project_memory_routes import router as project_memory_router
 from project_report_routes import router as project_report_router
@@ -78,6 +79,7 @@ app = FastAPI(title="robo-zero", lifespan=_lifespan)
 app.add_middleware(OriginCheckMiddleware)
 app.include_router(project_memory_router)
 app.include_router(project_folder_router)
+app.include_router(fs_browse_router)
 app.include_router(project_report_router)
 app.include_router(project_rules_router)
 app.include_router(upload_router)

@@ -207,3 +207,121 @@
   color: var(--color-text);
   cursor: pointer;
 }
+
+/* picker de directoare ("Browse…" în caseta Linked folders) */
+.folder-browse-btn {
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-panel);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.folder-browser-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.folder-browser {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
+  width: min(560px, 92vw);
+  max-height: 72vh;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.folder-browser-head {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.folder-browser-pathbar {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+}
+
+.folder-browser-path {
+  flex: 1;
+  min-width: 0;
+  font-family: monospace;
+  font-size: 0.85em;
+}
+
+.folder-browser-roots {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.folder-browser-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.folder-browser-entry {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.folder-browser-entry:hover {
+  background: var(--color-border);
+}
+
+.folder-browser-empty,
+.folder-browser-status {
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.folder-browser-foot {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* butoanele mici din modal (închidere, urcare, rădăcini, selectare) */
+.folder-browser-close,
+.folder-browser-up,
+.folder-browser-root,
+.folder-browser-select,
+.folder-browser-cancel {
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.folder-browser-select {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  border-color: var(--color-accent);
+}
+
+.folder-browser-up:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

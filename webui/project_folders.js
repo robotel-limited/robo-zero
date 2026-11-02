@@ -149,7 +149,16 @@ function folderAddRow(projectId, onChange) {
     onChange();
   });
 
-  row.append(path, mode, indexLabel, addBtn);
+  const browseBtn = document.createElement("button");
+  browseBtn.type = "button";
+  browseBtn.className = "folder-browse-btn";
+  browseBtn.textContent = "Browse…";
+  browseBtn.addEventListener("click", async () => {
+    const picked = await openFolderBrowser(path.value.trim());
+    if (picked) path.value = picked;
+  });
+
+  row.append(path, browseBtn, mode, indexLabel, addBtn);
   return row;
 }
 

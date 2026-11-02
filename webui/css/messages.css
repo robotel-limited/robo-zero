@@ -170,6 +170,25 @@ body {
   overflow-wrap: anywhere;
 }
 
+.chat-list-title-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 2px 4px;
+  border: 1px solid var(--color-accent);
+  border-radius: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
+}
+
+.chat-list-title-input:focus {
+  outline: none;
+  border-color: var(--color-accent-bright);
+}
+
 .chat-list-action {
   background: none;
   border: none;

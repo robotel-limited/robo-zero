@@ -59,6 +59,7 @@ function connectEvents(chatId) {
 async function createChat() {
   const chat = await api("/api/chats", { method: "POST" });
   await selectChat(chat.id);
+  if (!startInlineRenameById(chat.id)) setTimeout(() => startInlineRenameById(chat.id), 150);
 }
 
 newChatBtn.addEventListener("click", () => createChat());

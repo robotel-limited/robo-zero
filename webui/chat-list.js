@@ -1,5 +1,6 @@
 /* Sidebar chat list: grouped by project (accordion), per-chat cost
-   display, and per-chat actions (project assignment, rename, delete). */
+   display, and per-chat actions (project assignment, delete).
+   Chat titles are renamed inline (double-click on the title). */
 
 const chatListEl = document.getElementById("chat-list");
 
@@ -15,11 +16,13 @@ function formatCost(usd) {
 function renderChatItem(chat) {
   const item = document.createElement("div");
   item.className = "chat-list-item" + (chat.id === currentChatId ? " active" : "");
+  item.dataset.chatId = chat.id;
 
   const titleEl = document.createElement("span");
   titleEl.className = "chat-list-title";
   titleEl.textContent = chat.title;
   titleEl.addEventListener("click", () => selectChat(chat.id));
+  titleEl.addEventListener("dblclick", () => startInlineRename(chat.id, titleEl));
   item.appendChild(titleEl);
 
   const costEl = document.createElement("span");
@@ -49,16 +52,6 @@ function renderChatItem(chat) {
   });
   item.appendChild(projectSelect);
 
-  const renameBtn = document.createElement("button");
-  renameBtn.className = "chat-list-action";
-  renameBtn.textContent = "✎";
-  renameBtn.title = "Rename";
-  renameBtn.addEventListener("click", (ev) => {
-    ev.stopPropagation();
-    renameChat(chat.id, chat.title);
-  });
-  item.appendChild(renameBtn);
-
   const deleteBtn = document.createElement("button");
   deleteBtn.className = "chat-list-action";
   deleteBtn.textContent = "🗑";
@@ -70,6 +63,55 @@ function renderChatItem(chat) {
   item.appendChild(deleteBtn);
 
   return item;
+}
+
+let inlineRename = null; // { chatId, input, done } — un singur edit activ
+
+function startInlineRename(chatId, titleEl) {
+  if (inlineRename || !titleEl) return;
+  const current = titleEl.textContent;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "chat-list-title chat-list-title-input";
+  input.value = current === "Conversație nouă" ? "" : current;
+  input.placeholder = "Chat name";
+  titleEl.replaceWith(input);
+  const state = { chatId, input, done: false };
+  inlineRename = state;
+  input.focus();
+  input.select();
+  const finish = async (save) => {
+    if (state.done) return;
+    state.done = true;
+    inlineRename = null;
+    const value = input.value.trim();
+    if (save && value && value !== current) {
+      try {
+        await api(`/api/chats/${chatId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: value }),
+        });
+      } catch (e) {
+        appendMessage("message-error", `Error renaming: ${e.message}`);
+      }
+    }
+    await loadChatList();
+  };
+  input.addEventListener("keydown", (ev) => {
+    if (ev.key === "Enter") { ev.preventDefault(); finish(true); }
+    else if (ev.key === "Escape") { ev.preventDefault(); finish(false); }
+  });
+  input.addEventListener("blur", () => finish(true));
+  input.addEventListener("click", (ev) => ev.stopPropagation());
+}
+
+function startInlineRenameById(chatId) {
+  const item = document.querySelector(`.chat-list-item[data-chat-id="${chatId}"]`);
+  const titleEl = item && item.querySelector(".chat-list-title");
+  if (!titleEl) return false;
+  startInlineRename(chatId, titleEl);
+  return true;
 }
 
 // expanded group keys — persist across loadChatList() (called after any
@@ -191,6 +233,14 @@ async function deleteProjectGroup(projectId, title, chats) {
 }
 
 async function loadChatList() {
+  // Nu reconstrui lista cât timp un titlu se editează inline: re-render-ul
+  // ar șterge input-ul din DOM (selectChat() reîncarcă lista la fiecare click).
+  // Editarea se reîmprospătează oricum la finalizare, când inlineRename e null.
+  if (inlineRename) {
+    if (inlineRename.input.isConnected) return;
+    inlineRename.done = true;
+    inlineRename = null;
+  }
   const [chats, projects, costTotals] = await Promise.all([
     api("/api/chats"),
     api("/api/projects"),
@@ -221,17 +271,6 @@ async function loadChatList() {
   if (unassigned.length > 0) {
     chatListEl.appendChild(renderChatGroup("__unassigned__", "Unassigned", unassigned));
   }
-}
-
-async function renameChat(chatId, currentTitle) {
-  const title = window.prompt("New title:", currentTitle);
-  if (!title || !title.trim()) return;
-  await api(`/api/chats/${chatId}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title: title.trim() }),
-  }).catch((e) => appendMessage("message-error", `Error renaming: ${e.message}`));
-  await loadChatList();
 }
 
 async function deleteChat(chatId) {

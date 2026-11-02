@@ -3,7 +3,7 @@ llm:
   provider: deepseek
   model: deepseek-flash     # cel mai ieftin model curent DeepSeek (V4.1-Flash); deepseek-v4-pro rămâne opțiune
   endpoint: https://api.deepseek.com/chat/completions
-  timeout_seconds: 120
+  timeout_seconds: 300  # 300 decizia Sorin 2026-11-01 (era 120; prompt eval lung la modele locale)
   max_retries: 3
   retry_backoff_seconds: [2, 4, 8]
 
@@ -63,7 +63,8 @@ robo_med:
   default_patient_email: liliana@robotel.top
 
 history:
-  context_tokens: 128000   # fereastră de context deepseek-flash (estimativ)
+  # context_tokens nu mai e aici — e per-model, în llm.MODEL_CATALOG
+  # (2026-10-31), citit live de history.compact_if_needed/context_tokens_for.
   trigger_fraction: 0.7
   keep_last_messages: 20
 

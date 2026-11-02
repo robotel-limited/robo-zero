@@ -100,7 +100,9 @@ MODELS: dict[str, dict] = {
         "key_env": "XIAOMI_API_KEY",
         "ctx": 1048576,
     },
-    # --- local (Ollama pe SVAI, 0 cost, 0 rețea externă) ---
+    # --- local (Ollama local al mașinii care execută r0code, 0 cost, 0 rețea externă) ---
+    # Rulează pe Ollama local al mașinii care execută r0code (SVL îl are activ, îl
+    # folosește robo-brain pentru embedding-uri; SVAI nu mai are Ollama din 2026-10-30).
     # qwen3.5:4b-r0 e un model derivat din qwen3.5:4b cu PARAMETER num_ctx 32768;
     # modelul de bază are 4096 și taie începutul promptului (verificat 2026-10-25).
     "local-qwen": {
@@ -112,14 +114,18 @@ MODELS: dict[str, dict] = {
         "slow": True,             # prefill 55 tok/s rece / 965 tok/s cu cache, gen 5.5 tok/s (T400 4GB)
         "max_result_chars": 2500,  # 32k ctx se umple în 5-6 citiri la 6000 cifre/rezultat
     },
-    # Qwen2.5-Coder 14B Q4_K_M pe SVAI (RTX 3060 12GB), derivat cu num_ctx 24576:
-    # la 32768 nu mai încape integral în VRAM (12% CPU, verificat 2026-10-27).
-    "svai-coder14b": {
+    # gpt-oss:20b servit de llama.cpp pe SVAI (llama-oss.service, static/on-demand),
+    # context real 32k, --jinja cu tool calling nativ. A înlocuit svai-coder14b, mort
+    # după ce Ollama a fost scos de pe SVAI la 2026-10-30 (endpointul :11434 nu mai
+    # ascultă, modelul nu mai exista în store). Serverul are un singur slot
+    # (--parallel 1), deci dacă un job de coding sau delegate-oss îl ocupă, cererea
+    # stă la coadă — de aceea slow=True (timeout 900 s).
+    "svai-oss": {
         "tier": "local",
-        "endpoint": "http://192.168.0.152:11434/v1/chat/completions",
-        "model": "qwen2.5-coder-14b-r0",
+        "endpoint": "http://192.168.0.152:8091/v1/chat/completions",
+        "model": "gpt-oss:20b",
         "key_env": None,
-        "ctx": 24576,
+        "ctx": 32768,
         "slow": True,
         "max_result_chars": 3000,
     },
@@ -139,7 +145,11 @@ CHAINS = {
     "paid": ["deepseek-flash"],
     # local NU intră în "auto": e mai lent decât free-ul din cloud, care e tot
     # gratuit. Se cere explicit cu --tier local (offline, date care nu ies din casă).
-    "local": ["local-qwen"],
+    # Ordinea: întâi gpt-oss:20b pe SVAI (mult mai capabil); dacă llama-oss nu e
+    # pornit sau dă eroare de rețea, router-ul promovează automat pe local-qwen
+    # (call_model ridică RuntimeError la URLError, bucla principală prinde
+    # RuntimeError și face escalate).
+    "local": ["svai-oss", "local-qwen"],
     # auto: ieftin întâi, promovare automată (lanțul complet, în ordine)
     "auto": [
         "kilo-laguna-s:free",

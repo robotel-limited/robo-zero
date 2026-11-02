@@ -17,6 +17,8 @@ _DEFAULTS: dict[str, Any] = {
     "default_model": llm.MODEL,  # model folosit de chat-urile neafiliate unui proiect (etapa E)
     # codul îl scrie code_task (mimo); se oprește din UI când se termină cota MiMo — vezi code_guard.py
     "code_guard": True,
+    # memoria de lucru distilată pe gpt-oss-20b (working_memory.py) — comutator pentru A/B
+    "working_memory": True,
 }
 
 

@@ -52,7 +52,11 @@ async def _index(folder: dict[str, Any]) -> None:
     root = folder["path"]
     try:
         files, capped = await asyncio.to_thread(_candidates, root)
-        known = index.known(folder["id"])
+        # upsert/known/remove/count_indexed sunt sqlite sincron (FTS5, plus
+        # chunk_text pe fișiere mari): rulate direct în event loop blocau
+        # serverul zeci de secunde per folder (prins 2026-11-01 cu py-spy în
+        # folder_index_store.upsert, chat-uri care nu ajungeau la model).
+        known = await asyncio.to_thread(index.known, folder["id"])
         for i, (relpath, mtime, size) in enumerate(files):
             if known.get(relpath) == (mtime, size):
                 continue
@@ -62,13 +66,16 @@ async def _index(folder: dict[str, Any]) -> None:
                 text = ""
             if folders.get(folder["id"]) is None:  # folder dezlegat în timpul indexării
                 return
-            index.upsert(folder["project_id"], folder["id"], relpath, mtime, size, text)
+            await asyncio.to_thread(
+                index.upsert, folder["project_id"], folder["id"], relpath, mtime, size, text
+            )
             if i % 50 == 0:
                 await asyncio.sleep(0)
         seen = {f[0] for f in files}
-        index.remove(folder["id"], [p for p in known if p not in seen])
+        await asyncio.to_thread(index.remove, folder["id"], [p for p in known if p not in seen])
         note = f"plafon de {_MAX_FILES} fișiere atins — restul nu e indexat" if capped else ""
-        folders.set_index_state(folder["id"], "ready", note, files=index.count_indexed(folder["id"]))
+        files_indexed = await asyncio.to_thread(index.count_indexed, folder["id"])
+        folders.set_index_state(folder["id"], "ready", note, files=files_indexed)
     except Exception as e:
         folders.set_index_state(folder["id"], "error", str(e))
 

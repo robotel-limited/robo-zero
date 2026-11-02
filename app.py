@@ -214,7 +214,7 @@ async def get_chat(chat_id: str):
         "log": session.log,
         "is_running": session.is_running,
         "token_count": history.estimate_tokens(session.agent.history),
-        "context_tokens": history.CONTEXT_TOKENS,
+        "context_tokens": llm.context_tokens_for(session.agent._chat_model()),
     }
 
 

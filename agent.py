@@ -5,6 +5,7 @@
 import json
 import os
 import signal
+import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Awaitable, Callable
@@ -17,6 +18,8 @@ import llm
 import projects_store
 import safety
 import settings_store
+import working_memory
+import distiller
 from tools.browser_tool import BrowserBox, BrowserTool
 from tools.code_task import CodeTask
 from tools.call_subordinate import CallSubordinate
@@ -32,6 +35,8 @@ from tools.tool_base import Tool
 from tools.web_read_tool import WebRead
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
+# modelele locale (32k) pe care e activă memoria de lucru — vezi _wm_active()
+_WM_MODELS = {"gpt-oss-20b", distiller.DISTILL_MODEL}
 with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
     _SETTINGS = yaml.safe_load(f)
 
@@ -40,6 +45,39 @@ _SHELL_CFG = _SETTINGS["shell"]
 
 # (tool_name, detail_pentru_UI) -> True dacă utilizatorul aprobă
 ConfirmCallback = Callable[[str, str], Awaitable[bool]]
+
+# Regulă obligatorie pentru toți agenții (nu doar oss, care are tool-calling
+# nativ nesigur pe build-ul curent de llama.cpp): dacă răspunsul final nu are
+# tool_calls și pare un răspuns nesigur/incomplet, bucla face automat un
+# memory_recall pe mesajul utilizatorului înainte să dea răspunsul final —
+# nu lăsăm decizia doar pe modelul ales, care poate "uita" să caute în dimag.
+_INSUFFICIENT_INFO_MARKERS = (
+    "nu am suficiente informații",
+    "nu am suficient context",
+    "nu am acces la",
+    "nu știu sigur",
+    "nu sunt sigur",
+    "nu sunt sigură",
+    "nu am informații despre",
+    "nu pot răspunde cu certitudine",
+    "nu am date despre",
+    "ar trebui să verific",
+    "i don't have enough information",
+    "i'm not sure",
+    "i don't know",
+    "i do not have access to",
+    "is missing",
+    "does not exist",
+    "cannot find",
+    "could not find",
+    "nu găsesc",
+    "nu există",
+    "nu am găsit",
+    "if you provide",
+    "please provide the",
+    "let me know if you'd like",
+    "once the key is available",
+)
 
 
 class AgentError(Exception):
@@ -64,6 +102,7 @@ class Agent:
         on_event: EventCallback | None = None,
         browser_box: BrowserBox | None = None,
         project_id: str | None = None,
+        working_memory: bool = False,
     ) -> None:
         self.workdir = workdir or _AGENT_CFG["workdir"]
         self.shell_timeout_seconds = _SHELL_CFG["timeout_seconds"]
@@ -82,6 +121,12 @@ class Agent:
         # altfel call_subordinate.py trece referința părintelui.
         self.browser_box = browser_box or BrowserBox()
         self.history: list[dict[str, Any]] = []
+        self._last_user_message: str = ""
+        # memoria de lucru distilată (working_memory.py): cerută de chat_session.py,
+        # moștenită de sub-agenți; efectivă doar pe modelele locale — vezi _wm_active()
+        self.working_memory = working_memory
+        self._obs_key = uuid.uuid4().hex[:8]
+        self._obs_n = 0
         self.tools: dict[str, Tool] = self._build_tools()
         # ultimele apeluri (tool, argumente_json) — pentru detecția repetiției
         self._recent_calls: list[tuple[str, str]] = []
@@ -200,24 +245,55 @@ class Agent:
         if not self.history:
             self.history.append({"role": "system", "content": self._system_prompt()})
         self.history.append({"role": "user", "content": attachments.user_content(user_message, images)})
+        self._last_user_message = user_message
 
         tool_schemas = [t.schema() for t in self.tools.values()]
+        schema_tokens = len(json.dumps(tool_schemas)) // history.CHARS_PER_TOKEN
+        auto_recall_done = False
 
         for _ in range(_AGENT_CFG["max_iterations"]):
             if self.cancelled:
                 raise AgentCancelled("Rulare anulată de utilizator.")
 
-            compacted = await history.compact_if_needed(self.history)
+            compacted = await history.compact_if_needed(
+                self.history, model=self._chat_model(), reserved_tokens=schema_tokens
+            )
             if compacted is not self.history:
                 self.history = compacted
                 if self.on_compacted is not None:
                     self.on_compacted()
                 self._emit("history_compacted", kept_messages=len(self.history))
 
+            if self._wm_active():
+                working_memory.collapse_old(self.history)
             response = await llm.chat(self.history, tools=tool_schemas, model=self._chat_model())
 
             if not response.tool_calls:
                 final_text = response.content or ""
+                if not auto_recall_done and self._looks_insufficient(final_text):
+                    auto_recall_done = True
+                    self.history.append({"role": "assistant", "content": final_text})
+                    self._emit("auto_recall", query=user_message)
+                    recall_tool = self.tools.get("memory_recall")
+                    recall_message = "[memorie dimag: indisponibilă]"
+                    if recall_tool is not None:
+                        result = await recall_tool.execute(query=user_message)
+                        recall_message = result.message
+                    self.history.append(
+                        {
+                            # NU "system": template-ul SenseNova (SSN, :8093)
+                            # ridică excepție jinja „System message must be at
+                            # the beginning" la orice system care nu e primul,
+                            # deci run-ul cădea cu 500. Ca "user" merge pe toate
+                            # modelele locale (și gpt-oss îl citea oricum).
+                            "role": "user",
+                            "content": (
+                                "[auto-recall dimag — răspunsul anterior a părut nesigur/incomplet, "
+                                "s-a căutat automat context relevant]\n" + recall_message
+                            ),
+                        }
+                    )
+                    continue
                 self.history.append({"role": "assistant", "content": final_text})
                 self._emit("final", text=final_text)
                 return final_text
@@ -246,7 +322,7 @@ class Agent:
                 result_text, break_loop = await self._execute_tool_call(tc.name, tc.arguments)
                 self._emit("tool_result", name=tc.name, message=result_text)
                 self.history.append(
-                    {"role": "tool", "tool_call_id": tc.id, "content": result_text}
+                    {"role": "tool", "tool_call_id": tc.id, "content": await self._wm_content(tc, result_text)}
                 )
                 if break_loop:
                     break_text = result_text
@@ -270,6 +346,22 @@ class Agent:
         except (json.JSONDecodeError, ValueError) as e:
             return (f"Eroare: argumente JSON invalide pentru tool '{name}': {e}", False)
 
+        if name in ("fs_read", "fs_list", "shell_execute") and "dimag" in raw_arguments.lower():
+            # "dimag" confundat cu o cale/folder (vezi prompts/agent.system.md) —
+            # harness-ul redirecționează forțat către memory_recall, în loc să
+            # lase doar mesajul de acces refuzat (pe care modelul îl ignoră).
+            recall_tool = self.tools.get("memory_recall")
+            query = self._last_user_message or raw_arguments
+            if recall_tool is not None:
+                result = await recall_tool.execute(query=query)
+                self._emit("auto_recall", query=query, reason="dimag_path_redirect")
+                note = (
+                    "[redirect automat: \"dimag\" nu e un folder/cale de fișier — e memoria "
+                    "robo-dimag, accesată prin tool-ul memory_recall, apelat automat aici cu "
+                    "întrebarea curentă]\n"
+                )
+                return (note + result.message, False)
+
         tool = self.tools.get(name)
         if tool is None:
             return (f"Eroare: tool necunoscut '{name}'.", False)
@@ -291,6 +383,52 @@ class Agent:
         if repetition_note:
             message = f"{repetition_note}\n{message}"
         return (message, result.break_loop)
+
+    def _wm_active(self) -> bool:
+        """Memoria de lucru e activă doar dacă a fost cerută (chat-uri UI și
+        sub-agenții lor) și modelul efectiv al turei e un model local cu 32k context."""
+        if not self.working_memory or self._chat_model() not in _WM_MODELS:
+            return False
+        return bool(settings_store.load()["working_memory"])
+
+    async def _wm_content(self, tc: Any, result_text: str) -> str:
+        """Conținutul care intră în istoric pentru un rezultat de tool: ieșirea
+        brută lungă se salvează pe disc, în istoric rămâne un ciot cu calea.
+        Recitirea unui fișier .obs/ prin fs_read rămâne întreagă în pasul
+        curent (altfel s-ar ciotui iar, la nesfârșit)."""
+        if not self._wm_active():
+            return result_text
+        if tc.name == "fs_read" and ".obs/" in (tc.arguments or ""):
+            # markerul sursei permite restrângerea ei ulterioară (collapse_old)
+            try:
+                path = json.loads(tc.arguments).get("path", "")
+            except (json.JSONDecodeError, AttributeError):
+                return result_text
+            return result_text + "\n" + working_memory.marker(path, result_text)
+        self._obs_n += 1
+        content, relpath = working_memory.on_tool_result(
+            self.workdir, self._obs_key, self._obs_n, result_text
+        )
+        if relpath is None:
+            return content
+        # pe SenseNova (A/B 2026-11-01) nota distilată ia locul ciotului;
+        # la eșecul distilatorului rămâne ciotul determinist
+        note = None
+        if self._chat_model() == distiller.DISTILL_MODEL:
+            note = await distiller.distill(self._last_user_message, result_text)
+        if note is not None:
+            content = note + "\n" + working_memory.marker(relpath, result_text)
+        self._emit("working_memory", stored=relpath, chars=len(result_text), distilled=note is not None)
+        return content
+
+    @staticmethod
+    def _looks_insufficient(text: str) -> bool:
+        """Detectează euristic un răspuns final nesigur/incomplet (fără
+        tool_calls), ca să declanșeze automat un memory_recall în dimag —
+        regulă obligatorie pentru toți agenții, nu doar pentru modelele cu
+        tool-calling nativ nesigur (ex. gpt-oss pe build-ul curent)."""
+        lowered = text.lower()
+        return any(marker in lowered for marker in _INSUFFICIENT_INFO_MARKERS)
 
     def _check_repetition(self, name: str, raw_arguments: str) -> str | None:
         """Urmărește ultimele apeluri (tool, argumente); avertizează la 3

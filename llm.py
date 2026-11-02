@@ -10,6 +10,7 @@ din `content` către client pe măsură ce agent.py le produce.
 
 import asyncio
 import os
+import re
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -38,33 +39,136 @@ _DEEPSEEK_ENDPOINT = "https://api.deepseek.com/chat/completions"
 
 # Etapa E: catalog multi-provider, sursă unică pentru proiecte/settings/UI
 # (vezi projects_store._MODELS, settings_store, app.py /api/models).
-# label = ce apare în dropdown-urile din UI.
-MODEL_CATALOG: dict[str, dict[str, str]] = {
+# label = ce apare în dropdown-urile din UI. context_tokens = fereastra reală
+# a modelului (verificat live/documentat 2026-10-31 — vezi history.py, care
+# citește aceste valori per-model pentru pragul de compactare, în loc de o
+# singură constantă globală care era corectă doar pentru deepseek).
+MODEL_CATALOG: dict[str, dict[str, str | int]] = {
     "deepseek-flash": {
         "endpoint": _DEEPSEEK_ENDPOINT,
         "api_key_env": "DEEPSEEK_API_KEY",
         "label": "DeepSeek Flash (implicit, ieftin)",
+        "context_tokens": 1_000_000,
     },
     "deepseek-v4-pro": {
         "endpoint": _DEEPSEEK_ENDPOINT,
         "api_key_env": "DEEPSEEK_API_KEY",
         "label": "DeepSeek V4 Pro (mai scump)",
+        "context_tokens": 1_000_000,
     },
     "qwen-flash": {
         "endpoint": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions",
         "api_key_env": "QWEN_APIKEY",
         "label": "Qwen Flash (Alibaba)",
+        "context_tokens": 1_000_000,
     },
     # gratuit pe cheia noastră NVIDIA (verificat live 2026-10-18); model de
     # tip reasoning — la max_tokens mic poate întoarce content=null cu
     # răspunsul doar în reasoning_content, dar cu buget normal de tokeni
-    # completează corect `content`.
+    # completează corect `content`. Fereastră: 262144 (default practic pe
+    # endpoint-ul NVIDIA hosted, nu maximul teoretic de 1M al arhitecturii).
     "nvidia/nemotron-3-super-120b-a12b": {
         "endpoint": "https://integrate.api.nvidia.com/v1/chat/completions",
         "api_key_env": "NVIDIA_API_KEY",
         "label": "Nemotron 3 Super (NVIDIA, gratuit)",
+        "context_tokens": 262_144,
+    },
+    # Local, pe SVAI: llama-server (llama.cpp) peste gpt-oss-20b, unitate
+    # systemd "llama-oss" static (nu e enabled la boot) — pornită la cerere
+    # din _ensure_local_server_started(), nu se oprește automat (rămâne caldă
+    # pentru turul următor; vezi decizie 2026-10-30 în delegate-oss pentru
+    # același pattern). Nu are auth reală — orice Bearer e ignorat de server.
+    "gpt-oss-20b": {
+        "endpoint": "http://192.168.0.152:8091/v1/chat/completions",
+        "api_key_env": "LLAMA_OSS_API_KEY",
+        "label": "GPT-OSS 20B (local, SVAI)",
+        # -c 32768 în llama-oss.service — fereastra reală a serverului, nu
+        # a arhitecturii gpt-oss-20b (care suportă mult mai mult).
+        "context_tokens": 32_768,
+    },
+    # Local, pe SVAI: SenseNova-Loop-9B-Preview Q4_K_M pe forkul
+    # /srv/llama.cpp-sensenova-loop, port 8093 (-c 32768 --parallel 1
+    # --spec-type ngram-mod, ~7,2 GB VRAM). Unitate systemd "llama-ssn",
+    # pornită la cerere ca llama-oss (Conflicts= reciproc). Distilator al memoriei
+    # de lucru (distiller.py) și candidat de agent (A/B 2026-11-01).
+    "sensenova-loop-9b": {
+        "endpoint": "http://192.168.0.152:8093/v1/chat/completions",
+        "api_key_env": "LLAMA_OSS_API_KEY",
+        "label": "SenseNova Loop 9B (local, SVAI)",
+        "context_tokens": 32_768,
+    },
+    # Local, pe SVAI: LFM3-Omni-2B Q4_K_M, /srv/llama.cpp, port 8095
+    # (-c 32768 --parallel 1). Pornit manual (nohup), test limite 2026-11-01.
+    "lfm3-2b": {
+        "endpoint": "http://192.168.0.152:8095/v1/chat/completions",
+        "api_key_env": "LLAMA_OSS_API_KEY",
+        "label": "LFM3 Omni 2B (local, SVAI)",
+        "context_tokens": 32_768,
     },
 }
+
+DEFAULT_CONTEXT_TOKENS = 128_000  # fallback dacă un model nou nu are context_tokens în catalog
+
+
+def context_tokens_for(model: str | None) -> int:
+    cfg = MODEL_CATALOG.get(model or MODEL)
+    if cfg is None:
+        return DEFAULT_CONTEXT_TOKENS
+    return int(cfg.get("context_tokens", DEFAULT_CONTEXT_TOKENS))
+
+_OSS_SSH_HOST = "svai"
+# modele locale pornite la cerere pe GPU-ul svai: model -> (unitate systemd, /health).
+# llama-oss și llama-ssn au Conflicts= reciproc, deci pornirea unuia îl oprește
+# pe celălalt — un singur model pe GPU (decizie Sorin 2026-11-01).
+_LOCAL_UNITS = {
+    "gpt-oss-20b": ("llama-oss", "http://192.168.0.152:8091/health"),
+    "sensenova-loop-9b": ("llama-ssn", "http://192.168.0.152:8093/health"),
+}
+_OSS_FINAL_MARKER = "<|channel|>final<|message|>"
+_OSS_STRAY_TOKENS_RE = re.compile(r"<\|[a-z_]+\|>")
+
+
+def _health_ok(url: str) -> bool:
+    try:
+        import urllib.request
+
+        with urllib.request.urlopen(url, timeout=5) as resp:
+            return resp.status == 200
+    except Exception:
+        return False
+
+
+async def _ensure_local_server_started(model: str, timeout: float = 90.0) -> None:
+    """Pornește unitatea systemd a modelului local pe SVAI (start-on-demand,
+    nu stă pornită degeaba) și așteaptă /health. Vezi același pattern în
+    delegate-oss/llama_client.py (decizie Sorin 2026-10-30)."""
+    unit, health_url = _LOCAL_UNITS[model]
+    if await asyncio.to_thread(_health_ok, health_url):
+        return
+    proc = await asyncio.create_subprocess_exec(
+        "ssh", _OSS_SSH_HOST, "sudo", "systemctl", "start", unit,
+        stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+    )
+    _, stderr = await proc.communicate()
+    if proc.returncode != 0:
+        raise LlmError(f"ssh systemctl start {unit} a eșuat: {stderr.decode()[:300]}")
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if await asyncio.to_thread(_health_ok, health_url):
+            return
+        await asyncio.sleep(2)
+    raise LlmError(f"llama-server ({unit}) n-a pornit în {timeout}s")
+
+
+def _split_oss_harmony(raw_content: str) -> str:
+    """gpt-oss pe acest build llama.cpp nu separă automat canalul harmony —
+    conținutul final vine după ultimul marker <|channel|>final<|message|>
+    (vezi delegate-oss/llama_client.py:_split_harmony, decizie 2026-10-30)."""
+    idx = raw_content.rfind(_OSS_FINAL_MARKER)
+    if idx == -1:
+        return ""
+    final = raw_content[idx + len(_OSS_FINAL_MARKER):]
+    return _OSS_STRAY_TOKENS_RE.sub("", final).strip()
 
 
 @dataclass
@@ -115,6 +219,8 @@ async def chat(
     history.py), care rulează mereu pe modelul implicit (flash)."""
     model = model or MODEL
     endpoint = _provider_cfg(model)["endpoint"]
+    if model in _LOCAL_UNITS:
+        await _ensure_local_server_started(model)
     # imaginile atașate stau în istoric ca /files/uploads/...; modelul le primește base64
     payload: dict[str, Any] = {"model": model, "messages": attachments.inline_images(messages)}
     if tools:
@@ -154,7 +260,7 @@ async def chat(
                     data = resp.json()
                     latency_ms = (time.perf_counter() - attempt_start) * 1000
                     usage_log.record(model, purpose, data.get("usage"), latency_ms)
-                    return _parse_response(data)
+                    return _parse_response(data, model)
 
             if attempt < MAX_RETRIES:
                 backoff = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)]
@@ -163,10 +269,12 @@ async def chat(
     raise LlmError(f"{model} inaccesibil după {attempts} încercări: {last_error}")
 
 
-def _parse_response(data: dict[str, Any]) -> LlmResponse:
+def _parse_response(data: dict[str, Any], model: str | None = None) -> LlmResponse:
     choice = data["choices"][0]
     message = choice["message"]
     content = message.get("content")
+    if model == "gpt-oss-20b" and content and _OSS_FINAL_MARKER in content:
+        content = _split_oss_harmony(content)
     raw_tool_calls = message.get("tool_calls") or []
     tool_calls = [
         ToolCall(

@@ -47,6 +47,7 @@ class ChatSession:
             on_event=self._on_agent_event,
             project_id=project_id,
             workdir=path_access.project_workdir(project_id),
+            working_memory=True,
         )
         self.agent.on_compacted = self._on_history_compacted
         self._subscribers: list[asyncio.Queue] = []

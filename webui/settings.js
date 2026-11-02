@@ -15,6 +15,7 @@ const TOGGLES = [
   { toggleId: "notify-telegram-toggle", stateId: "notify-telegram-state", settingsKey: "notify_telegram" },
   { toggleId: "notify-sms-toggle", stateId: "notify-sms-state", settingsKey: "notify_sms" },
   { toggleId: "code-guard-toggle", stateId: "code-guard-state", settingsKey: "code_guard" },
+  { toggleId: "working-memory-toggle", stateId: "working-memory-state", settingsKey: "working_memory" },
 ];
 
 function bindToggle({ toggleId, stateId, settingsKey }) {

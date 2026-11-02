@@ -58,6 +58,8 @@ class CallSubordinate(Tool):
             # fără project_id sub-agentul ar primi memory_remember (vault dimag
             # federat) în loc de project_search/kb_read — scurgere din proiect
             project_id=parent.project_id,
+            # memoria de lucru urmează setarea chat-ului părinte (decizie Sorin 2026-11-01)
+            working_memory=parent.working_memory,
         )
         subordinate.project_prompt = parent.project_prompt
         parent.current_subordinate = subordinate

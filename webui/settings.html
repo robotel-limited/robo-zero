@@ -68,6 +68,17 @@
         </label>
         <span id="code-guard-state" class="switch-state">OFF</span>
       </div>
+      <div class="settings-row">
+        <div class="settings-row-text">
+          <span class="settings-row-label">Working memory (gpt-oss-20b)</span>
+          <span class="settings-row-desc">Long tool outputs are saved to disk; the chat history keeps only a stub with the path. Applies only to gpt-oss-20b chats.</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="working-memory-toggle" />
+          <span class="switch-slider"></span>
+        </label>
+        <span id="working-memory-state" class="switch-state">OFF</span>
+      </div>
       <div id="usage-section">
         <h2>Usage per model</h2>
         <div id="usage-filters">

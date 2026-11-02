@@ -1,6 +1,8 @@
 {
-  "verbose": false,
+  "verbose": true,
   "notify_telegram": false,
   "notify_sms": true,
-  "default_model": "qwen-flash"
+  "default_model": "gpt-oss-20b",
+  "code_guard": true,
+  "working_memory": false
 }

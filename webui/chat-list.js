@@ -106,7 +106,38 @@ function renderChatGroup(key, label, chats) {
     setExpanded(expand);
   });
 
-  group.append(header, body);
+  // header + project actions share a row; the buttons stay outside the
+  // header <button> (nested buttons are invalid and the click would bubble
+  // into the expand/collapse toggle)
+  const row = document.createElement("div");
+  row.className = "chat-group-row";
+  row.appendChild(header);
+
+  if (key !== "__unassigned__") {
+    const renameBtn = document.createElement("button");
+    renameBtn.type = "button";
+    renameBtn.className = "chat-list-action";
+    renameBtn.textContent = "✎";
+    renameBtn.title = "Rename project";
+    renameBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      renameProject(key, label);
+    });
+    row.appendChild(renameBtn);
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.type = "button";
+    deleteBtn.className = "chat-list-action";
+    deleteBtn.textContent = "🗑";
+    deleteBtn.title = "Delete project";
+    deleteBtn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      deleteProjectGroup(key, label, chats);
+    });
+    row.appendChild(deleteBtn);
+  }
+
+  group.append(row, body);
   return group;
 }
 
@@ -119,6 +150,42 @@ async function setChatProject(chatId, projectId) {
     });
   } catch (e) {
     appendMessage("message-error", `Error assigning project: ${e.message}`);
+  }
+  await loadChatList();
+}
+
+async function renameProject(projectId, currentTitle) {
+  const title = window.prompt("New project name:", currentTitle);
+  if (!title || !title.trim()) return;
+  try {
+    await api(`/api/projects/${projectId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: title.trim() }),
+    });
+  } catch (e) {
+    appendMessage("message-error", `Error renaming project: ${e.message}`);
+    return;
+  }
+  await loadChatList();
+}
+
+async function deleteProjectGroup(projectId, title, chats) {
+  if (!window.confirm(`Delete project "${title}" and its ${chats.length} chat(s)? This cannot be undone.`)) return;
+  try {
+    await api(`/api/projects/${projectId}`, { method: "DELETE" });
+  } catch (e) {
+    appendMessage("message-error", `Error deleting project: ${e.message}`);
+    return;
+  }
+  if (chats.some((c) => c.id === currentChatId)) {
+    currentChatId = null;
+    if (eventSource) eventSource.close();
+    messagesEl.innerHTML = "";
+    const remaining = await api("/api/chats");
+    if (remaining.length > 0) await selectChat(remaining[0].id);
+    else await createChat();
+    return;
   }
   await loadChatList();
 }

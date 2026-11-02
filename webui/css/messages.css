@@ -494,6 +494,21 @@ body {
   color: var(--color-text);
 }
 
+.chat-group-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.chat-group-row .chat-group-header {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .chat-group-body {
   display: flex;
   flex-direction: column;

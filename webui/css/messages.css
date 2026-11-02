@@ -76,7 +76,7 @@ body {
 }
 
 #sidebar {
-  width: 240px;
+  width: clamp(340px, 28vw, 480px);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -157,9 +157,17 @@ body {
 
 .chat-list-title {
   flex: 1;
-  white-space: nowrap;
+  min-width: 0;
+  /* numele chat-urilor se citesc pe două rânduri în loc să fie tăiate;
+     rândurile scurte rămân pe un singur rând */
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 
 .chat-list-action {

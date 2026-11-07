@@ -6,41 +6,29 @@ import json
 import os
 import signal
 import uuid
-from datetime import datetime
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
 import yaml
 
+import agent_config
+import agent_tools
+import agent_wm
 import attachments
 import history
 import llm
-import projects_store
 import safety
-import settings_store
 import working_memory
-import distiller
-from tools.browser_tool import BrowserBox, BrowserTool
-from tools.code_task import CodeTask
-from tools.call_subordinate import CallSubordinate
-from tools.fs_tool import FsList, FsRead, FsWrite
-from tools.image_generate import ImageGenerate
-from tools.kb_read import KbRead
-from tools.memory_tool import MemoryRecall, MemoryRemember
-from tools.project_search import ProjectSearch
-from tools.response import FinalResponse
-from tools.robo_med_tool import RoboMedIntake, RoboMedReport, RoboMedSearch
-from tools.shell_tool import ShellExecute
+from tools.browser_tool import BrowserBox
 from tools.tool_base import Tool
-from tools.web_read_tool import WebRead
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
-# modelele locale (32k) pe care e activă memoria de lucru — vezi _wm_active()
-_WM_MODELS = {"gpt-oss-20b", distiller.DISTILL_MODEL}
+# modelele locale (32k) pe care e activă memoria de lucru — vezi agent_wm._WM_MODELS
 with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
     _SETTINGS = yaml.safe_load(f)
 
 _AGENT_CFG = _SETTINGS["agent"]
+_TOOL_CHOICE = _AGENT_CFG.get("tool_choice", "auto")
 _SHELL_CFG = _SETTINGS["shell"]
 
 # (tool_name, detail_pentru_UI) -> True dacă utilizatorul aprobă
@@ -169,60 +157,16 @@ class Agent:
             self.current_subordinate.request_cancel()
 
     def _build_tools(self) -> dict[str, Tool]:
-        instances: list[Tool] = [
-            FsRead(self),
-            FsWrite(self),
-            FsList(self),
-            ShellExecute(self),
-            CodeTask(self),
-            CallSubordinate(self),
-            MemoryRecall(self),
-            ImageGenerate(self),
-            WebRead(self),
-            BrowserTool(self),
-            RoboMedIntake(self),
-            RoboMedSearch(self),
-            RoboMedReport(self),
-            FinalResponse(self),
-        ]
-        if self.project_id:
-            # memoria proiectului e locală și izolată; memory_remember ar scrie
-            # în vault-ul dimag federat (partajat între mașini și agenți)
-            instances += [ProjectSearch(self), KbRead(self)]
-        else:
-            instances.append(MemoryRemember(self))
-        return {t.name: t for t in instances}
+        return agent_tools.build_tools(self)
 
     def _is_voice_only(self) -> bool:
-        """Proiectele voice-only (robo-audio, fără UI de approve/deny) nu pot
-        aproba niciodată o cerere de confirmare — vezi _execute_tool_call,
-        care sare peste pre_check/confirm complet pentru ele. Citit live din
-        projects_store, la fel ca _chat_model(), ca o schimbare din /projects
-        să se aplice imediat."""
-        if not self.project_id:
-            return False
-        project = projects_store.get(self.project_id)
-        return bool(project and project.get("voice_only"))
+        return agent_config.is_voice_only(self)
 
     def _chat_model(self) -> str | None:
-        """Modelul proiectului (etapa D) are prioritate, citit live din
-        projects_store la fiecare tură — ca schimbarea din /projects să se
-        aplice imediat, inclusiv sub-agenților (project_id se propagă prin
-        call_subordinate). Pentru chat-urile neafiliate unui proiect,
-        folosește modelul implicit global din Settings (etapa E), citit la
-        fel de live — nu doar MODEL hardcodat din settings.yaml."""
-        if self.project_id:
-            project = projects_store.get(self.project_id)
-            if project:
-                return project["model"]
-        return settings_store.load()["default_model"]
+        return agent_config.chat_model(self)
 
     def _system_prompt(self) -> str:
-        template = (_PROJECT_ROOT / "prompts" / "agent.system.md").read_text(encoding="utf-8")
-        base = template.format(datetime=datetime.now().isoformat(timespec="seconds"))
-        if self.project_prompt:
-            return f"{base}\n\n---\n\n{self.project_prompt}"
-        return base
+        return agent_config.system_prompt(self)
 
     async def run(self, user_message: str, images: list[str] | None = None) -> str:
         """Rulează bucla agentului pentru un mesaj de utilizator și întoarce
@@ -266,7 +210,10 @@ class Agent:
 
             if self._wm_active():
                 working_memory.collapse_old(self.history)
-            response = await llm.chat(self.history, tools=tool_schemas, model=self._chat_model())
+            response = await llm.chat(
+                self.history, tools=tool_schemas, model=self._chat_model(),
+                tool_choice=_TOOL_CHOICE if tool_schemas else None,
+            )
 
             if not response.tool_calls:
                 final_text = response.content or ""
@@ -328,6 +275,28 @@ class Agent:
                     break_text = result_text
 
             if break_text is not None:
+                if not auto_recall_done and self._looks_insufficient(break_text):
+                    # cu tool_choice=required modelul termină mereu prin tool-ul
+                    # "response", deci ramura de mai sus (fără tool_calls) nu se
+                    # mai declanșează niciodată — auto-recall-ul trebuie verificat
+                    # și aici, pe textul trimis prin response, altfel moare (2026-11-07)
+                    auto_recall_done = True
+                    self._emit("auto_recall", query=user_message)
+                    recall_tool = self.tools.get("memory_recall")
+                    recall_message = "[memorie dimag: indisponibilă]"
+                    if recall_tool is not None:
+                        result = await recall_tool.execute(query=user_message)
+                        recall_message = result.message
+                    self.history.append(
+                        {
+                            "role": "user",
+                            "content": (
+                                "[auto-recall dimag — răspunsul anterior a părut nesigur/incomplet, "
+                                "s-a căutat automat context relevant]\n" + recall_message
+                            ),
+                        }
+                    )
+                    continue
                 self._emit("final", text=break_text)
                 return break_text
 
@@ -385,41 +354,10 @@ class Agent:
         return (message, result.break_loop)
 
     def _wm_active(self) -> bool:
-        """Memoria de lucru e activă doar dacă a fost cerută (chat-uri UI și
-        sub-agenții lor) și modelul efectiv al turei e un model local cu 32k context."""
-        if not self.working_memory or self._chat_model() not in _WM_MODELS:
-            return False
-        return bool(settings_store.load()["working_memory"])
+        return agent_wm.wm_active(self)
 
     async def _wm_content(self, tc: Any, result_text: str) -> str:
-        """Conținutul care intră în istoric pentru un rezultat de tool: ieșirea
-        brută lungă se salvează pe disc, în istoric rămâne un ciot cu calea.
-        Recitirea unui fișier .obs/ prin fs_read rămâne întreagă în pasul
-        curent (altfel s-ar ciotui iar, la nesfârșit)."""
-        if not self._wm_active():
-            return result_text
-        if tc.name == "fs_read" and ".obs/" in (tc.arguments or ""):
-            # markerul sursei permite restrângerea ei ulterioară (collapse_old)
-            try:
-                path = json.loads(tc.arguments).get("path", "")
-            except (json.JSONDecodeError, AttributeError):
-                return result_text
-            return result_text + "\n" + working_memory.marker(path, result_text)
-        self._obs_n += 1
-        content, relpath = working_memory.on_tool_result(
-            self.workdir, self._obs_key, self._obs_n, result_text
-        )
-        if relpath is None:
-            return content
-        # pe SenseNova (A/B 2026-11-01) nota distilată ia locul ciotului;
-        # la eșecul distilatorului rămâne ciotul determinist
-        note = None
-        if self._chat_model() == distiller.DISTILL_MODEL:
-            note = await distiller.distill(self._last_user_message, result_text)
-        if note is not None:
-            content = note + "\n" + working_memory.marker(relpath, result_text)
-        self._emit("working_memory", stored=relpath, chars=len(result_text), distilled=note is not None)
-        return content
+        return await agent_wm.wm_content(self, tc, result_text)
 
     @staticmethod
     def _looks_insufficient(text: str) -> bool:

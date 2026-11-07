@@ -35,6 +35,13 @@ TIMEOUT_SECONDS = _LLM_CFG["timeout_seconds"]
 MAX_RETRIES = _LLM_CFG["max_retries"]
 RETRY_BACKOFF = _LLM_CFG["retry_backoff_seconds"]
 
+# Determinism + buget de ieșire (lecția DeepInfer, 2026-11-07): fără ele,
+# llama-server rula la temperature 1.0 cu seed aleator, iar max_tokens lipsea
+# complet, deci răspunsurile cu preambul + apeluri de unelte se trunchiau.
+TEMPERATURE = _LLM_CFG.get("temperature")
+SEED = _LLM_CFG.get("seed")
+MAX_TOKENS = _LLM_CFG.get("max_tokens")
+
 _DEEPSEEK_ENDPOINT = "https://api.deepseek.com/chat/completions"
 
 # Etapa E: catalog multi-provider, sursă unică pentru proiecte/settings/UI
@@ -95,7 +102,7 @@ MODEL_CATALOG: dict[str, dict[str, str | int]] = {
         "endpoint": "http://192.168.0.152:8093/v1/chat/completions",
         "api_key_env": "LLAMA_OSS_API_KEY",
         "label": "SenseNova Loop 9B (local, SVAI)",
-        "context_tokens": 32_768,
+        "context_tokens": 49_152,
     },
     # Local, pe SVAI: LFM3-Omni-2B Q4_K_M, /srv/llama.cpp, port 8095
     # (-c 32768 --parallel 1). Pornit manual (nohup), test limite 2026-11-01.
@@ -210,6 +217,10 @@ async def chat(
     response_format: dict[str, Any] | None = None,
     purpose: str = "chat",
     model: str | None = None,
+    tool_choice: str | dict[str, Any] | None = None,
+    temperature: float | None = None,
+    seed: int | None = None,
+    max_tokens: int | None = None,
 ) -> LlmResponse:
     """Trimite istoricul + schema tool-urilor la DeepSeek, cu retry/backoff
     pe 429/5xx. Ridică LlmError după epuizarea reîncercărilor. `purpose`
@@ -223,10 +234,24 @@ async def chat(
         await _ensure_local_server_started(model)
     # imaginile atașate stau în istoric ca /files/uploads/...; modelul le primește base64
     payload: dict[str, Any] = {"model": model, "messages": attachments.inline_images(messages)}
+    _temp = TEMPERATURE if temperature is None else temperature
+    _seed = SEED if seed is None else seed
+    _max = MAX_TOKENS if max_tokens is None else max_tokens
+    if _temp is not None:
+        payload["temperature"] = _temp
+    if _seed is not None:
+        payload["seed"] = _seed
+    if _max is not None:
+        payload["max_tokens"] = _max
     if tools:
         payload["tools"] = tools
     if response_format:
         payload["response_format"] = response_format
+    if tool_choice is not None:
+        payload["tool_choice"] = tool_choice
+        if model.startswith("deepseek-"):
+            # thinking mode respinge orice tool_choice diferit de auto (HTTP 400)
+            payload["thinking"] = {"type": "disabled"}
 
     headers = {
         "Authorization": f"Bearer {_api_key(model)}",
@@ -258,9 +283,14 @@ async def chat(
                     )
                 else:
                     data = resp.json()
-                    latency_ms = (time.perf_counter() - attempt_start) * 1000
-                    usage_log.record(model, purpose, data.get("usage"), latency_ms)
-                    return _parse_response(data, model)
+                    choices = data.get("choices") if isinstance(data, dict) else None
+                    if not choices or not isinstance(choices[0].get("message"), dict):
+                        # furnizor degradat: 200 OK cu corp gol/incomplet — tranzitoriu, reîncercăm
+                        last_error = LlmError(f"{model} a răspuns 200 fără mesaj: {resp.text[:300]}")
+                    else:
+                        latency_ms = (time.perf_counter() - attempt_start) * 1000
+                        usage_log.record(model, purpose, data.get("usage"), latency_ms)
+                        return _parse_response(data, model)
 
             if attempt < MAX_RETRIES:
                 backoff = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)]

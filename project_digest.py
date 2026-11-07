@@ -168,6 +168,10 @@ async def _call_llm(session: Any, project_id: str, lines: list[str]) -> dict[str
         [{"role": "system", "content": _SYSTEM_PROMPT}, {"role": "user", "content": user_content}],
         response_format={"type": "json_object"},
         purpose="digest",
+        # plafonul global (1200, gândit pentru preambul+tool-uri în chat normal)
+        # trunchiază JSON-ul de digest când fișa/regulile proiectului cresc —
+        # vezi eroarea "Unterminated string" raportată 2026-11-07.
+        max_tokens=4000,
     )
     data = json.loads(response.content or "")
     if not isinstance(data, dict):

@@ -11,8 +11,9 @@ function formatTokenCount(count) {
   return `${rounded}k`;
 }
 
-function setTokenCount(count, contextTokens) {
-  tokenCountTextEl.textContent = `${formatTokenCount(count)} tokens`;
+function setTokenCount(count, contextTokens, model) {
+  const modelSuffix = model ? ` (${model.slice(0, 10)})` : "";
+  tokenCountTextEl.textContent = `${formatTokenCount(count)} tokens${modelSuffix}`;
   const fraction = contextTokens ? count / contextTokens : 0;
   let level = "low";
   if (fraction >= 0.9) level = "critical";
@@ -30,7 +31,7 @@ function setTokenCount(count, contextTokens) {
 async function refreshTokenCount(chatId) {
   try {
     const chat = await api(`/api/chats/${chatId}`);
-    if (chatId === currentChatId) setTokenCount(chat.token_count, chat.context_tokens);
+    if (chatId === currentChatId) setTokenCount(chat.token_count, chat.context_tokens, chat.model);
   } catch (e) {
     /* ignored — counter stays at the last known value */
   }

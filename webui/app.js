@@ -40,7 +40,7 @@ async function selectChat(chatId) {
   const chat = await api(`/api/chats/${chatId}`);
   for (const entry of chat.log) renderLogEntry(entry);
   setRunning(chat.is_running);
-  setTokenCount(chat.token_count, chat.context_tokens);
+  setTokenCount(chat.token_count, chat.context_tokens, chat.model);
   await loadChatList();
   connectEvents(chatId);
 }

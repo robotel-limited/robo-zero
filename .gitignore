@@ -6,7 +6,9 @@ data/chats/*.json
 workdir/*
 !workdir/.gitkeep
 *.bak
+*.bak-*
 *.old
 data/*.db
 data/project_kb/
 data/usage.jsonl*
+scratchpad/

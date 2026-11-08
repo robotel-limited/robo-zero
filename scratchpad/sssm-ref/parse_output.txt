@@ -1,0 +1,1415 @@
+Total members: 21117
+
+======================================================================
+Q1: Types directly in namespace Tecnomatix.Engineering with 'Robot' in name
+======================================================================
+Count: 242
+  T:Tecnomatix.Engineering.ITxEndOfRoboticOperationActiveInstruction
+  T:Tecnomatix.Engineering.ITxPathPlanningRobotZone
+  T:Tecnomatix.Engineering.ITxPathPlanningRoboticSystemPose
+  T:Tecnomatix.Engineering.ITxPathPlanningValidRoboticSystemPosesFindingQuery
+  T:Tecnomatix.Engineering.ITxPathPlanningValidRoboticSystemPosesFindingQueryResult
+  T:Tecnomatix.Engineering.ITxPlcRobotPoseSensor
+  T:Tecnomatix.Engineering.ITxPlcRobotSignal
+  T:Tecnomatix.Engineering.ITxRobot
+  T:Tecnomatix.Engineering.ITxRobotController
+  T:Tecnomatix.Engineering.ITxRobotExpertGlobalServicesProvider
+  T:Tecnomatix.Engineering.ITxRobotExpertServicesProvider
+  T:Tecnomatix.Engineering.ITxRobotRRSController
+  T:Tecnomatix.Engineering.ITxRobotSetup
+  T:Tecnomatix.Engineering.ITxRobotSimulationController
+  T:Tecnomatix.Engineering.ITxRobotUserInverse
+  T:Tecnomatix.Engineering.ITxRoboticCommandActiveInstruction
+  T:Tecnomatix.Engineering.ITxRoboticDownloader
+  T:Tecnomatix.Engineering.ITxRoboticLocationOperation
+  T:Tecnomatix.Engineering.ITxRoboticMarkupDownloader
+  T:Tecnomatix.Engineering.ITxRoboticOperation
+  T:Tecnomatix.Engineering.ITxRoboticOrderedCompoundOperation
+  T:Tecnomatix.Engineering.ITxRoboticPaintTrigger
+  T:Tecnomatix.Engineering.ITxRoboticProgram
+  T:Tecnomatix.Engineering.ITxRoboticProgramCreation
+  T:Tecnomatix.Engineering.ITxRoboticProgramElement
+  T:Tecnomatix.Engineering.ITxRoboticProgramUploader
+  T:Tecnomatix.Engineering.ITxRoboticSeamLocationOperationCreation
+  T:Tecnomatix.Engineering.ITxRoboticSeamOperationCreation
+  T:Tecnomatix.Engineering.ITxRoboticTrigger
+  T:Tecnomatix.Engineering.ITxRoboticTriggerCreation
+  T:Tecnomatix.Engineering.ITxRoboticTriggerParentLocation
+  T:Tecnomatix.Engineering.ITxRoboticViaLocationOperationCreation
+  T:Tecnomatix.Engineering.ITxSkippableRobotSimulationController
+  T:Tecnomatix.Engineering.TxAsynchronousRoboticOperationCreationData
+  T:Tecnomatix.Engineering.TxBaseGenericRoboticOperation
+  T:Tecnomatix.Engineering.TxCannotCreateRoboticTriggerForParentLocationException
+  T:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTrigger
+  T:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTriggerCreationData
+  T:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTrigger_BrushChangedEventArgs
+  T:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTrigger_BrushChangedEventHandler
+  T:Tecnomatix.Engineering.TxClosePaintGunRoboticTrigger
+  T:Tecnomatix.Engineering.TxClosePaintGunRoboticTriggerCreationData
+  T:Tecnomatix.Engineering.TxComponentDefineAsRobotFailedException
+  T:Tecnomatix.Engineering.TxContinuousRoboticOperation
+  T:Tecnomatix.Engineering.TxContinuousRoboticOperationCannotReorderChildrenException
+  T:Tecnomatix.Engineering.TxContinuousRoboticOperationCreationData
+  T:Tecnomatix.Engineering.TxContinuousRoboticOperation_ToolSetEventArgs
+  T:Tecnomatix.Engineering.TxContinuousRoboticOperation_ToolSetEventHandler
+  T:Tecnomatix.Engineering.TxDownloadRoboticProgramFailedException
+  T:Tecnomatix.Engineering.TxElementDoesNotBelongToRoboticProgramException
+  T:Tecnomatix.Engineering.TxEndOfRoboticOperationActiveInstruction
+  T:Tecnomatix.Engineering.TxFrameIsAleadyARobotsSystemFrameException
+  T:Tecnomatix.Engineering.TxFrameIsNotRobotSystemFrameException
+  T:Tecnomatix.Engineering.TxGenericRoboticLocationOperation
+  T:Tecnomatix.Engineering.TxGenericRoboticLocationOperationCreationData
+  T:Tecnomatix.Engineering.TxGenericRoboticLocationOperation_LocationTypeSetEventArgs
+  T:Tecnomatix.Engineering.TxGenericRoboticLocationOperation_LocationTypeSetEventHandler
+  T:Tecnomatix.Engineering.TxGenericRoboticLocationOperation_ProcessTypeSetEventArgs
+  T:Tecnomatix.Engineering.TxGenericRoboticLocationOperation_ProcessTypeSetEventHandler
+  T:Tecnomatix.Engineering.TxGenericRoboticOperation
+  T:Tecnomatix.Engineering.TxGenericRoboticOperationCreationData
+  T:Tecnomatix.Engineering.TxGenericRoboticOperation_ProcessTypeSetEventArgs
+  T:Tecnomatix.Engineering.TxGenericRoboticOperation_ProcessTypeSetEventHandler
+  T:Tecnomatix.Engineering.TxGenericRoboticOperation_ToolSetEventArgs
+  T:Tecnomatix.Engineering.TxGenericRoboticOperation_ToolSetEventHanlder
+  T:Tecnomatix.Engineering.TxInvalidFrameForRobotSystemFrameException
+  T:Tecnomatix.Engineering.TxInvalidRobotForSystemFrameException
+  T:Tecnomatix.Engineering.TxInvalidRoboticParamNameException
+  T:Tecnomatix.Engineering.TxNoRobotException
+  T:Tecnomatix.Engineering.TxNotSupportedInRobotExpertPlatformException
+  T:Tecnomatix.Engineering.TxOpenPaintGunRoboticTrigger
+  T:Tecnomatix.Engineering.TxOpenPaintGunRoboticTriggerCreationData
+  T:Tecnomatix.Engineering.TxPickAndPlaceRoboticLocationOperationCreationData
+  T:Tecnomatix.Engineering.TxPlcFromRobotSignal
+  T:Tecnomatix.Engineering.TxPlcFromRobotSignalCreationData
+  T:Tecnomatix.Engineering.TxPlcRobotPoseSensorCreationData
+  T:Tecnomatix.Engineering.TxPlcRobotPoseSensorSignal
+  T:Tecnomatix.Engineering.TxPlcToRobotSignal
+  T:Tecnomatix.Engineering.TxPlcToRobotSignalCreationData
+  T:Tecnomatix.Engineering.TxRRSRobotConfiguration
+  T:Tecnomatix.Engineering.TxRRSRobotConfigurationData
+  T:Tecnomatix.Engineering.TxRRSRobotConfigurationString
+  T:Tecnomatix.Engineering.TxRobot
+  T:Tecnomatix.Engineering.TxRobotConfigurationData
+  T:Tecnomatix.Engineering.TxRobotConfigurationDoesNotExistException
+  T:Tecnomatix.Engineering.TxRobotContainsSystemFrameWithTheSameFrameNameException
+  T:Tecnomatix.Engineering.TxRobotController
+  T:Tecnomatix.Engineering.TxRobotDefinitionData
+  T:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider
+  T:Tecnomatix.Engineering.TxRobotExpertServicesProvider
+  T:Tecnomatix.Engineering.TxRobotExternalAxisData
+  T:Tecnomatix.Engineering.TxRobotForeignFrameException
+  T:Tecnomatix.Engineering.TxRobotInvalidToolNameException
+  T:Tecnomatix.Engineering.TxRobotInverseData
+  T:Tecnomatix.Engineering.TxRobotMacroDoesNotExistException
+  T:Tecnomatix.Engineering.TxRobotMacroFileInvalidException
+  T:Tecnomatix.Engineering.TxRobotMacroNoOlpCommandsException
+  T:Tecnomatix.Engineering.TxRobotMacrosDoNotExistException
+  T:Tecnomatix.Engineering.TxRobotPathReferenceOperation
+  T:Tecnomatix.Engineering.TxRobotPhysicalFrameWorkTool
+  T:Tecnomatix.Engineering.TxRobotPhysicalFrameWorkToolCreationData
+  T:Tecnomatix.Engineering.TxRobotRRSController
+  T:Tecnomatix.Engineering.TxRobotRole
+  T:Tecnomatix.Engineering.TxRobotSetupAttribute
+  T:Tecnomatix.Engineering.TxRobotSetupControllerFacility
+  T:Tecnomatix.Engineering.TxRobotSetupControllerFacilityAccess
+  T:Tecnomatix.Engineering.TxRobotSetupControllerFacilityType
+  T:Tecnomatix.Engineering.TxRobotSimulationControllerAttribute
+  T:Tecnomatix.Engineering.TxRobotSimulationEngine
+  T:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider
+  T:Tecnomatix.Engineering.TxRobotSimulationMOPServicesProvider
+  T:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider
+  T:Tecnomatix.Engineering.TxRobotTargetReachAccuracy
+  T:Tecnomatix.Engineering.TxRobotToolbox
+  T:Tecnomatix.Engineering.TxRobotToolboxAlreadyExistsException
+  T:Tecnomatix.Engineering.TxRobotUnknownWorkToolException
+  T:Tecnomatix.Engineering.TxRobotUserInverseAttribute
+  T:Tecnomatix.Engineering.TxRobotVirtualFrameWorkTool
+  T:Tecnomatix.Engineering.TxRobotVirtualFrameWorkToolCreationData
+  T:Tecnomatix.Engineering.TxRobotWorkTool
+  T:Tecnomatix.Engineering.TxRobotWorkToolCreationData
+  T:Tecnomatix.Engineering.TxRobotWorkToolNameAlreadyExistsException
+  T:Tecnomatix.Engineering.TxRobot_ComponentMountedEventArgs
+  T:Tecnomatix.Engineering.TxRobot_ComponentMountedEventHandler
+  T:Tecnomatix.Engineering.TxRobot_ComponentUnmountedEventArgs
+  T:Tecnomatix.Engineering.TxRobot_ComponentUnmountedEventHandler
+  T:Tecnomatix.Engineering.TxRobot_ControllerChangedEventHandler
+  T:Tecnomatix.Engineering.TxRobot_ControllerVersionChangedEventHandler
+  T:Tecnomatix.Engineering.TxRobot_DefaultProgramChangedEventArgs
+  T:Tecnomatix.Engineering.TxRobot_DefaultProgramEventHandler
+  T:Tecnomatix.Engineering.TxRobot_ExternalAxisAddedEventArgs
+  T:Tecnomatix.Engineering.TxRobot_ExternalAxisAddedEventHandler
+  T:Tecnomatix.Engineering.TxRobot_ExternalAxisRemovedEventArgs
+  T:Tecnomatix.Engineering.TxRobot_ExternalAxisRemovedEventHandler
+  T:Tecnomatix.Engineering.TxRobot_InstanceParameterRemovedEventArgs
+  T:Tecnomatix.Engineering.TxRobot_InstanceParameterRemovedEventHandler
+  T:Tecnomatix.Engineering.TxRobot_InstanceParameterSetEventArgs
+  T:Tecnomatix.Engineering.TxRobot_InstanceParameterSetEventHandler
+  T:Tecnomatix.Engineering.TxRobot_RoboticProgramAddedEventArgs
+  T:Tecnomatix.Engineering.TxRobot_RoboticProgramAddedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticBoolParam
+  T:Tecnomatix.Engineering.TxRoboticCommand
+  T:Tecnomatix.Engineering.TxRoboticCommandActiveInstruction
+  T:Tecnomatix.Engineering.TxRoboticCommandCreationData
+  T:Tecnomatix.Engineering.TxRoboticCommandData
+  T:Tecnomatix.Engineering.TxRoboticCompositeCommand
+  T:Tecnomatix.Engineering.TxRoboticCompositeCommandBoolElement
+  T:Tecnomatix.Engineering.TxRoboticCompositeCommandCreationData
+  T:Tecnomatix.Engineering.TxRoboticCompositeCommandData
+  T:Tecnomatix.Engineering.TxRoboticCompositeCommandDoubleElement
+  T:Tecnomatix.Engineering.TxRoboticCompositeCommandElement
+  T:Tecnomatix.Engineering.TxRoboticCompositeCommandIntElement
+  T:Tecnomatix.Engineering.TxRoboticCompositeCommandStringElement
+  T:Tecnomatix.Engineering.TxRoboticCompositeCommandTransformationElement
+  T:Tecnomatix.Engineering.TxRoboticCompositeCommandTxObjectElement
+  T:Tecnomatix.Engineering.TxRoboticDoubleParam
+  T:Tecnomatix.Engineering.TxRoboticIntParam
+  T:Tecnomatix.Engineering.TxRoboticLocationOperationCooperativeMotionParameters
+  T:Tecnomatix.Engineering.TxRoboticLocationOperationMotionParameters
+  T:Tecnomatix.Engineering.TxRoboticLocationOperationSynchronizedMotionParameters
+  T:Tecnomatix.Engineering.TxRoboticLocationOperation_ConfigurationSetEventArgs
+  T:Tecnomatix.Engineering.TxRoboticLocationOperation_ConfigurationSetEventHandler
+  T:Tecnomatix.Engineering.TxRoboticLocationOperation_ExternalAxisValuesClearedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticLocationOperation_ExternalAxisValuesClearedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticLocationOperation_ExternalAxisValuesSetEventArgs
+  T:Tecnomatix.Engineering.TxRoboticLocationOperation_ExternalAxisValuesSetEventHandler
+  T:Tecnomatix.Engineering.TxRoboticLocationOperation_MovedToParentWithDifferentAssignedRobotEventArgs
+  T:Tecnomatix.Engineering.TxRoboticLocationOperation_MovedToParentWithDifferentAssignedRobotEventHandler
+  T:Tecnomatix.Engineering.TxRoboticOperationArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationArgumentDirection
+  T:Tecnomatix.Engineering.TxRoboticOperationBoolArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationBoolArrayArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationDoesNotContainCommandException
+  T:Tecnomatix.Engineering.TxRoboticOperationDoubleArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationDoubleArrayArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationGenericArgument`1
+  T:Tecnomatix.Engineering.TxRoboticOperationGenericArrayArgument`1
+  T:Tecnomatix.Engineering.TxRoboticOperationIntArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationIntArrayArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationNoTypeArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationReturnType
+  T:Tecnomatix.Engineering.TxRoboticOperationStringArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationStringArrayArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationStructArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationStructArrayArgument
+  T:Tecnomatix.Engineering.TxRoboticOperationTransformationArgument
+  T:Tecnomatix.Engineering.TxRoboticOperation_CommandCreatedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticOperation_CommandCreatedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticOperation_CommandExtractedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticOperation_CommandExtractedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticOperation_CommandMovedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticOperation_CommandMovedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticOperation_MountedWorkpieceOperationStateChangedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticOperation_MountedWorkpieceOperationStateChangedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticOperation_ParameterRemovedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticOperation_ParameterRemovedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticOperation_ParameterSetEventArgs
+  T:Tecnomatix.Engineering.TxRoboticOperation_ParameterSetEventHandler
+  T:Tecnomatix.Engineering.TxRoboticOrderedCompoundOperation_RobotSetEventArgs
+  T:Tecnomatix.Engineering.TxRoboticOrderedCompoundOperation_RobotSetEventHandler
+  T:Tecnomatix.Engineering.TxRoboticPaintTrigger
+  T:Tecnomatix.Engineering.TxRoboticPaintTriggerCreationData
+  T:Tecnomatix.Engineering.TxRoboticParam
+  T:Tecnomatix.Engineering.TxRoboticProgram
+  T:Tecnomatix.Engineering.TxRoboticProgramAlreadyContainsElementException
+  T:Tecnomatix.Engineering.TxRoboticProgramCannotMoveElementAfterItselfException
+  T:Tecnomatix.Engineering.TxRoboticProgramCreationData
+  T:Tecnomatix.Engineering.TxRoboticProgramCreation_ProgramCreatedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticProgramCreation_ProgramCreatedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticProgramElementAndRoboticProgramHaveDifferentRobotException
+  T:Tecnomatix.Engineering.TxRoboticProgramRoot
+  T:Tecnomatix.Engineering.TxRoboticProgramUploaderAttribute
+  T:Tecnomatix.Engineering.TxRoboticProgram_DurationSetEventArgs
+  T:Tecnomatix.Engineering.TxRoboticProgram_DurationSetEventHandler
+  T:Tecnomatix.Engineering.TxRoboticProgram_ElementAddedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticProgram_ElementAddedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticProgram_ElementMovedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticProgram_ElementMovedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticProgram_ElementRemovedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticProgram_ElementRemovedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticSeamLocationOperation
+  T:Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData
+  T:Tecnomatix.Engineering.TxRoboticSeamOperation
+  T:Tecnomatix.Engineering.TxRoboticSeamOperationCreationData
+  T:Tecnomatix.Engineering.TxRoboticStringParam
+  T:Tecnomatix.Engineering.TxRoboticTransformationParam
+  T:Tecnomatix.Engineering.TxRoboticTriggerCreationData
+  T:Tecnomatix.Engineering.TxRoboticTriggerParentLocation_RoboticTriggerAddedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticTriggerParentLocation_RoboticTriggerAddedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticTriggerParentLocation_RoboticTriggerRemovedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticTriggerParentLocation_RoboticTriggerRemovedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticTrigger_ParameterRemovedEventArgs
+  T:Tecnomatix.Engineering.TxRoboticTrigger_ParameterRemovedEventHandler
+  T:Tecnomatix.Engineering.TxRoboticTrigger_ParameterSetEventArgs
+  T:Tecnomatix.Engineering.TxRoboticTrigger_ParameterSetEventHandler
+  T:Tecnomatix.Engineering.TxRoboticTxObjectParam
+  T:Tecnomatix.Engineering.TxRoboticViaLocationOperation
+  T:Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData
+  T:Tecnomatix.Engineering.TxRoboticXmlParam
+  T:Tecnomatix.Engineering.TxRoboticsUtilities
+  T:Tecnomatix.Engineering.TxSignalAlreadyAssignedToRobotException
+  T:Tecnomatix.Engineering.TxUploadRoboticProgramFailedException
+
+  T:Tecnomatix.Engineering.ITxRobot
+    - MountTool
+
+  T:Tecnomatix.Engineering.TxGenericRoboticLocationOperation
+    - Locate
+
+  T:Tecnomatix.Engineering.TxRobot
+    - GetLocationAxisIntersectionPoints
+    - GetPerpendicularLocationAxisIntersectionPoints
+    - Locate
+    - MountTool
+
+  T:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider
+    - Relocate
+    - SetSimulatedRobotReferenceFrame
+    - SetSimulatedRobotTcpf
+
+  T:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider
+    - ModifyCellFrame
+
+  T:Tecnomatix.Engineering.TxRoboticPaintTrigger
+    - Locate
+
+  T:Tecnomatix.Engineering.TxRoboticSeamLocationOperation
+    - Locate
+
+  T:Tecnomatix.Engineering.TxRoboticViaLocationOperation
+    - Locate
+
+======================================================================
+Q4: Totals
+======================================================================
+Total qualifying types: 8
+Total unique methods: 8
+
+All unique method names:
+  - GetLocationAxisIntersectionPoints
+  - GetPerpendicularLocationAxisIntersectionPoints
+  - Locate
+  - ModifyCellFrame
+  - MountTool
+  - Relocate
+  - SetSimulatedRobotReferenceFrame
+  - SetSimulatedRobotTcpf
+
+======================================================================
+DEBUG: All methods for each robot type
+======================================================================
+
+T:Tecnomatix.Engineering.ITxPathPlanningRobotZone (2 methods):
+  M:Tecnomatix.Engineering.ITxPathPlanningRobotZone.Activate
+  M:Tecnomatix.Engineering.ITxPathPlanningRobotZone.Deactivate
+
+T:Tecnomatix.Engineering.ITxRobot (21 methods):
+  M:Tecnomatix.Engineering.ITxRobot.Equals(System.Object)
+  M:Tecnomatix.Engineering.ITxRobot.DoesInverseExist(Tecnomatix.Engineering.TxRobotInverseData)
+  M:Tecnomatix.Engineering.ITxRobot.CalcInverseSolutions(Tecnomatix.Engineering.TxRobotInverseData)
+  [TxTrans] M:Tecnomatix.Engineering.ITxRobot.MountTool(Tecnomatix.Engineering.ITxLocatableObject,Tecnomatix.Engineering.TxTransformation,Tecnomatix.Engineering.TxTransformation)
+  M:Tecnomatix.Engineering.ITxRobot.UnmountTool(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.ITxRobot.GetPoseConfiguration(Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.ITxRobot.IsPoseWristSingular(Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.ITxRobot.IsSingularityConfigured
+  M:Tecnomatix.Engineering.ITxRobot.AddToRobotSignal(Tecnomatix.Engineering.TxPlcToRobotSignal)
+  M:Tecnomatix.Engineering.ITxRobot.RemoveToRobotSignal(Tecnomatix.Engineering.TxPlcToRobotSignal)
+  M:Tecnomatix.Engineering.ITxRobot.AddFromRobotSignal(Tecnomatix.Engineering.TxPlcFromRobotSignal)
+  M:Tecnomatix.Engineering.ITxRobot.RemoveFromRobotSignal(Tecnomatix.Engineering.TxPlcFromRobotSignal)
+  M:Tecnomatix.Engineering.ITxRobot.RemoveExternalAxes(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.ITxRobot.AddExternalAxes(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.ITxRobot.GetPoseAtLocation(Tecnomatix.Engineering.ITxRoboticLocationOperation)
+  M:Tecnomatix.Engineering.ITxRobot.GetTCPFByPoseData(Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.ITxRobot.GetConveyorTriggerSignal(System.UInt16)
+  M:Tecnomatix.Engineering.ITxRobot.GetConveyorPositionSignal(System.UInt16)
+  M:Tecnomatix.Engineering.ITxRobot.SetConveyorTriggerSignal(Tecnomatix.Engineering.TxPlcToRobotSignal,System.UInt16)
+  M:Tecnomatix.Engineering.ITxRobot.SetConveyorPositionSignal(Tecnomatix.Engineering.TxPlcToRobotSignal,System.UInt16)
+  M:Tecnomatix.Engineering.ITxRobot.CreateRobotPoseSensor(Tecnomatix.Engineering.TxPlcRobotPoseSensorCreationData)
+
+T:Tecnomatix.Engineering.ITxRobotRRSController (1 methods):
+  M:Tecnomatix.Engineering.ITxRobotRRSController.ComputeRobotPathName
+
+T:Tecnomatix.Engineering.ITxRobotSetup (2 methods):
+  M:Tecnomatix.Engineering.ITxRobotSetup.GetRobotSetupForm(Tecnomatix.Engineering.ITxRobot)
+  M:Tecnomatix.Engineering.ITxRobotSetup.GetFacilitiesRoot(Tecnomatix.Engineering.ITxRobot)
+
+T:Tecnomatix.Engineering.ITxRobotSimulationController (18 methods):
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.Init(Tecnomatix.Engineering.ITxObject,Tecnomatix.Engineering.TxRobotSimulationEngine)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.Init(Tecnomatix.Engineering.ITxObject,System.Int32,Tecnomatix.Engineering.TxRobotSimulationEngine)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.InitWithProgramElementNumber(Tecnomatix.Engineering.TxRoboticProgram,System.Int32,Tecnomatix.Engineering.TxRobotSimulationEngine)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.Start
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.Clear
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.OnStopped
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.OnContinued
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.OnSignalChanged(System.String)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.OnSignalReachedValue(System.String,System.Object)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.OnSignalCrossedValue(System.String,System.Object)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.OnDeviceReachedPose(Tecnomatix.Engineering.ITxDevice,Tecnomatix.Engineering.TxPose)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.OnDeviceReachedPose(Tecnomatix.Engineering.ITxDevice,Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.OnCalledAsyncOperationFinished(Tecnomatix.Engineering.ITxRoboticOperation)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.OnLocationReached
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.OnTimeNotificationReached(System.Int32)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.Reset(Tecnomatix.Engineering.TxOlpSimulationResetMode)
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.GetCurrentTargetLocation
+  M:Tecnomatix.Engineering.ITxRobotSimulationController.GetActiveInstruction
+
+T:Tecnomatix.Engineering.ITxRobotUserInverse (1 methods):
+  M:Tecnomatix.Engineering.ITxRobotUserInverse.Calculate(Tecnomatix.Engineering.ITxRobot,Tecnomatix.Engineering.TxRobotInverseData,System.Boolean)
+
+T:Tecnomatix.Engineering.ITxRoboticDownloader (3 methods):
+  M:Tecnomatix.Engineering.ITxRoboticDownloader.Download(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.ITxRoboticDownloader.Download(Tecnomatix.Engineering.ITxObject,System.String,System.Boolean)
+  M:Tecnomatix.Engineering.ITxRoboticDownloader.Download(Tecnomatix.Engineering.ITxObject,System.String,System.Boolean,System.Collections.Generic.List{System.String}@)
+
+T:Tecnomatix.Engineering.ITxRoboticLocationOperation (2 methods):
+  M:Tecnomatix.Engineering.ITxRoboticLocationOperation.TeachCurrentRobotConfiguration
+  M:Tecnomatix.Engineering.ITxRoboticLocationOperation.TeachCurrentRobotConfigurationUsingTaughtLocation
+
+T:Tecnomatix.Engineering.ITxRoboticOperation (7 methods):
+  M:Tecnomatix.Engineering.ITxRoboticOperation.SetParameter(Tecnomatix.Engineering.TxRoboticParam)
+  M:Tecnomatix.Engineering.ITxRoboticOperation.RemoveParameter(System.String)
+  M:Tecnomatix.Engineering.ITxRoboticOperation.GetParameter(System.String)
+  M:Tecnomatix.Engineering.ITxRoboticOperation.CreateCommand(Tecnomatix.Engineering.TxRoboticCommandCreationData)
+  M:Tecnomatix.Engineering.ITxRoboticOperation.CreateCompositeCommand(Tecnomatix.Engineering.TxRoboticCompositeCommandCreationData)
+  M:Tecnomatix.Engineering.ITxRoboticOperation.MoveCommandAfter(Tecnomatix.Engineering.TxRoboticCommand,Tecnomatix.Engineering.TxRoboticCommand)
+  M:Tecnomatix.Engineering.ITxRoboticOperation.GetCommandAt(System.Int32)
+
+T:Tecnomatix.Engineering.ITxRoboticProgram (15 methods):
+  M:Tecnomatix.Engineering.ITxRoboticProgram.AddElementAfter(Tecnomatix.Engineering.ITxRoboticProgramElement,Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.ContainsElement(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.GetElementAt(System.Int32)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.GetElementByNumber(System.Int32)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.GetIndexOfElement(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.GetDirectChildElements(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.AddElement(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.RemoveElement(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.MoveElementAfter(Tecnomatix.Engineering.ITxRoboticProgramElement,Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.CanAddElementAfter(Tecnomatix.Engineering.ITxRoboticProgramElement,Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.CanMoveElementAfter(Tecnomatix.Engineering.ITxRoboticProgramElement,Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.CanAddElement(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.SetElementNumber(Tecnomatix.Engineering.ITxRoboticProgramElement,System.Int32)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.GetElementNumber(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.ITxRoboticProgram.ClearElementNumber(Tecnomatix.Engineering.ITxRoboticProgramElement)
+
+T:Tecnomatix.Engineering.ITxRoboticProgramCreation (2 methods):
+  M:Tecnomatix.Engineering.ITxRoboticProgramCreation.CreateProgram(Tecnomatix.Engineering.TxRoboticProgramCreationData)
+  M:Tecnomatix.Engineering.ITxRoboticProgramCreation.CanCreateProgram(Tecnomatix.Engineering.TxRoboticProgramCreationData)
+
+T:Tecnomatix.Engineering.ITxRoboticProgramUploader (4 methods):
+  M:Tecnomatix.Engineering.ITxRoboticProgramUploader.Upload(System.String,Tecnomatix.Engineering.TxRobot)
+  M:Tecnomatix.Engineering.ITxRoboticProgramUploader.Upload(System.String,Tecnomatix.Engineering.TxRobot,Tecnomatix.Engineering.ITxOperationCreation)
+  M:Tecnomatix.Engineering.ITxRoboticProgramUploader.Upload(System.String,Tecnomatix.Engineering.TxRobot,Tecnomatix.Engineering.ITxOperationCreation,System.Collections.Generic.List{System.String}@)
+  M:Tecnomatix.Engineering.ITxRoboticProgramUploader.Init(Tecnomatix.Engineering.TxRobot)
+
+T:Tecnomatix.Engineering.ITxRoboticSeamLocationOperationCreation (7 methods):
+  M:Tecnomatix.Engineering.ITxRoboticSeamLocationOperationCreation.Equals(System.Object)
+  M:Tecnomatix.Engineering.ITxRoboticSeamLocationOperationCreation.CreateRoboticSeamLocationOperation(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData)
+  M:Tecnomatix.Engineering.ITxRoboticSeamLocationOperationCreation.CanCreateRoboticSeamLocationOperation(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData)
+  M:Tecnomatix.Engineering.ITxRoboticSeamLocationOperationCreation.CanCreateRoboticSeamLocationOperationAfter(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.ITxRoboticSeamLocationOperationCreation.CreateRoboticSeamLocationOperationAfter(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.ITxRoboticSeamLocationOperationCreation.CanCreateRoboticSeamLocationOperationBefore(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.ITxRoboticSeamLocationOperationCreation.CreateRoboticSeamLocationOperationBefore(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+
+T:Tecnomatix.Engineering.ITxRoboticSeamOperationCreation (3 methods):
+  M:Tecnomatix.Engineering.ITxRoboticSeamOperationCreation.Equals(System.Object)
+  M:Tecnomatix.Engineering.ITxRoboticSeamOperationCreation.CreateRoboticSeamOperation(Tecnomatix.Engineering.TxRoboticSeamOperationCreationData)
+  M:Tecnomatix.Engineering.ITxRoboticSeamOperationCreation.CanCreateRoboticSeamOperation(Tecnomatix.Engineering.TxRoboticSeamOperationCreationData)
+
+T:Tecnomatix.Engineering.ITxRoboticTrigger (3 methods):
+  M:Tecnomatix.Engineering.ITxRoboticTrigger.SetParameter(Tecnomatix.Engineering.TxRoboticParam)
+  M:Tecnomatix.Engineering.ITxRoboticTrigger.RemoveParameter(System.String)
+  M:Tecnomatix.Engineering.ITxRoboticTrigger.GetParameter(System.String)
+
+T:Tecnomatix.Engineering.ITxRoboticTriggerCreation (2 methods):
+  M:Tecnomatix.Engineering.ITxRoboticTriggerCreation.CreateRoboticTrigger(Tecnomatix.Engineering.TxRoboticTriggerCreationData)
+  M:Tecnomatix.Engineering.ITxRoboticTriggerCreation.CanCreateRoboticTrigger(Tecnomatix.Engineering.TxRoboticTriggerCreationData)
+
+T:Tecnomatix.Engineering.ITxRoboticTriggerParentLocation (1 methods):
+  M:Tecnomatix.Engineering.ITxRoboticTriggerParentLocation.GetRoboticTriggers(Tecnomatix.Engineering.ITxTypeFilter)
+
+T:Tecnomatix.Engineering.ITxRoboticViaLocationOperationCreation (4 methods):
+  M:Tecnomatix.Engineering.ITxRoboticViaLocationOperationCreation.CreateRoboticViaLocationOperation(Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData)
+  M:Tecnomatix.Engineering.ITxRoboticViaLocationOperationCreation.CreateRoboticViaLocationOperationAfter(Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.ITxRoboticViaLocationOperationCreation.CanCreateRoboticViaLocationOperation(Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData)
+  M:Tecnomatix.Engineering.ITxRoboticViaLocationOperationCreation.CanCreateRoboticViaLocationOperationAfter(Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+
+T:Tecnomatix.Engineering.ITxSkippableRobotSimulationController (2 methods):
+  M:Tecnomatix.Engineering.ITxSkippableRobotSimulationController.CanSkipTo(Tecnomatix.Engineering.ITxSkippableObject)
+  M:Tecnomatix.Engineering.ITxSkippableRobotSimulationController.SkipTo(Tecnomatix.Engineering.ITxSkippableObject)
+
+T:Tecnomatix.Engineering.TxAsynchronousRoboticOperationCreationData (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxAsynchronousRoboticOperationCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxAsynchronousRoboticOperationCreationData.#ctor(System.String)
+  [ctor] M:Tecnomatix.Engineering.TxAsynchronousRoboticOperationCreationData.#ctor(System.String,System.Double,System.String)
+
+T:Tecnomatix.Engineering.TxBaseGenericRoboticOperation (73 methods):
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateGenericRoboticLocationOperation(Tecnomatix.Engineering.TxGenericRoboticLocationOperationCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateGenericRoboticLocationOperation(Tecnomatix.Engineering.TxGenericRoboticLocationOperationCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreatePickRoboticLocationOperation(Tecnomatix.Engineering.TxPickAndPlaceRoboticLocationOperationCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreatePlaceRoboticLocationOperation(Tecnomatix.Engineering.TxPickAndPlaceRoboticLocationOperationCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.op_Equality(Tecnomatix.Engineering.TxBaseGenericRoboticOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.op_Inequality(Tecnomatix.Engineering.TxBaseGenericRoboticOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetHashCode
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.Delete
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.IsValid
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.SetAttribute(Tecnomatix.Engineering.TxAttribute)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.RemoveAttribute(System.String)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetAttribute(System.String)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.AddObject(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.AddObjects(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.Contains(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetDirectDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetAllDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanBeAdded(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.Paste(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.Paste(Tecnomatix.Engineering.TxObjectList,System.Collections.Hashtable@)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanPasteList(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanPasteList(Tecnomatix.Engineering.TxObjectList,System.Boolean)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetUniqueDisplayName(System.String)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetEnumerator
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanChangeDuration
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.SetChildOperationRelativeStartTime(Tecnomatix.Engineering.ITxOperation,System.Double)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetChildOperationRelativeStartTime(Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanSetChildOperationRelativeStartTime(Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.Reverse
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.AddObjectAfter(Tecnomatix.Engineering.ITxObject,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetChildAt(System.Int32)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetIndexOfChild(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.MoveChildAfter(Tecnomatix.Engineering.ITxObject,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanAddObjectAfter(Tecnomatix.Engineering.ITxObject,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanMoveChildAfter(Tecnomatix.Engineering.ITxObject,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.SetParameter(Tecnomatix.Engineering.TxRoboticParam)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetParameter(System.String)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.RemoveParameter(System.String)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateCommand(Tecnomatix.Engineering.TxRoboticCommandCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateCompositeCommand(Tecnomatix.Engineering.TxRoboticCompositeCommandCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetCommandAt(System.Int32)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.MoveCommandAfter(Tecnomatix.Engineering.TxRoboticCommand,Tecnomatix.Engineering.TxRoboticCommand)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateRoboticViaLocationOperation(Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateRoboticViaLocationOperationAfter(Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateRoboticViaLocationOperation(Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateRoboticViaLocationOperationAfter(Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateAddToGroupEvent(Tecnomatix.Engineering.TxAddToGroupEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateAddToGroupEvent(Tecnomatix.Engineering.TxAddToGroupEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateAttachEvent(Tecnomatix.Engineering.TxAttachEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateAttachEvent(Tecnomatix.Engineering.TxAttachEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateBlankEvent(Tecnomatix.Engineering.TxBlankEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateBlankEvent(Tecnomatix.Engineering.TxBlankEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateDetachEvent(Tecnomatix.Engineering.TxDetachEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateDetachEvent(Tecnomatix.Engineering.TxDetachEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateDisplayEvent(Tecnomatix.Engineering.TxDisplayEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateDisplayEvent(Tecnomatix.Engineering.TxDisplayEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateRemoveFromGroupEvent(Tecnomatix.Engineering.TxRemoveFromGroupEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateRemoveFromGroupEvent(Tecnomatix.Engineering.TxRemoveFromGroupEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateSnapshotEvent(Tecnomatix.Engineering.TxSnapshotEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateSnapshotEvent(Tecnomatix.Engineering.TxSnapshotEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateBreakpointEvent(Tecnomatix.Engineering.TxBreakpointEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateBreakpointEvent(Tecnomatix.Engineering.TxBreakpointEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateViewPointEvent(Tecnomatix.Engineering.TxViewPointEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanCreateViewPointEvent(Tecnomatix.Engineering.TxViewPointEventCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.SetSimulationEventTimeOffset(Tecnomatix.Engineering.ITxSimulationEvent,Tecnomatix.Engineering.TxOperationTimeOffset)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetSimulationEventTimeOffset(Tecnomatix.Engineering.ITxSimulationEvent)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CanChangeSimulationEventTimeOffset(Tecnomatix.Engineering.ITxSimulationEvent)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.CreateSweptVolume(Tecnomatix.Engineering.TxSweptVolumeCreationData)
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.Display
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.Blank
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.GetColors
+  M:Tecnomatix.Engineering.TxBaseGenericRoboticOperation.RestoreColor
+
+T:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTrigger (4 methods):
+  M:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTrigger.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTrigger.op_Equality(Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTrigger,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTrigger.op_Inequality(Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTrigger,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTrigger.GetHashCode
+
+T:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTriggerCreationData (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTriggerCreationData.#ctor(System.String)
+  [ctor] M:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTriggerCreationData.#ctor(System.String,System.String)
+  [ctor] [TxTrans] M:Tecnomatix.Engineering.TxChangePaintGunBrushRoboticTriggerCreationData.#ctor(System.String,System.String,Tecnomatix.Engineering.TxTransformation)
+
+T:Tecnomatix.Engineering.TxClosePaintGunRoboticTrigger (4 methods):
+  M:Tecnomatix.Engineering.TxClosePaintGunRoboticTrigger.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxClosePaintGunRoboticTrigger.op_Equality(Tecnomatix.Engineering.TxClosePaintGunRoboticTrigger,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxClosePaintGunRoboticTrigger.op_Inequality(Tecnomatix.Engineering.TxClosePaintGunRoboticTrigger,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxClosePaintGunRoboticTrigger.GetHashCode
+
+T:Tecnomatix.Engineering.TxClosePaintGunRoboticTriggerCreationData (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxClosePaintGunRoboticTriggerCreationData.#ctor(System.String)
+  [ctor] [TxTrans] M:Tecnomatix.Engineering.TxClosePaintGunRoboticTriggerCreationData.#ctor(System.String,Tecnomatix.Engineering.TxTransformation)
+
+T:Tecnomatix.Engineering.TxContinuousRoboticOperation (4 methods):
+  M:Tecnomatix.Engineering.TxContinuousRoboticOperation.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxContinuousRoboticOperation.op_Equality(Tecnomatix.Engineering.TxContinuousRoboticOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxContinuousRoboticOperation.op_Inequality(Tecnomatix.Engineering.TxContinuousRoboticOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxContinuousRoboticOperation.GetHashCode
+
+T:Tecnomatix.Engineering.TxContinuousRoboticOperationCreationData (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxContinuousRoboticOperationCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxContinuousRoboticOperationCreationData.#ctor(System.String)
+  [ctor] M:Tecnomatix.Engineering.TxContinuousRoboticOperationCreationData.#ctor(System.String,System.Double,System.String)
+
+T:Tecnomatix.Engineering.TxGenericRoboticLocationOperation (36 methods):
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.op_Equality(Tecnomatix.Engineering.TxGenericRoboticLocationOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.op_Inequality(Tecnomatix.Engineering.TxGenericRoboticLocationOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.GetHashCode
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.Display
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.Blank
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.GetColors
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.RestoreColor
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.GetMinimalDistance(Tecnomatix.Engineering.ITxLocatableObject,System.Double@,Tecnomatix.Engineering.TxVector@,Tecnomatix.Engineering.TxVector@)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.IsObjectInRange(Tecnomatix.Engineering.ITxLocatableObject,System.Double)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.Rotate(Tecnomatix.Engineering.TxVector)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.Translate(Tecnomatix.Engineering.TxVector)
+  [TxTrans] M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.Locate(Tecnomatix.Engineering.TxTransformation)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.CanLocate
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.GetLocationRelativeToObject(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.CanAttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.CanAttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.AttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.AttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.Detach
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.GetDirectAttachmentDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.Delete
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.IsValid
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.SetAttribute(Tecnomatix.Engineering.TxAttribute)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.RemoveAttribute(System.String)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.GetAttribute(System.String)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.CanChangeDuration
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.TeachCurrentRobotConfiguration
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.TeachCurrentRobotConfigurationUsingTaughtLocation
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.SetParameter(Tecnomatix.Engineering.TxRoboticParam)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.GetParameter(System.String)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.RemoveParameter(System.String)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.CreateCommand(Tecnomatix.Engineering.TxRoboticCommandCreationData)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.CreateCompositeCommand(Tecnomatix.Engineering.TxRoboticCompositeCommandCreationData)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.GetCommandAt(System.Int32)
+  M:Tecnomatix.Engineering.TxGenericRoboticLocationOperation.MoveCommandAfter(Tecnomatix.Engineering.TxRoboticCommand,Tecnomatix.Engineering.TxRoboticCommand)
+
+T:Tecnomatix.Engineering.TxGenericRoboticLocationOperationCreationData (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxGenericRoboticLocationOperationCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxGenericRoboticLocationOperationCreationData.#ctor(System.String)
+  [ctor] M:Tecnomatix.Engineering.TxGenericRoboticLocationOperationCreationData.#ctor(System.String,System.String,System.Double)
+
+T:Tecnomatix.Engineering.TxGenericRoboticOperation (8 methods):
+  M:Tecnomatix.Engineering.TxGenericRoboticOperation.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxGenericRoboticOperation.op_Equality(Tecnomatix.Engineering.TxGenericRoboticOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxGenericRoboticOperation.op_Inequality(Tecnomatix.Engineering.TxGenericRoboticOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxGenericRoboticOperation.GetHashCode
+  M:Tecnomatix.Engineering.TxGenericRoboticOperation.CopyTransitionCondition(Tecnomatix.Engineering.ITxPlcOperation)
+  M:Tecnomatix.Engineering.TxGenericRoboticOperation.ResetTransitionConditionToDefault
+  M:Tecnomatix.Engineering.TxGenericRoboticOperation.AssignMfgFeature(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxGenericRoboticOperation.UnassignMfgFeature(Tecnomatix.Engineering.ITxObject)
+
+T:Tecnomatix.Engineering.TxGenericRoboticOperationCreationData (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxGenericRoboticOperationCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxGenericRoboticOperationCreationData.#ctor(System.String)
+  [ctor] M:Tecnomatix.Engineering.TxGenericRoboticOperationCreationData.#ctor(System.String,System.String,System.Double)
+
+T:Tecnomatix.Engineering.TxOpenPaintGunRoboticTrigger (4 methods):
+  M:Tecnomatix.Engineering.TxOpenPaintGunRoboticTrigger.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxOpenPaintGunRoboticTrigger.op_Equality(Tecnomatix.Engineering.TxOpenPaintGunRoboticTrigger,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxOpenPaintGunRoboticTrigger.op_Inequality(Tecnomatix.Engineering.TxOpenPaintGunRoboticTrigger,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxOpenPaintGunRoboticTrigger.GetHashCode
+
+T:Tecnomatix.Engineering.TxOpenPaintGunRoboticTriggerCreationData (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxOpenPaintGunRoboticTriggerCreationData.#ctor(System.String)
+  [ctor] [TxTrans] M:Tecnomatix.Engineering.TxOpenPaintGunRoboticTriggerCreationData.#ctor(System.String,Tecnomatix.Engineering.TxTransformation)
+
+T:Tecnomatix.Engineering.TxPickAndPlaceRoboticLocationOperationCreationData (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxPickAndPlaceRoboticLocationOperationCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxPickAndPlaceRoboticLocationOperationCreationData.#ctor(System.String)
+  [ctor] M:Tecnomatix.Engineering.TxPickAndPlaceRoboticLocationOperationCreationData.#ctor(System.String,System.String,System.Double,System.String)
+
+T:Tecnomatix.Engineering.TxPlcFromRobotSignalCreationData (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxPlcFromRobotSignalCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxPlcFromRobotSignalCreationData.#ctor(System.String)
+
+T:Tecnomatix.Engineering.TxPlcRobotPoseSensorCreationData (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxPlcRobotPoseSensorCreationData.#ctor(Tecnomatix.Engineering.TxPose,System.String)
+
+T:Tecnomatix.Engineering.TxPlcToRobotSignalCreationData (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxPlcToRobotSignalCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxPlcToRobotSignalCreationData.#ctor(System.String)
+
+T:Tecnomatix.Engineering.TxRRSRobotConfigurationData (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRRSRobotConfigurationData.#ctor(Tecnomatix.Engineering.TxRobotConfigurationData)
+
+T:Tecnomatix.Engineering.TxRRSRobotConfigurationString (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRRSRobotConfigurationString.#ctor(System.String)
+
+T:Tecnomatix.Engineering.TxRobot (112 methods):
+  M:Tecnomatix.Engineering.TxRobot.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRobot.op_Equality(Tecnomatix.Engineering.TxRobot,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRobot.op_Inequality(Tecnomatix.Engineering.TxRobot,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRobot.GetHashCode
+  M:Tecnomatix.Engineering.TxRobot.GetMinimalDistance(Tecnomatix.Engineering.ITxLocatableObject,System.Double@,Tecnomatix.Engineering.TxVector@,Tecnomatix.Engineering.TxVector@)
+  M:Tecnomatix.Engineering.TxRobot.IsObjectInRange(Tecnomatix.Engineering.ITxLocatableObject,System.Double)
+  M:Tecnomatix.Engineering.TxRobot.GetLocationRelativeToObject(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobot.CanAttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobot.CanAttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobot.AttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobot.AttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobot.Detach
+  M:Tecnomatix.Engineering.TxRobot.GetDirectAttachmentDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRobot.AddObject(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRobot.AddObjects(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRobot.Contains(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRobot.GetDirectDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRobot.GetAllDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRobot.CanBeAdded(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRobot.Paste(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRobot.Paste(Tecnomatix.Engineering.TxObjectList,System.Collections.Hashtable@)
+  M:Tecnomatix.Engineering.TxRobot.CanPasteList(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRobot.CanPasteList(Tecnomatix.Engineering.TxObjectList,System.Boolean)
+  M:Tecnomatix.Engineering.TxRobot.Display
+  M:Tecnomatix.Engineering.TxRobot.Blank
+  M:Tecnomatix.Engineering.TxRobot.CreateFrame(Tecnomatix.Engineering.TxFrameCreationData)
+  M:Tecnomatix.Engineering.TxRobot.GetEnumerator
+  M:Tecnomatix.Engineering.TxRobot.Rotate(Tecnomatix.Engineering.TxVector)
+  M:Tecnomatix.Engineering.TxRobot.Translate(Tecnomatix.Engineering.TxVector)
+  [TxTrans] M:Tecnomatix.Engineering.TxRobot.Locate(Tecnomatix.Engineering.TxTransformation)
+  M:Tecnomatix.Engineering.TxRobot.CanLocate
+  M:Tecnomatix.Engineering.TxRobot.GetColors
+  M:Tecnomatix.Engineering.TxRobot.RestoreColor
+  M:Tecnomatix.Engineering.TxRobot.SetModelingScope
+  M:Tecnomatix.Engineering.TxRobot.EndModeling(System.String)
+  M:Tecnomatix.Engineering.TxRobot.GetReferencedEntities(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRobot.CreatePoseSensor(Tecnomatix.Engineering.TxPlcDevicePoseSensorCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CreatePose(Tecnomatix.Engineering.TxPoseCreationData)
+  M:Tecnomatix.Engineering.TxRobot.GetPoseByName(System.String)
+  M:Tecnomatix.Engineering.TxRobot.EliminateFollowFactorsFromPoseData(Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.TxRobot.AddFollowFactorsToPoseData(Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.TxRobot.GetLinkLocations(Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.TxRobot.DoesInverseExist(Tecnomatix.Engineering.TxRobotInverseData)
+  M:Tecnomatix.Engineering.TxRobot.CalcInverseSolutions(Tecnomatix.Engineering.TxRobotInverseData)
+  [TxTrans] M:Tecnomatix.Engineering.TxRobot.MountTool(Tecnomatix.Engineering.ITxLocatableObject,Tecnomatix.Engineering.TxTransformation,Tecnomatix.Engineering.TxTransformation)
+  M:Tecnomatix.Engineering.TxRobot.UnmountTool(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobot.AddToRobotSignal(Tecnomatix.Engineering.TxPlcToRobotSignal)
+  M:Tecnomatix.Engineering.TxRobot.RemoveToRobotSignal(Tecnomatix.Engineering.TxPlcToRobotSignal)
+  M:Tecnomatix.Engineering.TxRobot.AddFromRobotSignal(Tecnomatix.Engineering.TxPlcFromRobotSignal)
+  M:Tecnomatix.Engineering.TxRobot.RemoveFromRobotSignal(Tecnomatix.Engineering.TxPlcFromRobotSignal)
+  M:Tecnomatix.Engineering.TxRobot.CreateToolbox
+  M:Tecnomatix.Engineering.TxRobot.GetPoseConfiguration(Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.TxRobot.IsPoseWristSingular(Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.TxRobot.IsSingularityConfigured
+  M:Tecnomatix.Engineering.TxRobot.ComputePathName
+  M:Tecnomatix.Engineering.TxRobot.SetDataInPathAsModified
+  M:Tecnomatix.Engineering.TxRobot.RemoveExternalAxes(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRobot.AddExternalAxes(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRobot.GetPoseAtLocation(Tecnomatix.Engineering.ITxRoboticLocationOperation)
+  M:Tecnomatix.Engineering.TxRobot.GetTCPFByPoseData(Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.TxRobot.GetConveyorTriggerSignal(System.UInt16)
+  M:Tecnomatix.Engineering.TxRobot.GetConveyorPositionSignal(System.UInt16)
+  M:Tecnomatix.Engineering.TxRobot.SetConveyorTriggerSignal(Tecnomatix.Engineering.TxPlcToRobotSignal,System.UInt16)
+  M:Tecnomatix.Engineering.TxRobot.SetConveyorPositionSignal(Tecnomatix.Engineering.TxPlcToRobotSignal,System.UInt16)
+  M:Tecnomatix.Engineering.TxRobot.SetParameter(Tecnomatix.Engineering.TxRoboticParam)
+  M:Tecnomatix.Engineering.TxRobot.GetParameter(System.String)
+  M:Tecnomatix.Engineering.TxRobot.RemoveParameter(System.String)
+  M:Tecnomatix.Engineering.TxRobot.SetInstanceParameter(Tecnomatix.Engineering.TxRoboticParam)
+  M:Tecnomatix.Engineering.TxRobot.GetInstanceParameter(System.String)
+  M:Tecnomatix.Engineering.TxRobot.GetAllInstanceParameters
+  M:Tecnomatix.Engineering.TxRobot.RemoveInstanceParameter(System.String)
+  M:Tecnomatix.Engineering.TxRobot.AddSystemFrame(Tecnomatix.Engineering.TxFrame)
+  M:Tecnomatix.Engineering.TxRobot.GetAllSystemFrames
+  M:Tecnomatix.Engineering.TxRobot.RemoveSystemFrame(Tecnomatix.Engineering.TxFrame)
+  M:Tecnomatix.Engineering.TxRobot.SetSystemFrameAsConveyorMovingFrame(Tecnomatix.Engineering.TxFrame,System.UInt16)
+  M:Tecnomatix.Engineering.TxRobot.UnsetSystemFrameAsConveyorMovingFrame(Tecnomatix.Engineering.TxFrame)
+  M:Tecnomatix.Engineering.TxRobot.GetConveyorByNumber(System.UInt16)
+  M:Tecnomatix.Engineering.TxRobot.GetPlcConveyorByNumber(System.UInt16)
+  M:Tecnomatix.Engineering.TxRobot.CanCreateLogicBehavior(Tecnomatix.Engineering.Plc.TxPlcLogicBehaviorCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CreateLogicBehavior(Tecnomatix.Engineering.Plc.TxPlcLogicBehaviorCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CopySelfLogicToOtherLogicResource(Tecnomatix.Engineering.Plc.ITxPlcLogicResource)
+  M:Tecnomatix.Engineering.TxRobot.CanCreateLink(Tecnomatix.Engineering.DataTypes.TxKinematicLinkCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CreateLink(Tecnomatix.Engineering.DataTypes.TxKinematicLinkCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CanCreateJoint(Tecnomatix.Engineering.DataTypes.TxJointCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CreateJoint(Tecnomatix.Engineering.DataTypes.TxJointCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CanCoupleJoints(Tecnomatix.Engineering.DataTypes.TxJointsCouplingData)
+  M:Tecnomatix.Engineering.TxRobot.CoupleJoints(Tecnomatix.Engineering.DataTypes.TxJointsCouplingData)
+  M:Tecnomatix.Engineering.TxRobot.CanDefineAsTool(Tecnomatix.Engineering.DataTypes.ITxToolDefinitionData)
+  M:Tecnomatix.Engineering.TxRobot.DefineAsTool(Tecnomatix.Engineering.DataTypes.ITxToolDefinitionData)
+  M:Tecnomatix.Engineering.TxRobot.CanDefineZeroPosition
+  M:Tecnomatix.Engineering.TxRobot.DefineZeroPosition
+  M:Tecnomatix.Engineering.TxRobot.CanDefineAsRobot(Tecnomatix.Engineering.TxRobotDefinitionData)
+  M:Tecnomatix.Engineering.TxRobot.DefineAsRobot(Tecnomatix.Engineering.TxRobotDefinitionData)
+  M:Tecnomatix.Engineering.TxRobot.CreateRobotPoseSensor(Tecnomatix.Engineering.TxPlcRobotPoseSensorCreationData)
+  M:Tecnomatix.Engineering.TxRobot.GetUniqueDisplayName(System.String)
+  [TxTrans] M:Tecnomatix.Engineering.TxRobot.GetLocationAxisIntersectionPoints(Tecnomatix.Engineering.TxTransformation,Tecnomatix.Engineering.TxAxis,System.Boolean)
+  [TxTrans] M:Tecnomatix.Engineering.TxRobot.GetPerpendicularLocationAxisIntersectionPoints(Tecnomatix.Engineering.TxTransformation,System.Boolean)
+  M:Tecnomatix.Engineering.TxRobot.CanGloballyAttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobot.CanGloballyAttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobot.GloballyAttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobot.GloballyAttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobot.IsGloballyAttached
+  M:Tecnomatix.Engineering.TxRobot.HasGlobalAttachment
+  M:Tecnomatix.Engineering.TxRobot.CreateSafetyObject(Tecnomatix.Engineering.TxSafetyCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CreateSafetyZone(Tecnomatix.Engineering.TxSafetyZoneCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CreateSafetyZone(Tecnomatix.Engineering.ITxSafetyObject,Tecnomatix.Engineering.TxSafetyZoneCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CanCreatePlcLightSensor(Tecnomatix.Engineering.TxPlcLightSensorCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CreatePlcLightSensor(Tecnomatix.Engineering.TxPlcLightSensorCreationData)
+  M:Tecnomatix.Engineering.TxRobot.GetRobotParallelTasks
+  M:Tecnomatix.Engineering.TxRobot.CanCreateTcObject
+  M:Tecnomatix.Engineering.TxRobot.CanCreateSclContainer(Tecnomatix.Engineering.TxPlcSclContainerCreationData)
+  M:Tecnomatix.Engineering.TxRobot.CreateSclContainer(Tecnomatix.Engineering.TxPlcSclContainerCreationData)
+
+T:Tecnomatix.Engineering.TxRobotConfigurationData (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotConfigurationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRobotConfigurationData.#ctor(System.Object)
+
+T:Tecnomatix.Engineering.TxRobotController (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotController.#ctor(System.String,Tecnomatix.Engineering.TxRobot)
+
+T:Tecnomatix.Engineering.TxRobotDefinitionData (1 methods):
+  [ctor] [TxTrans] M:Tecnomatix.Engineering.TxRobotDefinitionData.#ctor(Tecnomatix.Engineering.TxTransformation,Tecnomatix.Engineering.TxKinematicLink)
+
+T:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider (11 methods):
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.GetTypeMetaData(System.String)
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.IsPlanningTypeMetaDataInitialized
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.IsDataLoaded
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.IsDataLoadedFromFile
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.IsDocumentLoaded
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.ImportFields(Tecnomatix.Engineering.TxPlatformImportFieldsData)
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.LoadDataFromFile(System.String)
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.LoadLineSimulationDataFromFile(System.String)
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.SaveDataToFile(System.String)
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.SaveDataToFile(System.String,Tecnomatix.Engineering.TxExportStudyAttributesMode)
+  M:Tecnomatix.Engineering.TxRobotExpertGlobalServicesProvider.GetPlanningObjectByProcessModelId(Tecnomatix.Engineering.TxProcessModelId)
+
+T:Tecnomatix.Engineering.TxRobotExternalAxisData (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotExternalAxisData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRobotExternalAxisData.#ctor(System.Object)
+
+T:Tecnomatix.Engineering.TxRobotInverseData (7 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotInverseData.#ctor
+  [ctor] [TxTrans] M:Tecnomatix.Engineering.TxRobotInverseData.#ctor(Tecnomatix.Engineering.TxTransformation)
+  [ctor] [TxTrans] M:Tecnomatix.Engineering.TxRobotInverseData.#ctor(Tecnomatix.Engineering.TxTransformation,Tecnomatix.Engineering.TxRobotInverseData.TxInverseType)
+  M:Tecnomatix.Engineering.TxRobotInverseData.op_Equality(Tecnomatix.Engineering.TxRobotInverseData,Tecnomatix.Engineering.TxRobotInverseData)
+  M:Tecnomatix.Engineering.TxRobotInverseData.op_Inequality(Tecnomatix.Engineering.TxRobotInverseData,Tecnomatix.Engineering.TxRobotInverseData)
+  M:Tecnomatix.Engineering.TxRobotInverseData.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRobotInverseData.GetHashCode
+
+T:Tecnomatix.Engineering.TxRobotPathReferenceOperation (12 methods):
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.op_Equality(Tecnomatix.Engineering.TxRobotPathReferenceOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.op_Inequality(Tecnomatix.Engineering.TxRobotPathReferenceOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.GetHashCode
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.Delete
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.IsValid
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.SetAttribute(Tecnomatix.Engineering.TxAttribute)
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.RemoveAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.GetAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.CanChangeDuration
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.CopyTransitionCondition(Tecnomatix.Engineering.ITxPlcOperation)
+  M:Tecnomatix.Engineering.TxRobotPathReferenceOperation.ResetTransitionConditionToDefault
+
+T:Tecnomatix.Engineering.TxRobotPhysicalFrameWorkTool (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotPhysicalFrameWorkTool.#ctor(Tecnomatix.Engineering.TxRobotToolbox,System.String)
+  M:Tecnomatix.Engineering.TxRobotPhysicalFrameWorkTool.GetTCPFAbsoluteLocation
+
+T:Tecnomatix.Engineering.TxRobotPhysicalFrameWorkToolCreationData (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotPhysicalFrameWorkToolCreationData.#ctor(System.String,System.String,System.String,Tecnomatix.Engineering.ITxComponent,Tecnomatix.Engineering.TxFrame)
+
+T:Tecnomatix.Engineering.TxRobotRRSController (2 methods):
+  M:Tecnomatix.Engineering.TxRobotRRSController.ComputeRobotPathName
+  [ctor] M:Tecnomatix.Engineering.TxRobotRRSController.#ctor(System.String,Tecnomatix.Engineering.TxRobot)
+
+T:Tecnomatix.Engineering.TxRobotSetupAttribute (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotSetupAttribute.#ctor(System.String)
+
+T:Tecnomatix.Engineering.TxRobotSetupControllerFacility (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotSetupControllerFacility.#ctor(System.String,Tecnomatix.Engineering.TxRobotSetupControllerFacilityType,Tecnomatix.Engineering.TxRobotSetupControllerFacilityAccess,System.Drawing.Icon)
+
+T:Tecnomatix.Engineering.TxRobotSimulationControllerAttribute (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotSimulationControllerAttribute.#ctor(System.String)
+  [ctor] M:Tecnomatix.Engineering.TxRobotSimulationControllerAttribute.#ctor(System.String,System.String)
+
+T:Tecnomatix.Engineering.TxRobotSimulationEngine (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotSimulationEngine.#ctor(Tecnomatix.Engineering.Implementation.TxRobotSimulationEngineImpl)
+  [ctor] M:Tecnomatix.Engineering.TxRobotSimulationEngine.#ctor
+  M:Tecnomatix.Engineering.TxRobotSimulationEngine.GetSimulationServicesProvider
+
+T:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider (56 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.#ctor(Tecnomatix.Engineering.Implementation.TxRobotSimulationEngineImpl)
+  [ctor] M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.#ctor
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SimulationProcessEnded
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SimulationProcessFailed
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.ReportError(System.String)
+  [TxTrans] M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SetSimulatedRobotReferenceFrame(Tecnomatix.Engineering.TxTransformation)
+  [TxTrans] M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.Relocate(Tecnomatix.Engineering.ITxLocatableObject,Tecnomatix.Engineering.TxTransformation)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SetSystemFrameAsCartesianCoordinatesExternals(Tecnomatix.Engineering.TxFrame,System.Collections.Generic.List{System.Double})
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SetSystemFrameAsCartesianCoordinatesConfigString(Tecnomatix.Engineering.TxFrame,System.String)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SetPoseData(Tecnomatix.Engineering.TxPose,Tecnomatix.Engineering.TxPoseData)
+  [TxTrans] M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SetSimulatedRobotTcpf(Tecnomatix.Engineering.TxTransformation)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SetMountedWorkpieceTcpf(Tecnomatix.Engineering.ITxRoboticLocationOperation,Tecnomatix.Engineering.TxFrame)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.AttachOneWay(Tecnomatix.Engineering.ITxLocatableObject,Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.Detach(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.OpenPaintGun(Tecnomatix.Engineering.TxOpenPaintGunActionData)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.ClosePaintGun(Tecnomatix.Engineering.TxClosePaintGunActionData)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.ChangePaintGunBrush(Tecnomatix.Engineering.TxChangePaintGunBrushActionData)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.Display(Tecnomatix.Engineering.ITxDisplayableObject)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.Blank(Tecnomatix.Engineering.ITxDisplayableObject)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.Grip(Tecnomatix.Engineering.TxGripper,Tecnomatix.Engineering.TxFrame)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.ReleaseGripper(Tecnomatix.Engineering.TxFrame)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SetColor(Tecnomatix.Engineering.ITxDisplayableObject,Tecnomatix.Engineering.TxColor)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.DriveDevice(Tecnomatix.Engineering.ITxDevice,Tecnomatix.Engineering.TxPose)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.CallAsyncOperation(Tecnomatix.Engineering.ITxRoboticOperation)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.DriveDevice(Tecnomatix.Engineering.ITxDevice,Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SendSignal(System.String,System.Object)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SendSignalToRobot(Tecnomatix.Engineering.TxRobot,System.String,System.Object)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.AddExternalAxesToSimulatedRobot(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.RemoveExternalAxesFromSimulatedRobot(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.GetSignalValue(System.String)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.RegisterToDeviceReachedPoseNotification(Tecnomatix.Engineering.ITxDevice,Tecnomatix.Engineering.TxPose)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.RegisterToCalledAsyncOperationFinished(Tecnomatix.Engineering.ITxRoboticOperation)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.RegisterToDeviceReachedPoseNotification(Tecnomatix.Engineering.ITxDevice,Tecnomatix.Engineering.TxPoseData)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.RegisterToSignalChangedNotification(System.String)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.RegisterToSignalReachedValueNotification(System.String,System.Object)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.RegisterToSignalCrossedValueNotification(System.String,System.Object)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.RegisterToTimeReachedNotification(System.Double)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.UnRegisterNotification(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.ProcessingTargetEnded(Tecnomatix.Engineering.ITxRoboticLocationOperation)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.RegisterToLocationReachedNotification(Tecnomatix.Engineering.TxRobotTargetReachAccuracy)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.GetRobotPose(Tecnomatix.Engineering.ITxRoboticLocationOperation,Tecnomatix.Engineering.TxRobotConfigurationData)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.GetSegmentStartLocation
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.GetSegmentEndLocation
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.ExecuteTCPFTrackerCommand(Tecnomatix.Engineering.ITxDevice,Tecnomatix.Engineering.TxColor,Tecnomatix.Engineering.CommandParameters.TxTcpfTrackerStatusType)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SubOperationExecutionStarted(Tecnomatix.Engineering.ITxOperation,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SubOperationExecutionEnded(Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.ProcessingTargetStarted(Tecnomatix.Engineering.ITxRoboticLocationOperation)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.IsRRSGetNextStepMultiThreadRunning
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.GetConveyorCurrentSpeedByConveyorNumber(System.UInt16)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.GetConveyorTriggerSignalValue(System.UInt16)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.GetConveyorPositionSignalValue(System.UInt16)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.SimulationBreakPointReached
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.FreezeMotion(Tecnomatix.Engineering.TxRobot)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.UnFreezeMotion(Tecnomatix.Engineering.TxRobot)
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.StopMotion
+  M:Tecnomatix.Engineering.TxRobotSimulationEngineServicesProvider.RunParallelRobotModule(System.String)
+
+T:Tecnomatix.Engineering.TxRobotSimulationMOPServicesProvider (6 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotSimulationMOPServicesProvider.#ctor(Tecnomatix.Engineering.Implementation.TxRobotSimulationEngineImpl)
+  M:Tecnomatix.Engineering.TxRobotSimulationMOPServicesProvider.CanMotionBePlanned(Tecnomatix.Engineering.TxRoboticLocationOperationMotionParameters)
+  M:Tecnomatix.Engineering.TxRobotSimulationMOPServicesProvider.StartMotionToTarget(Tecnomatix.Engineering.TxRoboticLocationOperationMotionParameters)
+  M:Tecnomatix.Engineering.TxRobotSimulationMOPServicesProvider.StartMotionToTarget(Tecnomatix.Engineering.TxRoboticLocationOperationMotionParameters,System.Boolean)
+  M:Tecnomatix.Engineering.TxRobotSimulationMOPServicesProvider.StartMotionToTarget(System.Collections.Generic.List{Tecnomatix.Engineering.TxRoboticLocationOperationSynchronizedMotionParameters})
+  M:Tecnomatix.Engineering.TxRobotSimulationMOPServicesProvider.StartMotionToTarget(System.Collections.Generic.List{Tecnomatix.Engineering.TxRoboticLocationOperationCooperativeMotionParameters})
+
+T:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider (70 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.#ctor(Tecnomatix.Engineering.Implementation.TxRobotSimulationEngineImpl)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.Dispose
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.Dispose(System.Boolean)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetMotionFilter(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.GetRCSData(Tecnomatix.Engineering.TxRRSStorageType,System.String)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.GetNextRCSData(Tecnomatix.Engineering.TxRRSStorageType,System.String)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.ModifyRCSData(Tecnomatix.Engineering.TxRRSStorageType,System.String,System.String)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SaveRCSData
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.LoadRCSData(Tecnomatix.Engineering.TxRRSMessage[]@)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.GetEventArgs(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.CancelEvent(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.GetCurrentTargetId
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetReferenceFrameForRCS(Tecnomatix.Engineering.TxFrame)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.GetCellFrame(Tecnomatix.Engineering.TxRRSStorageType,System.String)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.GetNextCellFrame(Tecnomatix.Engineering.TxRRSStorageType,System.String)
+  [TxTrans] M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.ModifyCellFrame(Tecnomatix.Engineering.TxRRSStorageType,System.String,Tecnomatix.Engineering.TxTransformation)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SelectWorkFrame(System.String,System.String)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetInterpolationTime(System.Double)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetCartesianPositionSpeed(System.Double)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetMotionTime(System.Double)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SelectMotionType(Tecnomatix.Engineering.TxRRSMotionType)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SelectFlybyMode(System.Boolean)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetFlybyCriteriaParameter(System.Int32,System.Double)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetFlybyCriteriaParameter(System.Int32,System.Double,Tecnomatix.Engineering.TxJoint)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SelectFlybyCriteria(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.CancelFlybyCriteria(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SelectPointAccuracy(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetPointAccuracyParameter(System.Int32,System.Double)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetConfigurationControl(System.String,System.String)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetAdvanceMotion(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetJointsSpeeds(Tecnomatix.Engineering.TxRRSJointValue[])
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetJointsAccelerations(Tecnomatix.Engineering.TxRRSJointValue[],Tecnomatix.Engineering.TxRRSAccelerationType)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetJointsJerks(Tecnomatix.Engineering.TxRRSJointValue[],Tecnomatix.Engineering.TxRRSAccelerationType)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetAllJointsSpeeds(System.Double)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetAllJointsAccelerations(System.Double,Tecnomatix.Engineering.TxRRSAccelerationType)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetAllJointsJerks(System.Double,Tecnomatix.Engineering.TxRRSAccelerationType)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SelectOrientationInterpolationMode(Tecnomatix.Engineering.TxRRSInterpolationMode,System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SelectDominantInterpolation(Tecnomatix.Engineering.TxRRSDominantInterpolationType,System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetOverrideAcceleration(System.Double,Tecnomatix.Engineering.TxRRSAccelerationType,Tecnomatix.Engineering.TxRRSCorrectionType)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetCartesianOrientationSpeed(System.Int32,System.Double)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetCartesianPositionAcceleration(System.Double,Tecnomatix.Engineering.TxRRSAccelerationType)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetCartesianOrientationAcceleration(System.Int32,System.Double,Tecnomatix.Engineering.TxRRSAccelerationType)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetExternalsMapping(System.Int32[])
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetInitialPosition(Tecnomatix.Engineering.TxPoseData,Tecnomatix.Engineering.TxRobotExternalAxisData[],System.Int32[]@)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.DebugRCSModule(Tecnomatix.Engineering.TxRRSDebugOption,System.String)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetOverrideSpeed(System.Double,Tecnomatix.Engineering.TxRRSCorrectionType)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.GetRobotStamp(System.String@,System.String@,System.String@)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SelectTracking(System.Collections.Specialized.BitVector32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.UseSpeedInSetConveyorPositionService(System.Boolean)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.ForceExternalAxisNumber(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SelectTrajectoryMode(Tecnomatix.Engineering.TxRRSTrajectoryMode)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetNextTarget(Tecnomatix.Engineering.TxRRSTargetParameters)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.GetConfigurationString(Tecnomatix.Engineering.ITxRoboticLocationOperation,Tecnomatix.Engineering.TxRobotConfigurationData)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.DefineEvent(Tecnomatix.Engineering.TxRRSEventArgs)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.DefineRecordingEvent(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.DefineRecordedEvent
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.StartMotion
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.NotifyMotionToLocationEndedForRRSRecording(Tecnomatix.Engineering.ITxRoboticLocationOperation,System.Boolean)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetInformationForRRSMotionKey(Tecnomatix.Engineering.ITxRoboticLocationOperation,System.String,System.Boolean)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.GetRRSMode
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetLastRRSMotionKey
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetRobot(Tecnomatix.Engineering.TxRobot)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.GetEventIdForRecordedMode(System.Int32)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.SetJointThreshold(Tecnomatix.Engineering.TxJoint,System.Double)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.ResetJointThreshold(Tecnomatix.Engineering.TxJoint)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.ClearRrsRecordingData
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.OnSimulationCleared(System.Object,Tecnomatix.Engineering.TxSimulationPlayer_SimulationClearedEventArgs)
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.IsRRSMotionKeyFound
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.DisableGetNextStepMultithreadOptimization
+  M:Tecnomatix.Engineering.TxRobotSimulationRRSServicesProvider.EnableGetNextStepMultithreadOptimization
+
+T:Tecnomatix.Engineering.TxRobotToolbox (10 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotToolbox.#ctor(Tecnomatix.Engineering.Implementation.DataTypes.TxRobotToolboxImpl)
+  M:Tecnomatix.Engineering.TxRobotToolbox.CreateTool(Tecnomatix.Engineering.TxRobotWorkToolCreationData)
+  M:Tecnomatix.Engineering.TxRobotToolbox.CreateToolAt(System.Int32,Tecnomatix.Engineering.TxRobotWorkToolCreationData)
+  M:Tecnomatix.Engineering.TxRobotToolbox.RemoveTool(Tecnomatix.Engineering.TxRobotWorkTool)
+  M:Tecnomatix.Engineering.TxRobotToolbox.Clear
+  M:Tecnomatix.Engineering.TxRobotToolbox.GetToolByGuid(System.String)
+  M:Tecnomatix.Engineering.TxRobotToolbox.GetToolByName(System.String)
+  M:Tecnomatix.Engineering.TxRobotToolbox.GetAllTools
+  M:Tecnomatix.Engineering.TxRobotToolbox.updateRobotOperationsWithWorkTool(Tecnomatix.Engineering.TxRobotWorkTool)
+  M:Tecnomatix.Engineering.TxRobotToolbox.CreateToolFromImpl(Tecnomatix.Engineering.Implementation.DataTypes.TxRobotWorkToolImpl)
+
+T:Tecnomatix.Engineering.TxRobotUserInverseAttribute (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotUserInverseAttribute.#ctor(System.String)
+
+T:Tecnomatix.Engineering.TxRobotVirtualFrameWorkTool (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRobotVirtualFrameWorkTool.#ctor(Tecnomatix.Engineering.TxRobotToolbox,System.String)
+  M:Tecnomatix.Engineering.TxRobotVirtualFrameWorkTool.GetTCPFAbsoluteLocation
+
+T:Tecnomatix.Engineering.TxRobotVirtualFrameWorkToolCreationData (1 methods):
+  [ctor] [TxTrans] M:Tecnomatix.Engineering.TxRobotVirtualFrameWorkToolCreationData.#ctor(System.String,System.String,System.String,Tecnomatix.Engineering.ITxComponent,Tecnomatix.Engineering.TxTransformation)
+
+T:Tecnomatix.Engineering.TxRobotWorkTool (1 methods):
+  M:Tecnomatix.Engineering.TxRobotWorkTool.GetTCPFAbsoluteLocation
+
+T:Tecnomatix.Engineering.TxRoboticBoolParam (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticBoolParam.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticBoolParam.#ctor(System.String,System.Boolean)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticBoolParam.#ctor(Tecnomatix.Engineering.TxRoboticBoolParam)
+
+T:Tecnomatix.Engineering.TxRoboticCommand (9 methods):
+  M:Tecnomatix.Engineering.TxRoboticCommand.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRoboticCommand.op_Equality(Tecnomatix.Engineering.TxRoboticCommand,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticCommand.op_Inequality(Tecnomatix.Engineering.TxRoboticCommand,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticCommand.GetHashCode
+  M:Tecnomatix.Engineering.TxRoboticCommand.Delete
+  M:Tecnomatix.Engineering.TxRoboticCommand.IsValid
+  M:Tecnomatix.Engineering.TxRoboticCommand.SetAttribute(Tecnomatix.Engineering.TxAttribute)
+  M:Tecnomatix.Engineering.TxRoboticCommand.RemoveAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticCommand.GetAttribute(System.String)
+
+T:Tecnomatix.Engineering.TxRoboticCommandCreationData (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCommandCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCommandCreationData.#ctor(System.String)
+
+T:Tecnomatix.Engineering.TxRoboticCommandData (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCommandData.#ctor(System.String)
+
+T:Tecnomatix.Engineering.TxRoboticCompositeCommand (6 methods):
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommand.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommand.op_Equality(Tecnomatix.Engineering.TxRoboticCompositeCommand,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommand.op_Inequality(Tecnomatix.Engineering.TxRoboticCompositeCommand,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommand.GetHashCode
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommand.GetCustomizedXmlReference
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommand.SetCustomizedXmlReference(System.String)
+
+T:Tecnomatix.Engineering.TxRoboticCompositeCommandBoolElement (4 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandBoolElement.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandBoolElement.#ctor(System.Boolean)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandBoolElement.#ctor(Tecnomatix.Engineering.TxRoboticCompositeCommandBoolElement)
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommandBoolElement.Text
+
+T:Tecnomatix.Engineering.TxRoboticCompositeCommandCreationData (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandCreationData.#ctor(System.Collections.ArrayList)
+
+T:Tecnomatix.Engineering.TxRoboticCompositeCommandData (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandData.#ctor(Tecnomatix.Engineering.TxRoboticCompositeCommandElement[])
+
+T:Tecnomatix.Engineering.TxRoboticCompositeCommandDoubleElement (4 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandDoubleElement.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandDoubleElement.#ctor(System.Double)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandDoubleElement.#ctor(Tecnomatix.Engineering.TxRoboticCompositeCommandDoubleElement)
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommandDoubleElement.Text
+
+T:Tecnomatix.Engineering.TxRoboticCompositeCommandElement (1 methods):
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommandElement.Text
+
+T:Tecnomatix.Engineering.TxRoboticCompositeCommandIntElement (4 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandIntElement.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandIntElement.#ctor(System.Int32)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandIntElement.#ctor(Tecnomatix.Engineering.TxRoboticCompositeCommandIntElement)
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommandIntElement.Text
+
+T:Tecnomatix.Engineering.TxRoboticCompositeCommandStringElement (4 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandStringElement.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandStringElement.#ctor(System.String)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandStringElement.#ctor(Tecnomatix.Engineering.TxRoboticCompositeCommandStringElement)
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommandStringElement.Text
+
+T:Tecnomatix.Engineering.TxRoboticCompositeCommandTransformationElement (4 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandTransformationElement.#ctor
+  [ctor] [TxTrans] M:Tecnomatix.Engineering.TxRoboticCompositeCommandTransformationElement.#ctor(Tecnomatix.Engineering.TxTransformation)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandTransformationElement.#ctor(Tecnomatix.Engineering.TxRoboticCompositeCommandTransformationElement)
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommandTransformationElement.Text
+
+T:Tecnomatix.Engineering.TxRoboticCompositeCommandTxObjectElement (4 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandTxObjectElement.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandTxObjectElement.#ctor(Tecnomatix.Engineering.ITxObject)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticCompositeCommandTxObjectElement.#ctor(Tecnomatix.Engineering.TxRoboticCompositeCommandTxObjectElement)
+  M:Tecnomatix.Engineering.TxRoboticCompositeCommandTxObjectElement.Text
+
+T:Tecnomatix.Engineering.TxRoboticDoubleParam (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticDoubleParam.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticDoubleParam.#ctor(System.String,System.Double)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticDoubleParam.#ctor(Tecnomatix.Engineering.TxRoboticDoubleParam)
+
+T:Tecnomatix.Engineering.TxRoboticIntParam (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticIntParam.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticIntParam.#ctor(System.String,System.Int32)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticIntParam.#ctor(Tecnomatix.Engineering.TxRoboticIntParam)
+
+T:Tecnomatix.Engineering.TxRoboticLocationOperationCooperativeMotionParameters (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticLocationOperationCooperativeMotionParameters.#ctor(Tecnomatix.Engineering.TxRobotRole)
+
+T:Tecnomatix.Engineering.TxRoboticLocationOperationMotionParameters (4 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticLocationOperationMotionParameters.#ctor
+  M:Tecnomatix.Engineering.TxRoboticLocationOperationMotionParameters.AddMopEvent(Tecnomatix.Engineering.TxMOPEventArgs)
+  M:Tecnomatix.Engineering.TxRoboticLocationOperationMotionParameters.SetCircularViaLocation(Tecnomatix.Engineering.ITxRoboticLocationOperation)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticLocationOperationMotionParameters.#ctor(System.Object)
+
+T:Tecnomatix.Engineering.TxRoboticLocationOperationSynchronizedMotionParameters (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticLocationOperationSynchronizedMotionParameters.#ctor
+
+T:Tecnomatix.Engineering.TxRoboticOperationBoolArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationBoolArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationBoolArrayArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationBoolArrayArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationDoubleArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationDoubleArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationDoubleArrayArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationDoubleArrayArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationGenericArgument`1 (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationGenericArgument`1.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+  M:Tecnomatix.Engineering.TxRoboticOperationGenericArgument`1.DoesContainDefaultValue
+
+T:Tecnomatix.Engineering.TxRoboticOperationGenericArrayArgument`1 (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationGenericArrayArgument`1.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationIntArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationIntArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationIntArrayArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationIntArrayArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationNoTypeArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationNoTypeArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationStringArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationStringArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationStringArrayArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationStringArrayArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationStructArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationStructArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.String,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationStructArrayArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationStructArrayArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.String,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticOperationTransformationArgument (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticOperationTransformationArgument.#ctor(System.String,Tecnomatix.Engineering.TxRoboticOperationArgumentDirection,System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticPaintTrigger (29 methods):
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.op_Equality(Tecnomatix.Engineering.TxRoboticPaintTrigger,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.op_Inequality(Tecnomatix.Engineering.TxRoboticPaintTrigger,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.GetHashCode
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.Display
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.Blank
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.RestoreColor
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.GetColors
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.Delete
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.IsValid
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.SetAttribute(Tecnomatix.Engineering.TxAttribute)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.RemoveAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.GetAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.CanAttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.CanAttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.AttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.AttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.Detach
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.GetDirectAttachmentDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.GetLocationRelativeToObject(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.GetMinimalDistance(Tecnomatix.Engineering.ITxLocatableObject,System.Double@,Tecnomatix.Engineering.TxVector@,Tecnomatix.Engineering.TxVector@)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.IsObjectInRange(Tecnomatix.Engineering.ITxLocatableObject,System.Double)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.Rotate(Tecnomatix.Engineering.TxVector)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.Translate(Tecnomatix.Engineering.TxVector)
+  [TxTrans] M:Tecnomatix.Engineering.TxRoboticPaintTrigger.Locate(Tecnomatix.Engineering.TxTransformation)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.CanLocate
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.SetParameter(Tecnomatix.Engineering.TxRoboticParam)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.RemoveParameter(System.String)
+  M:Tecnomatix.Engineering.TxRoboticPaintTrigger.GetParameter(System.String)
+
+T:Tecnomatix.Engineering.TxRoboticProgram (25 methods):
+  M:Tecnomatix.Engineering.TxRoboticProgram.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRoboticProgram.op_Equality(Tecnomatix.Engineering.TxRoboticProgram,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticProgram.op_Inequality(Tecnomatix.Engineering.TxRoboticProgram,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticProgram.GetHashCode
+  M:Tecnomatix.Engineering.TxRoboticProgram.Delete
+  M:Tecnomatix.Engineering.TxRoboticProgram.IsValid
+  M:Tecnomatix.Engineering.TxRoboticProgram.SetAttribute(Tecnomatix.Engineering.TxAttribute)
+  M:Tecnomatix.Engineering.TxRoboticProgram.RemoveAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticProgram.GetAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticProgram.AddElementAfter(Tecnomatix.Engineering.ITxRoboticProgramElement,Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.TxRoboticProgram.MoveElementAfter(Tecnomatix.Engineering.ITxRoboticProgramElement,Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.TxRoboticProgram.GetElementAt(System.Int32)
+  M:Tecnomatix.Engineering.TxRoboticProgram.GetIndexOfElement(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.TxRoboticProgram.GetElementByNumber(System.Int32)
+  M:Tecnomatix.Engineering.TxRoboticProgram.GetDirectChildElements(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRoboticProgram.AddElement(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.TxRoboticProgram.RemoveElement(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.TxRoboticProgram.CanAddElementAfter(Tecnomatix.Engineering.ITxRoboticProgramElement,Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.TxRoboticProgram.CanMoveElementAfter(Tecnomatix.Engineering.ITxRoboticProgramElement,Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.TxRoboticProgram.CanAddElement(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.TxRoboticProgram.ContainsElement(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.TxRoboticProgram.CreateSweptVolume(Tecnomatix.Engineering.TxSweptVolumeCreationData)
+  M:Tecnomatix.Engineering.TxRoboticProgram.SetElementNumber(Tecnomatix.Engineering.ITxRoboticProgramElement,System.Int32)
+  M:Tecnomatix.Engineering.TxRoboticProgram.GetElementNumber(Tecnomatix.Engineering.ITxRoboticProgramElement)
+  M:Tecnomatix.Engineering.TxRoboticProgram.ClearElementNumber(Tecnomatix.Engineering.ITxRoboticProgramElement)
+
+T:Tecnomatix.Engineering.TxRoboticProgramCreationData (2 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticProgramCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticProgramCreationData.#ctor(Tecnomatix.Engineering.ITxRobot)
+
+T:Tecnomatix.Engineering.TxRoboticProgramRoot (11 methods):
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.op_Equality(Tecnomatix.Engineering.TxRoboticProgramRoot,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.op_Inequality(Tecnomatix.Engineering.TxRoboticProgramRoot,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.GetHashCode
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.Delete
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.IsValid
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.SetAttribute(Tecnomatix.Engineering.TxAttribute)
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.RemoveAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.GetAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.CreateProgram(Tecnomatix.Engineering.TxRoboticProgramCreationData)
+  M:Tecnomatix.Engineering.TxRoboticProgramRoot.CanCreateProgram(Tecnomatix.Engineering.TxRoboticProgramCreationData)
+
+T:Tecnomatix.Engineering.TxRoboticProgramUploaderAttribute (1 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticProgramUploaderAttribute.#ctor(System.String)
+
+T:Tecnomatix.Engineering.TxRoboticSeamLocationOperation (41 methods):
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.op_Equality(Tecnomatix.Engineering.TxRoboticSeamLocationOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.op_Inequality(Tecnomatix.Engineering.TxRoboticSeamLocationOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.GetHashCode
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.CanChangeDuration
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.Delete
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.IsValid
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.SetAttribute(Tecnomatix.Engineering.TxAttribute)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.RemoveAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.GetAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.ReferenceBisectorDeviation
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.SetParameter(Tecnomatix.Engineering.TxRoboticParam)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.GetParameter(System.String)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.RemoveParameter(System.String)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.CreateCommand(Tecnomatix.Engineering.TxRoboticCommandCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.CreateCompositeCommand(Tecnomatix.Engineering.TxRoboticCompositeCommandCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.GetCommandAt(System.Int32)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.MoveCommandAfter(Tecnomatix.Engineering.TxRoboticCommand,Tecnomatix.Engineering.TxRoboticCommand)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.TeachCurrentRobotConfiguration
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.TeachCurrentRobotConfigurationUsingTaughtLocation
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.Display
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.Blank
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.GetColors
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.RestoreColor
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.GetMinimalDistance(Tecnomatix.Engineering.ITxLocatableObject,System.Double@,Tecnomatix.Engineering.TxVector@,Tecnomatix.Engineering.TxVector@)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.IsObjectInRange(Tecnomatix.Engineering.ITxLocatableObject,System.Double)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.Rotate(Tecnomatix.Engineering.TxVector)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.Translate(Tecnomatix.Engineering.TxVector)
+  [TxTrans] M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.Locate(Tecnomatix.Engineering.TxTransformation)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.CanLocate
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.GetLocationRelativeToObject(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.CanAttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.CanAttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.AttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.AttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.Detach
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.GetDirectAttachmentDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.GetRoboticTriggers(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.CreateRoboticTrigger(Tecnomatix.Engineering.TxRoboticTriggerCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.CanCreateRoboticTrigger(Tecnomatix.Engineering.TxRoboticTriggerCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamLocationOperation.GetStackThickness(System.Boolean)
+
+T:Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData.#ctor(System.String)
+  [ctor] [TxTrans] M:Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData.#ctor(System.String,System.Double,System.String,Tecnomatix.Engineering.TxTransformation)
+
+T:Tecnomatix.Engineering.TxRoboticSeamOperation (78 methods):
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.Reverse
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.op_Equality(Tecnomatix.Engineering.TxRoboticSeamOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.op_Inequality(Tecnomatix.Engineering.TxRoboticSeamOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetHashCode
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateLink(Tecnomatix.Engineering.TxOperationLinkCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.AddObjectAfter(Tecnomatix.Engineering.ITxObject,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetChildAt(System.Int32)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetIndexOfChild(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.MoveChildAfter(Tecnomatix.Engineering.ITxObject,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanAddObjectAfter(Tecnomatix.Engineering.ITxObject,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanMoveChildAfter(Tecnomatix.Engineering.ITxObject,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.SetParameter(Tecnomatix.Engineering.TxRoboticParam)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetParameter(System.String)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.RemoveParameter(System.String)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateCommand(Tecnomatix.Engineering.TxRoboticCommandCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateCompositeCommand(Tecnomatix.Engineering.TxRoboticCompositeCommandCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetCommandAt(System.Int32)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.MoveCommandAfter(Tecnomatix.Engineering.TxRoboticCommand,Tecnomatix.Engineering.TxRoboticCommand)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateLink(Tecnomatix.Engineering.TxOperationLinkCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.SetChildOperationRelativeStartTime(Tecnomatix.Engineering.ITxOperation,System.Double)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetChildOperationRelativeStartTime(Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanSetChildOperationRelativeStartTime(Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.AddObject(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.AddObjects(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.Contains(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetDirectDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetAllDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanBeAdded(Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.Paste(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.Paste(Tecnomatix.Engineering.TxObjectList,System.Collections.Hashtable@)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanPasteList(Tecnomatix.Engineering.TxObjectList)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanPasteList(Tecnomatix.Engineering.TxObjectList,System.Boolean)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanChangeDuration
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.Delete
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.IsValid
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.SetAttribute(Tecnomatix.Engineering.TxAttribute)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.RemoveAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.Display
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.Blank
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetColors
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.RestoreColor
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetEnumerator
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateAddToGroupEvent(Tecnomatix.Engineering.TxAddToGroupEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateAddToGroupEvent(Tecnomatix.Engineering.TxAddToGroupEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateAttachEvent(Tecnomatix.Engineering.TxAttachEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateAttachEvent(Tecnomatix.Engineering.TxAttachEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateBlankEvent(Tecnomatix.Engineering.TxBlankEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateBlankEvent(Tecnomatix.Engineering.TxBlankEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateDetachEvent(Tecnomatix.Engineering.TxDetachEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateDetachEvent(Tecnomatix.Engineering.TxDetachEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateDisplayEvent(Tecnomatix.Engineering.TxDisplayEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateDisplayEvent(Tecnomatix.Engineering.TxDisplayEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateRemoveFromGroupEvent(Tecnomatix.Engineering.TxRemoveFromGroupEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateRemoveFromGroupEvent(Tecnomatix.Engineering.TxRemoveFromGroupEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateSnapshotEvent(Tecnomatix.Engineering.TxSnapshotEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateSnapshotEvent(Tecnomatix.Engineering.TxSnapshotEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateBreakpointEvent(Tecnomatix.Engineering.TxBreakpointEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateBreakpointEvent(Tecnomatix.Engineering.TxBreakpointEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateViewPointEvent(Tecnomatix.Engineering.TxViewPointEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateViewPointEvent(Tecnomatix.Engineering.TxViewPointEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateSignalEvent(Tecnomatix.Engineering.TxPlcSignalEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateSignalEvent(Tecnomatix.Engineering.TxPlcSignalEventCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.SetSimulationEventTimeOffset(Tecnomatix.Engineering.ITxSimulationEvent,Tecnomatix.Engineering.TxOperationTimeOffset)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetSimulationEventTimeOffset(Tecnomatix.Engineering.ITxSimulationEvent)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanChangeSimulationEventTimeOffset(Tecnomatix.Engineering.ITxSimulationEvent)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetActualSimulatedGun
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetCollisionAllowedPair(Tecnomatix.Engineering.ITxGun)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetUniqueDisplayName(System.String)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateRoboticSeamLocationOperation(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateRoboticSeamLocationOperationAfter(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateRoboticSeamLocationOperationAfter(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CreateRoboticSeamLocationOperationBefore(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateRoboticSeamLocationOperationBefore(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData,Tecnomatix.Engineering.ITxOperation)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.CanCreateRoboticSeamLocationOperation(Tecnomatix.Engineering.TxRoboticSeamLocationOperationCreationData)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetProjectedFaces(Tecnomatix.Engineering.TxFacesProjectionUsage)
+  M:Tecnomatix.Engineering.TxRoboticSeamOperation.GetProjectedFacesCount(Tecnomatix.Engineering.TxFacesProjectionUsage)
+
+T:Tecnomatix.Engineering.TxRoboticSeamOperationCreationData (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticSeamOperationCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticSeamOperationCreationData.#ctor(System.String)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticSeamOperationCreationData.#ctor(System.String,System.Double,System.String,Tecnomatix.Engineering.TxSeamMfgFeature)
+
+T:Tecnomatix.Engineering.TxRoboticStringParam (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticStringParam.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticStringParam.#ctor(System.String,System.String)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticStringParam.#ctor(Tecnomatix.Engineering.TxRoboticStringParam)
+
+T:Tecnomatix.Engineering.TxRoboticTransformationParam (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticTransformationParam.#ctor
+  [ctor] [TxTrans] M:Tecnomatix.Engineering.TxRoboticTransformationParam.#ctor(System.String,Tecnomatix.Engineering.TxTransformation)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticTransformationParam.#ctor(Tecnomatix.Engineering.TxRoboticTransformationParam)
+
+T:Tecnomatix.Engineering.TxRoboticTxObjectParam (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticTxObjectParam.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticTxObjectParam.#ctor(System.String,Tecnomatix.Engineering.ITxObject)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticTxObjectParam.#ctor(Tecnomatix.Engineering.TxRoboticTxObjectParam)
+
+T:Tecnomatix.Engineering.TxRoboticViaLocationOperation (39 methods):
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.Equals(System.Object)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.op_Equality(Tecnomatix.Engineering.TxRoboticViaLocationOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.op_Inequality(Tecnomatix.Engineering.TxRoboticViaLocationOperation,Tecnomatix.Engineering.ITxObject)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.GetHashCode
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.CanChangeDuration
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.Delete
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.IsValid
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.SetAttribute(Tecnomatix.Engineering.TxAttribute)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.RemoveAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.GetAttribute(System.String)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.SetParameter(Tecnomatix.Engineering.TxRoboticParam)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.GetParameter(System.String)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.RemoveParameter(System.String)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.CreateCommand(Tecnomatix.Engineering.TxRoboticCommandCreationData)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.CreateCompositeCommand(Tecnomatix.Engineering.TxRoboticCompositeCommandCreationData)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.GetCommandAt(System.Int32)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.MoveCommandAfter(Tecnomatix.Engineering.TxRoboticCommand,Tecnomatix.Engineering.TxRoboticCommand)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.Display
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.Blank
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.GetColors
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.RestoreColor
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.TeachCurrentRobotConfiguration
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.TeachCurrentRobotConfigurationUsingTaughtLocation
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.GetMinimalDistance(Tecnomatix.Engineering.ITxLocatableObject,System.Double@,Tecnomatix.Engineering.TxVector@,Tecnomatix.Engineering.TxVector@)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.IsObjectInRange(Tecnomatix.Engineering.ITxLocatableObject,System.Double)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.Rotate(Tecnomatix.Engineering.TxVector)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.Translate(Tecnomatix.Engineering.TxVector)
+  [TxTrans] M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.Locate(Tecnomatix.Engineering.TxTransformation)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.CanLocate
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.GetLocationRelativeToObject(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.CanAttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.CanAttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.AttachTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.AttachTwoWaysTo(Tecnomatix.Engineering.ITxLocatableObject)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.Detach
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.GetDirectAttachmentDescendants(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.GetRoboticTriggers(Tecnomatix.Engineering.ITxTypeFilter)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.CreateRoboticTrigger(Tecnomatix.Engineering.TxRoboticTriggerCreationData)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperation.CanCreateRoboticTrigger(Tecnomatix.Engineering.TxRoboticTriggerCreationData)
+
+T:Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData (5 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData.#ctor(System.String)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData.#ctor(System.String,System.String,System.Double)
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData.SetAsPersistent
+  M:Tecnomatix.Engineering.TxRoboticViaLocationOperationCreationData.SetAsDisplay
+
+T:Tecnomatix.Engineering.TxRoboticXmlParam (3 methods):
+  [ctor] M:Tecnomatix.Engineering.TxRoboticXmlParam.#ctor
+  [ctor] M:Tecnomatix.Engineering.TxRoboticXmlParam.#ctor(System.String,System.Xml.XmlDocument)
+  [ctor] M:Tecnomatix.Engineering.TxRoboticXmlParam.#ctor(Tecnomatix.Engineering.TxRoboticXmlParam)
+
+T:Tecnomatix.Engineering.TxRoboticsUtilities (2 methods):
+  M:Tecnomatix.Engineering.TxRoboticsUtilities.RoboticOperationArgumentLoadFromXML(System.Xml.XmlDocument)
+  M:Tecnomatix.Engineering.TxRoboticsUtilities.RoboticOperationArgumentParseToXML(System.Collections.ArrayList)

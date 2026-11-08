@@ -1,0 +1,74 @@
+# Configurație robo-zero — etapa 1
+llm:
+  provider: deepseek
+  model: deepseek-flash     # cel mai ieftin model curent DeepSeek (V4.1-Flash); deepseek-v4-pro rămâne opțiune
+  endpoint: https://api.deepseek.com/chat/completions
+  timeout_seconds: 300  # 300 decizia Sorin 2026-11-01 (era 120; prompt eval lung la modele locale)
+  max_retries: 3
+  retry_backoff_seconds: [2, 4, 8]
+
+agent:
+  workdir: /srv/robo-zero/workdir
+  max_iterations: 50
+  max_subordinate_depth: 3
+  repetition_warn_count: 3
+  repetition_abort_count: 5
+
+server:
+  host: 0.0.0.0
+  port: 8150
+
+shell:
+  timeout_seconds: 120
+  output_limit_bytes: 20480
+
+memory:
+  gateway_url: http://127.0.0.1:8930
+  timeout_seconds: 30
+
+image:
+  endpoint: https://ai.api.nvidia.com/v1/genai
+  model: black-forest-labs/flux.2-klein-4b
+  timeout_seconds: 60
+
+web:
+  robo_crawl_url: http://127.0.0.1:8112
+  timeout_seconds: 30
+  fallback_text_limit_chars: 20000
+
+browser:
+  holo4_endpoint: https://api.hcompany.ai/v1/chat/completions
+  holo4_model: holo3-1-35b-a3b
+  holo4_timeout_seconds: 30
+  rate_limit_per_minute: 9       # sub limita reală a tier-ului gratuit (10 RPM)
+  navigation_timeout_seconds: 30
+
+robo_rag:
+  # URL-ul temporar de test (uvicorn manual, 2026-10-18). Nu e serviciu
+  # systemd încă -- robo_rag_query va eșua cu eroare de rețea clară dacă
+  # serverul nu rulează, nu silent. tenant/collection/email/parolă vin din
+  # .env (ROBORAG_TENANT_ID etc.), nu de aici.
+  base_url: http://127.0.0.1:8140
+  provider: mistral   # singurul provider configurat pt tenant-ul internal-agents (eu-only)
+  timeout_seconds: 60
+
+robo_med:
+  # robo-med rulează pe SVAI, peste ZeroTier (verificat 2026-10-21: /health OK).
+  # S5 (/report) e deployat și cablat în r0 (2026-10-21): intake -> search -> report.
+  # synthetic=true e trimis mereu: bypass tehnic al guard-ului de pilot clinică
+  # (real_data_refused_until_dpa), decizie 2026-10-21 -- date reale, consimțământ
+  # direct al Lilianei, fără DPA de clinică (nu e cazul ei de uz).
+  base_url: http://10.22.22.3:8936
+  timeout_seconds: 30
+  default_patient_email: liliana@robotel.top
+
+history:
+  # context_tokens nu mai e aici — e per-model, în llm.MODEL_CATALOG
+  # (2026-10-31), citit live de history.compact_if_needed/context_tokens_for.
+  trigger_fraction: 0.7
+  keep_last_messages: 20
+
+project_memory:
+  chunk_tokens: 20000         # conținut nou mai mare se procesează pe bucăți
+  context_budget_tokens: 6000 # buget pentru rezumatele celorlalte chat-uri în system prompt
+  tool_result_max_chars: 2000 # cât dintr-un rezultat de tool intră în extragere

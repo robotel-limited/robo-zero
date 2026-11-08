@@ -1,0 +1,7 @@
+OPRIT 2026-11-07 ~10:28 de sesiunea srv-8b [5ec8c4] (Claude Opus), la decizia lui Sorin.
+Motiv: rulau DOUĂ sweep-uri SSSM identice în paralel pe același server SSN (--parallel 1),
+blocându-se reciproc. În plus, varianta A din acest harness era spartă pentru T3 single-turn:
+a_compact folosește history._safe_tail_start, care fără o ancoră user în mijloc întoarce
+tail_start=1 => middle gol => fișa A NU se construiește niciodată (A ajunge identic cu V1).
+Sweep-ul s-a consolidat în sesiunea srv-8b [5ec8c4], cu harness corectat
+(A ancorează pe ultimii 2 pași). Nu reporni run_all.sh de aici.

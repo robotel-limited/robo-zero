@@ -1,0 +1,7184 @@
+{
+ "name": "robo-zero",
+ "root": "/srv/robo-zero",
+ "lang": "python",
+ "port": 19596,
+ "host": null,
+ "git_head": "eff133b",
+ "schemaVersion": "codemap/v1",
+ "generated_at": "2026-11-06T20:17:09+00:00",
+ "claude_md": null,
+ "modules": [
+  {
+   "path": "agent.py",
+   "lines": 460,
+   "doc": "Clasa Agent + bucla principală. Un singur fișier, fără registry global",
+   "imports": [
+    "tools.browser_tool",
+    "tools.call_subordinate",
+    "tools.code_task",
+    "tools.fs_tool",
+    "tools.image_generate",
+    "tools.kb_read",
+    "tools.memory_tool",
+    "tools.project_search",
+    "tools.response",
+    "tools.robo_med_tool",
+    "tools.shell_tool",
+    "tools.tool_base",
+    "tools.web_read_tool"
+   ],
+   "defs": [
+    "AgentError",
+    "AgentCancelled",
+    "Agent"
+   ]
+  },
+  {
+   "path": "app.py",
+   "lines": 315,
+   "doc": "FastAPI: rute HTTP + SSE pentru webui/ (etapa 2).",
+   "imports": [],
+   "defs": [
+    "OriginCheckMiddleware"
+   ]
+  },
+  {
+   "path": "attachments.py",
+   "lines": 100,
+   "doc": "Imagini atașate în chat (capturi de ecran lipite, fișiere trase în caseta",
+   "imports": [],
+   "defs": [
+    "save_image",
+    "is_local_image",
+    "data_url",
+    "user_content",
+    "inline_images",
+    "text_of"
+   ]
+  },
+  {
+   "path": "chat_session.py",
+   "lines": 300,
+   "doc": "O conversație: istoric LLM (agent.history) + jurnal pentru UI (self.log),",
+   "imports": [],
+   "defs": [
+    "ChatSession"
+   ]
+  },
+  {
+   "path": "chat_store.py",
+   "lines": 60,
+   "doc": "Registru în memorie al conversațiilor: creare, listare, încărcare de pe",
+   "imports": [],
+   "defs": [
+    "load_all",
+    "create",
+    "get",
+    "delete",
+    "list_summaries",
+    "list_by_project"
+   ]
+  },
+  {
+   "path": "cli.py",
+   "lines": 40,
+   "doc": "Harness de test pentru etapa 1: rulează agentul direct din terminal,",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "code_guard.py",
+   "lines": 52,
+   "doc": "Regula globală „codul îl scrie code_task”, pornită/oprită din Setări.",
+   "imports": [],
+   "defs": [
+    "enabled",
+    "blocked_extension"
+   ]
+  },
+  {
+   "path": "cost.py",
+   "lines": 44,
+   "doc": "Preț/cost per apel LLM, pe baza prețurilor publice DeepSeek/Alibaba/NVIDIA",
+   "imports": [],
+   "defs": [
+    "entry_cost"
+   ]
+  },
+  {
+   "path": "distiller.py",
+   "lines": 46,
+   "doc": "Distilarea ieșirilor lungi de tool cu SenseNova-Loop-9B (local, SVAI :8093).",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "folder_index.py",
+   "lines": 119,
+   "doc": "Indexarea în fundal a folderelor de proiect marcate „indexabil”:",
+   "imports": [],
+   "defs": [
+    "schedule",
+    "refresh_project",
+    "unindex",
+    "resume_pending"
+   ]
+  },
+  {
+   "path": "folder_index_store.py",
+   "lines": 105,
+   "doc": "Indexul FTS5 al folderelor de proiect marcate „indexabil”: ce fișiere",
+   "imports": [],
+   "defs": [
+    "init_db",
+    "known",
+    "upsert",
+    "remove",
+    "count_indexed",
+    "delete_folder",
+    "search"
+   ]
+  },
+  {
+   "path": "folder_map.py",
+   "lines": 94,
+   "doc": "Harta compactă a unui folder legat de proiect, pentru system prompt:",
+   "imports": [],
+   "defs": [
+    "get_map"
+   ]
+  },
+  {
+   "path": "fs_browse_routes.py",
+   "lines": 88,
+   "doc": "Listare read-only de directoare pentru picker-ul \"Browse…\" (pagina /projects).",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "history.py",
+   "lines": 173,
+   "doc": "Compactarea istoricului (etapa 6): peste un prag de ocupare a contextului",
+   "imports": [],
+   "defs": [
+    "sanitize"
+   ]
+  },
+  {
+   "path": "kb_extract.py",
+   "lines": 131,
+   "doc": "Extragerea textului din fișierele bazei de cunoștințe a unui proiect:",
+   "imports": [],
+   "defs": [
+    "ExtractError"
+   ]
+  },
+  {
+   "path": "kb_ingest.py",
+   "lines": 41,
+   "doc": "Procesarea în fundal a unui fișier încărcat în baza de cunoștințe a unui",
+   "imports": [],
+   "defs": [
+    "schedule",
+    "resume_pending"
+   ]
+  },
+  {
+   "path": "llm.py",
+   "lines": 287,
+   "doc": "Client multi-provider (OpenAI-compatible): function-calling nativ,",
+   "imports": [],
+   "defs": [
+    "context_tokens_for",
+    "ToolCall",
+    "LlmResponse",
+    "LlmError"
+   ]
+  },
+  {
+   "path": "network_links.py",
+   "lines": 25,
+   "doc": "Link de rețea pentru fișierele din workdir-ul agentului (singurul folder",
+   "imports": [],
+   "defs": [
+    "to_network_link"
+   ]
+  },
+  {
+   "path": "notifications.py",
+   "lines": 57,
+   "doc": "Notificări \"task ready\" prin canalele externe ale lui Sorin (Telegram,",
+   "imports": [],
+   "defs": [
+    "notify_task_ready"
+   ]
+  },
+  {
+   "path": "path_access.py",
+   "lines": 74,
+   "doc": "Unde poate lucra un agent pe disc: workdir-ul propriu (separat per",
+   "imports": [],
+   "defs": [
+    "project_workdir",
+    "resolve",
+    "is_secret",
+    "folder_for",
+    "read_error",
+    "write_policy"
+   ]
+  },
+  {
+   "path": "project_archive.py",
+   "lines": 106,
+   "doc": "Arhiva brută a unui proiect: textul integral al chat-urilor lui, indexat",
+   "imports": [],
+   "defs": [
+    "init_db",
+    "reindex_chat",
+    "remove_chat",
+    "remove_project",
+    "fts_query",
+    "search"
+   ]
+  },
+  {
+   "path": "project_context.py",
+   "lines": 204,
+   "doc": "Ce primește LLM-ul din memoria proiectului: blocul complet la primul mesaj",
+   "imports": [],
+   "defs": [
+    "build_initial",
+    "diff_since",
+    "diff_prefix"
+   ]
+  },
+  {
+   "path": "project_digest.py",
+   "lines": 220,
+   "doc": "Extragerea automată a memoriei de proiect: după fiecare rulare a unui chat",
+   "imports": [],
+   "defs": [
+    "schedule"
+   ]
+  },
+  {
+   "path": "project_folder_routes.py",
+   "lines": 76,
+   "doc": "Rute pentru folderele de pe disc legate de un proiect (pagina /projects):",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "project_folders_store.py",
+   "lines": 168,
+   "doc": "Folderele de pe disc legate de un proiect: cale absolută, mod (ro/rw),",
+   "imports": [],
+   "defs": [
+    "init_db",
+    "add",
+    "get",
+    "list_for",
+    "added_since",
+    "changed_since",
+    "update",
+    "set_map",
+    "set_index_state",
+    "delete",
+    "delete_project"
+   ]
+  },
+  {
+   "path": "project_hooks.py",
+   "lines": 59,
+   "doc": "Legătura dintre ciclul de viață al unui chat (rulare, mutare între",
+   "imports": [],
+   "defs": [
+    "reindex",
+    "after_run",
+    "on_project_changed",
+    "on_chat_deleted",
+    "on_project_deleted",
+    "before_message"
+   ]
+  },
+  {
+   "path": "project_kb_store.py",
+   "lines": 181,
+   "doc": "Baza de cunoștințe a unui proiect: fișiere încărcate de utilizator (text,",
+   "imports": [],
+   "defs": [
+    "init_db",
+    "file_path",
+    "add_file",
+    "get_file",
+    "list_files",
+    "files_since",
+    "chunk_text",
+    "set_ready",
+    "set_error",
+    "delete_file",
+    "delete_project",
+    "search"
+   ]
+  },
+  {
+   "path": "project_memory_routes.py",
+   "lines": 20,
+   "doc": "Rută read-only pentru memoria unui proiect (fișa, istoricul înlocuirilor,",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "project_memory_store.py",
+   "lines": 200,
+   "doc": "Memoria unui proiect: fișa (fapte cu proveniență, înlocuite — niciodată",
+   "imports": [],
+   "defs": [
+    "init_db",
+    "add_fact",
+    "supersede_fact",
+    "get_fact",
+    "active_facts",
+    "superseded_facts",
+    "active_facts_since",
+    "latest_change_at",
+    "get_digest",
+    "save_digest",
+    "list_digests",
+    "delete_digest",
+    "delete_project"
+   ]
+  },
+  {
+   "path": "project_report_routes.py",
+   "lines": 63,
+   "doc": "Rute pentru rapoartele (fișierele cu link de rețea) generate de agent în",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "project_reports_store.py",
+   "lines": 79,
+   "doc": "Fișierele generate de agent în workdir-ul unui proiect (rapoarte, orice",
+   "imports": [],
+   "defs": [
+    "init_db",
+    "record",
+    "list_for",
+    "unlist",
+    "delete_project"
+   ]
+  },
+  {
+   "path": "project_rules_routes.py",
+   "lines": 51,
+   "doc": "Rute pentru regulile învățate ale unui proiect (pagina /projects):",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "project_rules_store.py",
+   "lines": 145,
+   "doc": "Regulile învățate ale unui proiect: corecții ale lui Sorin asupra",
+   "imports": [],
+   "defs": [
+    "init_db",
+    "add_rule",
+    "get_rule",
+    "list_for",
+    "approved_rules_since",
+    "update_text",
+    "approve",
+    "reject",
+    "delete_project"
+   ]
+  },
+  {
+   "path": "projects_store.py",
+   "lines": 123,
+   "doc": "Registrul proiectelor: titlu, descriere, prompt injectat la fiecare chat",
+   "imports": [],
+   "defs": [
+    "init_db",
+    "list_all",
+    "get",
+    "create",
+    "update",
+    "delete"
+   ]
+  },
+  {
+   "path": "r0code/r0code.py",
+   "lines": 924,
+   "doc": "r0code — harness de coding minimal, headless, apelabil de r0 / Claude / Hermes.",
+   "imports": [],
+   "defs": [
+    "ConfigError",
+    "ModelAttempt",
+    "Tools",
+    "Router",
+    "call_model",
+    "recover_text_tool_calls",
+    "parse_tool_calls",
+    "log_run",
+    "run_verify",
+    "run",
+    "ollama_models",
+    "print_models",
+    "main"
+   ]
+  },
+  {
+   "path": "safety.py",
+   "lines": 110,
+   "doc": "Plasa de siguranță: denylist de comenzi cu risc înalt (cer confirmare în UI),",
+   "imports": [],
+   "defs": [
+    "requires_confirmation",
+    "path_escapes_workdir",
+    "mask_secrets",
+    "truncate"
+   ]
+  },
+  {
+   "path": "settings_store.py",
+   "lines": 41,
+   "doc": "Setări editabile din UI, persistate separat de conf/settings.yaml (care",
+   "imports": [],
+   "defs": [
+    "load",
+    "save"
+   ]
+  },
+  {
+   "path": "tools/__init__.py",
+   "lines": 0,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "tools/browser_tool.py",
+   "lines": 280,
+   "doc": "Browser interactiv: Playwright pilotează, Holo4 (vision, gratuit, tier",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "BrowserToolError",
+    "BrowserSession",
+    "BrowserBox",
+    "BrowserTool"
+   ]
+  },
+  {
+   "path": "tools/call_subordinate.py",
+   "lines": 75,
+   "doc": "Tool pentru delegarea unei sarcini unui sub-agent (etapa 3). Adâncimea",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "CallSubordinate"
+   ]
+  },
+  {
+   "path": "tools/code_task.py",
+   "lines": 224,
+   "doc": "Tool `code_task`: delegă un task de coding către harness-ul headless r0code.",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "CodeTask"
+   ]
+  },
+  {
+   "path": "tools/fs_tool.py",
+   "lines": 209,
+   "doc": "Tool-uri de sistem de fișiere: citire, scriere, listare relativ la workdir.",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "FsRead",
+    "FsWrite",
+    "FsList"
+   ]
+  },
+  {
+   "path": "tools/image_generate.py",
+   "lines": 97,
+   "doc": "Generare de imagini prin NVIDIA FLUX (black-forest-labs/flux.2-klein-4b),",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "ImageGenerateError",
+    "ImageGenerate"
+   ]
+  },
+  {
+   "path": "tools/kb_read.py",
+   "lines": 49,
+   "doc": "Citirea textului integral extras dintr-un fișier al bazei de cunoștințe a",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "KbRead"
+   ]
+  },
+  {
+   "path": "tools/memory_tool.py",
+   "lines": 104,
+   "doc": "Memorie prin gateway-ul HTTP robo-dimag (etapa 4).",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "MemoryRecall",
+    "MemoryRemember"
+   ]
+  },
+  {
+   "path": "tools/project_search.py",
+   "lines": 65,
+   "doc": "Căutare full-text în arhiva brută a proiectului chat-ului curent (toate",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "ProjectSearch"
+   ]
+  },
+  {
+   "path": "tools/response.py",
+   "lines": 33,
+   "doc": "Tool pentru trimiterea răspunsului final și încheierea buclei agentului.",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "FinalResponse"
+   ]
+  },
+  {
+   "path": "tools/robo_med_tool.py",
+   "lines": 221,
+   "doc": "Client pentru robo-med (etapa: integrare r0 <-> robo-med, 2026-10-21).",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "RoboMedIntake",
+    "RoboMedSearch",
+    "RoboMedReport"
+   ]
+  },
+  {
+   "path": "tools/robo_rag_tool.py",
+   "lines": 96,
+   "doc": "Interogare RAG prin robo-rag (etapa: integrare a0 <-> robo-rag).",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "RoboRagQuery"
+   ]
+  },
+  {
+   "path": "tools/shell_tool.py",
+   "lines": 140,
+   "doc": "Tool pentru execuția de comenzi shell în workdir, cu confirmare pentru",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "ShellExecute"
+   ]
+  },
+  {
+   "path": "tools/tool_base.py",
+   "lines": 59,
+   "doc": "Interfața de bază pentru tool-urile agentului.",
+   "imports": [],
+   "defs": [
+    "ToolResult",
+    "Tool"
+   ]
+  },
+  {
+   "path": "tools/web_read_tool.py",
+   "lines": 93,
+   "doc": "Citirea conținutului unei pagini web (etapa 5). Rută principală: robo-crawl",
+   "imports": [
+    "tools.tool_base"
+   ],
+   "defs": [
+    "WebRead"
+   ]
+  },
+  {
+   "path": "upload_routes.py",
+   "lines": 90,
+   "doc": "Rute de upload: imagini atașate în chat (capturi de ecran) și fișierele",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "usage_log.py",
+   "lines": 45,
+   "doc": "Consumul de tokeni al fiecărui apel LLM, persistat în usage_store.py",
+   "imports": [],
+   "defs": [
+    "set_scope",
+    "record"
+   ]
+  },
+  {
+   "path": "usage_routes.py",
+   "lines": 22,
+   "doc": "Rute read-only pentru consum/cost LLM, din usage_store.py (tabel SQLite",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "usage_store.py",
+   "lines": 184,
+   "doc": "Istoricul consumului LLM (token-uri, cost, latență), în tabelul `usage_log`",
+   "imports": [],
+   "defs": [
+    "init_db",
+    "insert",
+    "totals",
+    "stats"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/.github/workflows/validate_translation_formats.py",
+   "lines": 329,
+   "doc": "Validate translation text and format contracts without platform-specific libraries.",
+   "imports": [],
+   "defs": [
+    "printf_arguments",
+    "formatter_arguments",
+    "check_entry_entities",
+    "read_catalogue",
+    "check_catalogue",
+    "validate"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_backup_header_retry.py",
+   "lines": 323,
+   "doc": "Exercise the production CLI/GUI mount loops with scripted backend outcomes.",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_byte_order_interop.py",
+   "lines": 241,
+   "doc": "Check that volume headers are compatible between little- and big-endian builds.",
+   "imports": [],
+   "defs": [
+    "StepFailed",
+    "Runner",
+    "change_args",
+    "official_volumes",
+    "interop_case",
+    "interop",
+    "select_fixtures",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_encryption_thread_pool_exceptions.py",
+   "lines": 83,
+   "doc": "Check fragment/KDF exceptions and exception-capture failures in the Unix pool.",
+   "imports": [],
+   "defs": [
+    "source_block",
+    "build_test",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_encryption_thread_pool_lifecycle.py",
+   "lines": 35,
+   "doc": "Exercise Unix pool shutdown and restart with controlled worker/requester gates.",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_fuset_aux_directory.py",
+   "lines": 265,
+   "doc": "Test FUSE-T's production private-parent helpers using disposable directories.",
+   "imports": [],
+   "defs": [
+    "function",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_fuset_cleanup.py",
+   "lines": 341,
+   "doc": "Test production cleanup state transitions with an in-memory FUSE service.",
+   "imports": [],
+   "defs": [
+    "check_rollback",
+    "check_dismount_reporting",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_fuset_dismount.py",
+   "lines": 471,
+   "doc": "Exercise macOS FUSE-T dismount using a disposable file container, without sudo.",
+   "imports": [],
+   "defs": [
+    "DismountChecks",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_fuse_fsync.py",
+   "lines": 290,
+   "doc": "Check that Linux FUSE volumes forward fsync to the encrypted backing storage.",
+   "imports": [],
+   "defs": [
+    "FsyncChecks",
+    "isolate_mounts",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_loop_identity.py",
+   "lines": 549,
+   "doc": "Check that Linux dismounts, and rollbacks of failed mounts, act only on the volume's own devices.",
+   "imports": [],
+   "defs": [
+    "mounts",
+    "aux_mounts",
+    "loop_backing",
+    "loop_autoclear",
+    "loop_devices",
+    "dm_devices",
+    "wait",
+    "LoopIdentityChecks",
+    "isolate_mounts",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_mount_point_protection.py",
+   "lines": 175,
+   "doc": "Regression test for issue #1973, against the installed veracrypt.",
+   "imports": [],
+   "defs": [
+    "Checks",
+    "text",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_mount_points.py",
+   "lines": 56,
+   "doc": "Check Unix mount-point validation and directory handling without root or mounts.",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_mount_read_only.py",
+   "lines": 70,
+   "doc": "Test the production Linux mount commands without root or devices.",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_privilege_helpers.py",
+   "lines": 449,
+   "doc": "Exercise production helper lookup and the Linux elevation restriction check.",
+   "imports": [],
+   "defs": [
+    "between",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_process.py",
+   "lines": 61,
+   "doc": "Check Unix file inheritance and process execution without root or mounts.",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_read_only_integration.py",
+   "lines": 280,
+   "doc": "Verify Linux read-only device protection in a dedicated disposable VM.",
+   "imports": [],
+   "defs": [
+    "host_digest",
+    "check_write_rejected",
+    "check_setup_failure",
+    "check",
+    "check_read_only_block_device",
+    "check_journal_recovery",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_requester_access.py",
+   "lines": 507,
+   "doc": "Check that Linux mounts volume files that only the requesting user can open.",
+   "imports": [],
+   "defs": [
+    "Checks"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_requester_helper.py",
+   "lines": 323,
+   "doc": "Check requester-helper self-exec and fail-closed startup using production code.",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_linux_service_inheritance.py",
+   "lines": 100,
+   "doc": "Check that the UI's core-service pipes do not survive exec.",
+   "imports": [],
+   "defs": [
+    "pipes",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_macos_discovery.py",
+   "lines": 148,
+   "doc": "Unit checks for macOS discovery; no mounted volumes or sudo needed.",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_macos_gui_inactivity.py",
+   "lines": 120,
+   "doc": "Inactivity auto-dismount in the background GUI; no sudo required.",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_macos_gui_lifecycle.py",
+   "lines": 130,
+   "doc": "Ordinary FUSE-T container and background GUI lifecycle; no sudo required.",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_macos_gui_teardown.py",
+   "lines": 190,
+   "doc": "Automatic GUI unmounts while a volume's service is slow; no sudo required.",
+   "imports": [],
+   "defs": [
+    "Leg",
+    "wait_for",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_mount_helper.py",
+   "lines": 196,
+   "doc": "Test the fstab helper mount.veracrypt against the installed veracrypt.",
+   "imports": [],
+   "defs": [
+    "Checks",
+    "run",
+    "text",
+    "fs_mode",
+    "aux_mounts",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_stdin_password.py",
+   "lines": 228,
+   "doc": "Test how veracrypt --stdin reads the password, against the installed",
+   "imports": [],
+   "defs": [
+    "Checks",
+    "check_overflow_without_eof",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_translation_formats.py",
+   "lines": 290,
+   "doc": "Regression tests for translation formatting; requires only Python 3.",
+   "imports": [],
+   "defs": [
+    "FormatGrammarTests",
+    "CatalogueTests"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_volume_read.py",
+   "lines": 223,
+   "doc": "Read known data from the Tests/test.*.hc volumes without mounting.",
+   "imports": [],
+   "defs": [
+    "CheckFailed",
+    "old_abi",
+    "build",
+    "find_file",
+    "check_volume",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_windows_header_cleanup.py",
+   "lines": 54,
+   "doc": "Inject failures into the production Windows header setup/cleanup paths.",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_windows_kdf_completion.py",
+   "lines": 79,
+   "doc": "Check Windows KDF request lifetimes without mounting volumes or loading a driver.",
+   "imports": [],
+   "defs": [
+    "block",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_wxbuild_jobs.py",
+   "lines": 179,
+   "doc": "Check wxbuild job sharing and OpenWrt's serial fallback.",
+   "imports": [],
+   "defs": [
+    "wait_for",
+    "worker",
+    "WxBuildJobsTests"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/Tests/test_xmlvalidate.py",
+   "lines": 116,
+   "doc": "Exercise the XML validator with valid and invalid language packs.",
+   "imports": [],
+   "defs": [
+    "XmlValidatorTests"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/src/Build/Tools/makeself_repro_finalize.py",
+   "lines": 56,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "finalize"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/src/Build/test_veracrypt_openwrt_qemu.py",
+   "lines": 872,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "TestError",
+    "ReusableTCPServer",
+    "PackageMetadata",
+    "Console",
+    "target_info",
+    "sha256_file",
+    "download",
+    "read_text_archive",
+    "expected_sha_from_sums",
+    "sh_quote",
+    "read_ar_control_archive",
+    "extract_top_level_control_archive",
+    "open_control_tar",
+    "read_control_fields",
+    "parse_control_fields",
+    "parse_control_paragraphs",
+    "parse_package_name",
+    "parse_depends",
+    "parse_name_list",
+    "infer_package_bin_dir",
+    "read_package_metadata",
+    "add_package_metadata",
+    "build_package_index",
+    "parse_packages_index",
+    "download_packages_index",
+    "official_index_cache_path",
+    "kmod_dir_from_kernel_version",
+    "official_manifest_kernel_version",
+    "discover_single_kmod_feed_url",
+    "resolve_official_kmod_feed_url",
+    "official_kmod_package_index",
+    "overlay_package_index",
+    "resolve_runtime_packages",
+    "staged_package_name",
+    "ensure_remote_package",
+    "stage_packages",
+    "package_download_command",
+    "prepare_image",
+    "start_http_server",
+    "boot_qemu",
+    "run_guest_tests",
+    "parse_args",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/VeraCrypt/src/Build/veracrypt-launchpad-uploader.py",
+   "lines": 158,
+   "doc": "=============================================================================",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/arhiva-opensms/harness/test_mini_sms.py",
+   "lines": 62,
+   "doc": "Smoke test for mini_sms/sms_api.py - runs the real process, real HTTP.",
+   "imports": [],
+   "defs": [
+    "wait_up"
+   ]
+  },
+  {
+   "path": "workdir/arhiva-opensms/harness/test_opensms.py",
+   "lines": 92,
+   "doc": "Empirical probe of OpenSMS API behaviour, with kivy stubbed out.",
+   "imports": [],
+   "defs": [
+    "show"
+   ]
+  },
+  {
+   "path": "workdir/arhiva-opensms/harness/test_port_conflict.py",
+   "lines": 30,
+   "doc": "Probe: port already in use => does OpenSMS report 'started' anyway?",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/arhiva-opensms/harness/test_rate_limit.py",
+   "lines": 25,
+   "doc": "Rate-limit check: SMS_RATE=3 => 4th request within a minute must be 429.",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/arhiva-opensms/mini_sms/sms_api.py",
+   "lines": 151,
+   "doc": "mini_sms.py - minimal SMS HTTP gateway.",
+   "imports": [],
+   "defs": [
+    "base_dir",
+    "load_token",
+    "split_message",
+    "send_sms",
+    "check_rate",
+    "Payload",
+    "require_token",
+    "send",
+    "serve"
+   ]
+  },
+  {
+   "path": "workdir/harness/test_mini_sms.py",
+   "lines": 62,
+   "doc": "Smoke test for mini_sms/sms_api.py - runs the real process, real HTTP.",
+   "imports": [],
+   "defs": [
+    "wait_up"
+   ]
+  },
+  {
+   "path": "workdir/harness/test_opensms.py",
+   "lines": 92,
+   "doc": "Empirical probe of OpenSMS API behaviour, with kivy stubbed out.",
+   "imports": [],
+   "defs": [
+    "show"
+   ]
+  },
+  {
+   "path": "workdir/harness/test_port_conflict.py",
+   "lines": 30,
+   "doc": "Probe: port already in use => does OpenSMS report 'started' anyway?",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/harness/test_rate_limit.py",
+   "lines": 25,
+   "doc": "Rate-limit check: SMS_RATE=3 => 4th request within a minute must be 429.",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/mini_sms/sms_api.py",
+   "lines": 151,
+   "doc": "mini_sms.py - minimal SMS HTTP gateway.",
+   "imports": [],
+   "defs": [
+    "base_dir",
+    "load_token",
+    "split_message",
+    "send_sms",
+    "check_rate",
+    "Payload",
+    "require_token",
+    "send",
+    "serve"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/main.py",
+   "lines": 562,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "BaseMDNavigationItem",
+    "MainScreenBox",
+    "OpenSmsApp"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/screens/__init__.py",
+   "lines": 0,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/opensms/app/screens/kivymd_patch.py",
+   "lines": 48,
+   "doc": "Works around KivyMD 2.0 behaviour that crashes or slows down real phones.",
+   "imports": [],
+   "defs": [
+    "disable_gpu_ripple",
+    "disable_hover"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/screens/logs.py",
+   "lines": 120,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "LogBox"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/screens/mainScr.py",
+   "lines": 47,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "AppHomeBox",
+    "ButtonControl"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/screens/settings.py",
+   "lines": 118,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "SettingsBox",
+    "ApiKeyTxtbox"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/services/__init__.py",
+   "lines": 0,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/opensms/app/services/android_env.py",
+   "lines": 4,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "on_android"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/services/appSvc.py",
+   "lines": 107,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "write_resp",
+    "read_req_file",
+    "api_server_control",
+    "app_service_thread"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/services/logSvc.py",
+   "lines": 33,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "LogService"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/services/pathMgr.py",
+   "lines": 34,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "get_user_data_dir"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/services/postApi.py",
+   "lines": 228,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "set_config_path",
+    "set_api_os",
+    "set_api_logger",
+    "log_activities",
+    "hash_api_key",
+    "generate_new_api_key",
+    "get_api_keys",
+    "SmsData",
+    "ControlData",
+    "PosiApiServer"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/services/postFlask.py",
+   "lines": 129,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "PosiApiServer",
+    "process_sms_req"
+   ]
+  },
+  {
+   "path": "workdir/opensms/app/services/smsApi.py",
+   "lines": 22,
+   "doc": "OS specific setups",
+   "imports": [],
+   "defs": [
+    "send_sms"
+   ]
+  },
+  {
+   "path": "workdir/projects/05b58082eb73/verif-4core.py",
+   "lines": 173,
+   "doc": "Script de unica folosinta (ruleaza în workdir, NU intra în repo).",
+   "imports": [],
+   "defs": [
+    "sub",
+    "add",
+    "scal",
+    "dot",
+    "cross",
+    "length",
+    "norm",
+    "dist",
+    "Polilinie",
+    "cadru",
+    "tangenta_locala"
+   ]
+  },
+  {
+   "path": "workdir/projects/103c56da730a/tx/parse_robot.py",
+   "lines": 154,
+   "doc": "Parse Tecnomatix.Engineering.xml for Robot types and TxTransformation methods.",
+   "imports": [],
+   "defs": [
+    "has_exact_txtrans_param"
+   ]
+  },
+  {
+   "path": "workdir/projects/381d45e14598/cod/durata.py",
+   "lines": 50,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "parse_duration"
+   ]
+  },
+  {
+   "path": "workdir/projects/381d45e14598/cod/test_durata.py",
+   "lines": 15,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "test_simple",
+    "test_combined",
+    "test_invalid"
+   ]
+  },
+  {
+   "path": "workdir/projects/68099c77b110/cod/shop/__init__.py",
+   "lines": 0,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/68099c77b110/cod/shop/cart.py",
+   "lines": 32,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "Cart"
+   ]
+  },
+  {
+   "path": "workdir/projects/68099c77b110/cod/shop/pricing.py",
+   "lines": 19,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "money",
+    "apply_discount",
+    "with_vat"
+   ]
+  },
+  {
+   "path": "workdir/projects/68099c77b110/cod/tests/test_cart.py",
+   "lines": 25,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "test_discount",
+    "test_totals_with_qty",
+    "test_remove_partial"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/add_studii.py",
+   "lines": 91,
+   "doc": "add_studii.py - insereaza cheia `studii` in fiecare dintre cele 35 de itemi",
+   "imports": [],
+   "defs": [
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/anexa_excel.py",
+   "lines": 250,
+   "doc": "Cititorul anexelor „Calcul valoric” din fisierul Excel master.",
+   "imports": [],
+   "defs": [
+    "AnexaExcelError",
+    "load_anexa"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/build_oferta_db.py",
+   "lines": 383,
+   "doc": "Construieste baza SQLite oferta.db (articole oferta + deviz de referinta).",
+   "imports": [],
+   "defs": [
+    "obiect_pentru_pagina",
+    "numar",
+    "litere",
+    "norm",
+    "parse_deviz",
+    "variante_ocr",
+    "norm_um",
+    "levenshtein",
+    "cant_egala",
+    "potrivire_cant_um",
+    "alege",
+    "potriveste",
+    "verifica",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/debug_potriveste.py",
+   "lines": 56,
+   "doc": "Debug: de ce raman coduri 'nesigur' / 'resursa' (nu ruleaza main, nu atinge DB).",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/explore2.py",
+   "lines": 12,
+   "doc": "Afiseaza liniile care seamana cu antete (majuscule) din paginile F3.",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/explore3.py",
+   "lines": 18,
+   "doc": "Afiseaza primul numar de articol intalnit pe fiecare pagina F3.",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/explore_ofx.py",
+   "lines": 23,
+   "doc": "Explorare rapida a fisierelor OCR din /tmp/ofx (nu modifica sursele).",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_allinone_docs.py",
+   "lines": 424,
+   "doc": "Genereaza pachetul oferta-allinone/ (fisa, cerere, nota de fundamentare).",
+   "imports": [],
+   "defs": [
+    "lei",
+    "medie",
+    "new_doc",
+    "header_footer",
+    "title",
+    "h",
+    "p",
+    "bullet",
+    "table",
+    "add_hyperlink"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_allinone_oferte.py",
+   "lines": 315,
+   "doc": "Genereaza 06_Oferte_finale_allinone.docx - 3 oferte reale din piata RO pentru All-in-One.",
+   "imports": [],
+   "defs": [
+    "fara_tva",
+    "lei",
+    "add_hyperlink",
+    "new_doc",
+    "title",
+    "h",
+    "p",
+    "bullet",
+    "table"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_allinone_xlsx.py",
+   "lines": 301,
+   "doc": "Genereaza 04_Tabel_comparativ_oferte_allinone.xlsx",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_anexa_calcul_xlsx.py",
+   "lines": 444,
+   "doc": "Genereaza Anexa_Calcul_valoric.xlsx (calcul valoric pe note de santier).",
+   "imports": [],
+   "defs": [
+    "ro_num",
+    "lines_for",
+    "height",
+    "put",
+    "merge_put",
+    "h_formula",
+    "i_formula",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_anexa_studii.py",
+   "lines": 345,
+   "doc": "Genereaza Anexa-Studii.docx (python-docx) din anexa_data.json.",
+   "imports": [],
+   "defs": [
+    "incarca_date",
+    "par",
+    "ruleaza",
+    "fixeaza_layout",
+    "antet",
+    "celula",
+    "nc_text",
+    "construieste",
+    "verifica",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_casa_docs.py",
+   "lines": 462,
+   "doc": "Genereaza pachetul oferta-casa-marcat/ (fisa, cerere, nota de fundamentare).",
+   "imports": [],
+   "defs": [
+    "lei",
+    "medie",
+    "new_doc",
+    "header_footer",
+    "title",
+    "h",
+    "p",
+    "bullet",
+    "table",
+    "add_hyperlink"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_casa_oferte.py",
+   "lines": 382,
+   "doc": "Genereaza 06_Oferte_finale_casa_marcat.docx - 3 oferte reale din piata RO pentru casa de marcat.",
+   "imports": [],
+   "defs": [
+    "fara_tva",
+    "lei",
+    "add_hyperlink",
+    "new_doc",
+    "title",
+    "h",
+    "p",
+    "bullet",
+    "table"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_casa_xlsx.py",
+   "lines": 336,
+   "doc": "Genereaza 04_Tabel_comparativ_oferte_casa_marcat.xlsx",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_cjvr_docs.py",
+   "lines": 843,
+   "doc": "Genereaza pachetul oferta-consola-vr/: fise tehnice, cerere, nota, oferte finale.",
+   "imports": [],
+   "defs": [
+    "fara_tva",
+    "lei",
+    "new_doc",
+    "header_footer",
+    "title",
+    "h",
+    "p",
+    "bullet",
+    "table",
+    "add_hyperlink",
+    "link_line"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_cjvr_xlsx.py",
+   "lines": 368,
+   "doc": "Genereaza 05_Tabel_comparativ_oferte_consola_vr.xlsx.",
+   "imports": [],
+   "defs": [
+    "style_header",
+    "borders",
+    "foaie_sinteza"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_lic_docs.py",
+   "lines": 594,
+   "doc": "Genereaza pachetul oferta-licente/ (fisa Windows, fisa Office, cerere, nota de fundamentare).",
+   "imports": [],
+   "defs": [
+    "lei",
+    "new_doc",
+    "header_footer",
+    "title",
+    "h",
+    "p",
+    "bullet",
+    "table",
+    "add_hyperlink"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_lic_oferte.py",
+   "lines": 507,
+   "doc": "Genereaza 07_Oferte_finale_licente.docx - 3 oferte Windows 11 Pro + 3 oferte Office 2021 din piata RO.",
+   "imports": [],
+   "defs": [
+    "fara_tva",
+    "lei",
+    "add_hyperlink",
+    "new_doc",
+    "title",
+    "h",
+    "p",
+    "bullet",
+    "table"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_lic_xlsx.py",
+   "lines": 419,
+   "doc": "Genereaza 05_Tabel_comparativ_oferte_licente.xlsx (Windows 11 Pro + Office 2021).",
+   "imports": [],
+   "defs": [
+    "header_row",
+    "write_rows"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_linkuri.py",
+   "lines": 501,
+   "doc": "Genereaza centralizatorul linkuri-oferte.docx cu toate linkurile de oferte identificate.",
+   "imports": [],
+   "defs": [
+    "set_cell_bg",
+    "set_col_width",
+    "add_hyperlink",
+    "para",
+    "heading",
+    "add_page_field"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_mf.py",
+   "lines": 471,
+   "doc": "Genereaza pachetul oferta-multifunctional/ (fisa, cerere, nota, oferte finale, email, xlsx).",
+   "imports": [],
+   "defs": [
+    "lei",
+    "new_doc",
+    "header_footer",
+    "title",
+    "h",
+    "p",
+    "bullet",
+    "table",
+    "add_hyperlink"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_mf_oferte.py",
+   "lines": 340,
+   "doc": "Genereaza 06_Oferte_finale_multifunctional.docx - 3 oferte reale din piata RO.",
+   "imports": [],
+   "defs": [
+    "fara_tva",
+    "lei",
+    "new_doc",
+    "title",
+    "h",
+    "p",
+    "bullet",
+    "table",
+    "add_hyperlink",
+    "link_line"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_mf_xlsx.py",
+   "lines": 311,
+   "doc": "Genereaza 04_Tabel_comparativ_oferte_multifunctional.xlsx.",
+   "imports": [],
+   "defs": [
+    "style_header",
+    "borders"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_nc_docs.py",
+   "lines": 832,
+   "doc": "gen_nc_docs.py - genereaza documentele NC pentru Conacul Muscelean (SMIS 326395).",
+   "imports": [],
+   "defs": [
+    "set_style_font",
+    "new_doc",
+    "add_para",
+    "add_labeled_para",
+    "set_cell_text",
+    "set_cell_lines",
+    "set_col_widths",
+    "build_xlsx",
+    "build_ghid",
+    "add_calc_table",
+    "build_model",
+    "docx_text",
+    "verify",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_nota_principala.py",
+   "lines": 350,
+   "doc": "Genereaza nota de fundamentare principala actualizata (valori 2026, TVA 21%),",
+   "imports": [],
+   "defs": [
+    "lei",
+    "ftva",
+    "medie",
+    "new_doc",
+    "title",
+    "h",
+    "p",
+    "shade",
+    "table",
+    "footer_pages"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_note_comasate.py",
+   "lines": 411,
+   "doc": "Genereaza 4 note de santier de sine statatoare, pe categoriile ##1..##4 din",
+   "imports": [],
+   "defs": [
+    "ascii_ro",
+    "citeste_grupuri",
+    "set_text",
+    "find_para",
+    "new_num_id",
+    "set_cell_width",
+    "shade_cell",
+    "set_cell_margins",
+    "add_bottom_border",
+    "add_para",
+    "add_numbered",
+    "add_cuprins",
+    "build_nota",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_note_santier.py",
+   "lines": 664,
+   "doc": "Genereaza 35 de Note de Santier + index, pe baza sablonului NC2 model.docx.",
+   "imports": [],
+   "defs": [
+    "slugify",
+    "set_text",
+    "find_para",
+    "fmt",
+    "add_par",
+    "set_cell_width",
+    "shade_cell",
+    "set_cell_margins",
+    "parse_ro_num",
+    "fmt_ro_num",
+    "calc_rand_anexa",
+    "add_anexa",
+    "build_note",
+    "build_index",
+    "sursa_anexe",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_oferta.py",
+   "lines": 320,
+   "doc": "Genereaza pachetul de documente pentru oferta laptop + licente (Power Forever SRL).",
+   "imports": [],
+   "defs": [
+    "new_doc",
+    "title",
+    "h",
+    "table",
+    "p",
+    "bullet",
+    "hdr_footer"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_oferte_finale.py",
+   "lines": 309,
+   "doc": "Genereaza oferte-finale.docx - 3 oferte reale din piata RO pentru laptop.",
+   "imports": [],
+   "defs": [
+    "fara_tva",
+    "lei",
+    "add_hyperlink",
+    "new_doc",
+    "title",
+    "h",
+    "p",
+    "bullet",
+    "table"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/gen_tabel.py",
+   "lines": 244,
+   "doc": "Generator tabel comparativ oferte (xlsx) pentru laptop + licente.",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/verifica_anexa_xlsx.py",
+   "lines": 385,
+   "doc": "Valideaza Anexa_Calcul_valoric.xlsx (generat de gen_anexa_calcul_xlsx.py).",
+   "imports": [],
+   "defs": [
+    "check",
+    "ro_num",
+    "xlround",
+    "isnum",
+    "calc_h",
+    "calc_i",
+    "calc_totaluri",
+    "word_totaluri",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/verifica_note_santier.py",
+   "lines": 172,
+   "doc": "Verificarea generarii notelor de santier + anexa cu calcul valoric.",
+   "imports": [],
+   "defs": [
+    "check",
+    "fisier",
+    "text_doc",
+    "zona_anexa",
+    "tabel_cu_10",
+    "randuri_date",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/7c8155f8f195/verifica_note_santier_excel.py",
+   "lines": 340,
+   "doc": "Verificarea notelor de santier generate din Excel (Anexa_Calcul_valoric.xlsx).",
+   "imports": [],
+   "defs": [
+    "check",
+    "fisier",
+    "nr_din_nume",
+    "tabel_anexa",
+    "randuri_date",
+    "compara",
+    "compara_total",
+    "suma",
+    "snapshot",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/analize_gen.py",
+   "lines": 49,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/ab3.py",
+   "lines": 155,
+   "doc": "Comparatie TREI moduri de raționament in ACEEASI sesiune, cu aceleasi seed-uri.",
+   "imports": [],
+   "defs": [
+    "ask",
+    "long_prompt",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/ab_low.py",
+   "lines": 126,
+   "doc": "A/B serios: gpt-oss:20b-fast (medium) vs gpt-oss:20b-low (low fortat in template).",
+   "imports": [],
+   "defs": [
+    "ask",
+    "long_prompt",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/bench.py",
+   "lines": 204,
+   "doc": "Bench modele Ollama pe SVAI: metrici de sistem + raspunsuri pentru evaluare calitativa.",
+   "imports": [],
+   "defs": [
+    "read_file",
+    "cpu_temps",
+    "gpu",
+    "ram",
+    "sampler",
+    "post",
+    "ollama_ps",
+    "unload_all",
+    "pct",
+    "run_model"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/bench2.py",
+   "lines": 249,
+   "doc": "Bench v2 - modele Ollama pe SVAI, fortat cat mai mult pe GPU.",
+   "imports": [],
+   "defs": [
+    "read_file",
+    "cpu_temp_pkg",
+    "cpu_temp_max_core",
+    "cpu_stat",
+    "gpu",
+    "ram",
+    "energy_uj",
+    "sampler",
+    "post",
+    "ollama_ps",
+    "ps_str",
+    "stats",
+    "run_config"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/bench3.py",
+   "lines": 186,
+   "doc": "Bench v3 - rularea finala, cu num_thread reglat per model pentru consum CPU minim.",
+   "imports": [],
+   "defs": [
+    "stat",
+    "energy",
+    "temp_pkg",
+    "temp_core_max",
+    "gpu",
+    "ram",
+    "ps_info",
+    "ask"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/ctx_fix.py",
+   "lines": 77,
+   "doc": "Cauta configuratia care suporta prompturi lungi (context real utilizabil).",
+   "imports": [],
+   "defs": [
+    "build",
+    "ask",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/ctx_limit.py",
+   "lines": 78,
+   "doc": "Gaseste limita practica de context pe serviciul de productie (fara instanta de test).",
+   "imports": [],
+   "defs": [
+    "build",
+    "vram",
+    "ask",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/energy.py",
+   "lines": 57,
+   "doc": "Consumul energetic al aceluiasi task cu think=low vs think=medium (implicit).",
+   "imports": [],
+   "defs": [
+    "sampler",
+    "run"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/make_level.py",
+   "lines": 105,
+   "doc": "Genereaza un Modelfile cu nivelul de raționament ales din linia de comanda.",
+   "imports": [],
+   "defs": [
+    "set_param",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/make_low.py",
+   "lines": 66,
+   "doc": "Genereaza un Modelfile cu Reasoning: low hardcodat in template.",
+   "imports": [],
+   "defs": [
+    "set_param"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/needle.py",
+   "lines": 146,
+   "doc": "Test de precizie KV cache: ac (needle) ingropat la adancimi diferite in context lung.",
+   "imports": [],
+   "defs": [
+    "post",
+    "get",
+    "kill_dev",
+    "start_server",
+    "unload",
+    "build",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/nothink.py",
+   "lines": 138,
+   "doc": "Ce se intampla daca dezactivam thinking la gpt-oss:20b-fast.",
+   "imports": [],
+   "defs": [
+    "ask",
+    "long_prompt",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/nt_sweep.py",
+   "lines": 60,
+   "doc": "Curba num_thread pentru configuratia cu context complet (num_gpu=23).",
+   "imports": [],
+   "defs": [
+    "cpu",
+    "ask",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/opt_bench.py",
+   "lines": 235,
+   "doc": "Masura performanta reala (tok/s, CPU, temperaturi, energie) pentru configurile gpt-oss.",
+   "imports": [],
+   "defs": [
+    "post",
+    "get",
+    "kill_dev",
+    "start_server",
+    "unload",
+    "cpu_snapshot",
+    "rapl_uj",
+    "nv",
+    "cpu_temp",
+    "Sampler",
+    "one_run",
+    "avg",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/opt_probe.py",
+   "lines": 143,
+   "doc": "Cauta configuratia cu gpt-oss integral pe GPU (CPU minim).",
+   "imports": [],
+   "defs": [
+    "post",
+    "get",
+    "stop_server",
+    "kill_all_dev",
+    "start_server",
+    "unload",
+    "probe",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/prefill.py",
+   "lines": 161,
+   "doc": "Testeaza daca un prompt LUNG (prefill real) incape in VRAM la diverse num_batch.",
+   "imports": [],
+   "defs": [
+    "build",
+    "post",
+    "get",
+    "kill_dev",
+    "start_server",
+    "unload",
+    "vram",
+    "Peak",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/probe2.py",
+   "lines": 69,
+   "doc": "Probe: gpt-oss la temperatura recomandata (1.0) pe T2 + sweep de num_thread.",
+   "imports": [],
+   "defs": [
+    "stat",
+    "energy",
+    "temp",
+    "ask"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/probe3.py",
+   "lines": 74,
+   "doc": "Re-run pentru task-urile unde raspunsul a fost trunchiat (buget de tokeni mai mare).",
+   "imports": [],
+   "defs": [
+    "stat",
+    "energy",
+    "temp",
+    "ask"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/probe4.py",
+   "lines": 77,
+   "doc": "gpt-oss la temperatura recomandata (1.0) pe toate task-urile + rerun 30b pe cele trunchiate.",
+   "imports": [],
+   "defs": [
+    "stat",
+    "energy",
+    "temp",
+    "ask"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/quality.py",
+   "lines": 280,
+   "doc": "Test de calitate pe configuratia optimizata gpt-oss:20b-fast.",
+   "imports": [],
+   "defs": [
+    "stat",
+    "energy",
+    "temp_pkg",
+    "gpu",
+    "ps_info",
+    "ask",
+    "score_answer",
+    "filler",
+    "long_prompt",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/report3.py",
+   "lines": 331,
+   "doc": "Raport markdown pentru ab3-results.json — cele 3 moduri: medium, low, high.",
+   "imports": [],
+   "defs": [
+    "fmt",
+    "fmt_i",
+    "md_table",
+    "num",
+    "mean_of",
+    "load",
+    "tasks_of",
+    "task_stat",
+    "task_mean",
+    "task_sd",
+    "model_total_time",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/score.py",
+   "lines": 138,
+   "doc": "Scor de acoperire a rubricii, pe baza de cuvinte-cheie tehnice din raspuns.",
+   "imports": [],
+   "defs": [
+    "answer_of",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/short_speed.py",
+   "lines": 93,
+   "doc": "Compara num_gpu 23 vs 24 pe prompt SCURT (400 tokeni generati), cu CPU/temperaturi.",
+   "imports": [],
+   "defs": [
+    "cpu",
+    "gpu",
+    "temp_cpu",
+    "ask",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench/t1var.py",
+   "lines": 22,
+   "doc": "Verifica daca diferenta T1 intre think=low si think=medium (implicit) e reala sau zgomot.",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench_extra.py",
+   "lines": 32,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "post",
+    "b64",
+    "chat"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench_extra2.py",
+   "lines": 70,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "b64",
+    "post",
+    "tts",
+    "asr"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench_extra3.py",
+   "lines": 38,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "b64",
+    "post",
+    "tts",
+    "asr"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench_full.py",
+   "lines": 171,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "post",
+    "b64",
+    "chat",
+    "tts"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench_lfm3_svai.py",
+   "lines": 76,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "post",
+    "b64",
+    "chat",
+    "vram"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/bench_lfm3_tts.py",
+   "lines": 36,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/chunk_test.py",
+   "lines": 109,
+   "doc": "Test ipoteza: esecurile 'NU AM SURSA' vin din chunking (primele 900 car.), nu din model.",
+   "imports": [],
+   "defs": [
+    "sentences",
+    "select_relevant",
+    "call",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/grounded.py",
+   "lines": 126,
+   "doc": "Validator determinist: fiecare cifra+unitate din raspuns trebuie sa existe in sursa.",
+   "imports": [],
+   "defs": [
+    "normalize",
+    "extract",
+    "validate",
+    "citations"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/grounded_demo.py",
+   "lines": 65,
+   "doc": "Demo: raspuns DOAR din sursa ZIM, cu citare, plus validator determinist.",
+   "imports": [],
+   "defs": [
+    "run",
+    "validate"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/hy_bench.py",
+   "lines": 85,
+   "doc": "Compare hy-mt2 RO->EN via Ollama (11434, /api/chat, num_gpu 0) vs llama.cpp (8092, /v1/chat/completions).",
+   "imports": [],
+   "defs": [
+    "call",
+    "ollama",
+    "llamacpp",
+    "pct"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/invoice_gen.py",
+   "lines": 32,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/pubmed_src.py",
+   "lines": 113,
+   "doc": "PubMed E-utilities ca sursa de fallback: titlu + abstract, pentru grounding.",
+   "imports": [],
+   "defs": [
+    "esearch",
+    "efetch_abstracts",
+    "split_records",
+    "format_record",
+    "title_of",
+    "search"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/revalidate.py",
+   "lines": 81,
+   "doc": "Revalideaza offline raspunsurile deja generate, cu validatorul reparat.",
+   "imports": [],
+   "defs": [
+    "srcs_naive",
+    "srcs_relevant",
+    "revalidate"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/robo-med-patch/app.py",
+   "lines": 184,
+   "doc": "FastAPI application: routes only, no domain logic.",
+   "imports": [],
+   "defs": [
+    "health",
+    "favicon",
+    "get_episode",
+    "list_episodes"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/robo-med-patch/config.py",
+   "lines": 40,
+   "doc": "Runtime settings from environment variables (set by the systemd unit / .env).",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/robo-med-patch/domain/translate.py",
+   "lines": 94,
+   "doc": "RO->EN query translation: DeepSeek Flash (cloud) with hy-mt2 (local) fallback.",
+   "imports": [],
+   "defs": [
+    "TranslationError",
+    "translate_ro_en",
+    "translate_cloud",
+    "hedged"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/robo_med_lib.py",
+   "lines": 64,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "jpost",
+    "b64",
+    "lfm3",
+    "translate",
+    "piper",
+    "asr_file"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/svai-info.py",
+   "lines": 462,
+   "doc": "svai-info - stare rapida a serverului SVAI: CPU, GPU, RAM, SSD.",
+   "imports": [],
+   "defs": [
+    "read_text",
+    "hwmon_dir",
+    "to_float",
+    "cpu_sample",
+    "cpu_usage",
+    "cpu_temp",
+    "load_avg",
+    "uptime_str",
+    "cpu_model",
+    "gpu_info",
+    "ram_info",
+    "disk_info",
+    "Painter",
+    "bar",
+    "temp_bar",
+    "fmt",
+    "terminal_width",
+    "render",
+    "collect",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/svai_info.py",
+   "lines": 462,
+   "doc": "svai-info - stare rapida a serverului SVAI: CPU, GPU, RAM, SSD.",
+   "imports": [],
+   "defs": [
+    "read_text",
+    "hwmon_dir",
+    "to_float",
+    "cpu_sample",
+    "cpu_usage",
+    "cpu_temp",
+    "load_avg",
+    "uptime_str",
+    "cpu_model",
+    "gpu_info",
+    "ram_info",
+    "disk_info",
+    "Painter",
+    "bar",
+    "temp_bar",
+    "fmt",
+    "terminal_width",
+    "render",
+    "collect",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/sysinfo.py",
+   "lines": 862,
+   "doc": "sysinfo - stare rapida a unui server: CPU, GPU, RAM, discuri.",
+   "imports": [],
+   "defs": [
+    "read_text",
+    "hostname",
+    "hwmon_dir",
+    "to_float",
+    "cpu_sample",
+    "cpu_usage",
+    "cpu_temp",
+    "load_avg",
+    "uptime_str",
+    "cpu_model",
+    "nvidia_smi",
+    "gpu_info",
+    "proc_cmdline",
+    "proc_comm",
+    "proc_user",
+    "gpu_processes",
+    "clip",
+    "clip_tail",
+    "shorten_model",
+    "process_label",
+    "ollama_model_dirs",
+    "ollama_model_index",
+    "ollama_loaded_models",
+    "ollama_short_name",
+    "match_ollama_loaded",
+    "fmt_mem",
+    "ram_info",
+    "disk_info",
+    "Painter",
+    "bar",
+    "temp_bar",
+    "fmt",
+    "terminal_width",
+    "render",
+    "collect",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t1_ocr.py",
+   "lines": 27,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t2_voice.py",
+   "lines": 68,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "clean_for_tts"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t30.py",
+   "lines": 130,
+   "doc": "30 de intrebari: raspuns grounded din ZIM + validator determinist vs baseline din memorie.",
+   "imports": [],
+   "defs": [
+    "call",
+    "run"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t30b.py",
+   "lines": 159,
+   "doc": "Aceleasi 30 de intrebari, dar cu chunking pe paragrafe relevante (fix-ul propus).",
+   "imports": [],
+   "defs": [
+    "keywords_of",
+    "sentences",
+    "select_relevant",
+    "search_relevant",
+    "call",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t30c.py",
+   "lines": 147,
+   "doc": "Cele 30 de intrebari: ZIM cu chunking relevant + fallback pe PubMed.",
+   "imports": [],
+   "defs": [
+    "is_refusal",
+    "build",
+    "ask",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t3_diagnostic.py",
+   "lines": 54,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t4_final.py",
+   "lines": 63,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "clean_for_tts"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t5_json.py",
+   "lines": 82,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "ro_num"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t6_baseline.py",
+   "lines": 29,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t7_oss.py",
+   "lines": 125,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "oss"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t8_oss_ro.py",
+   "lines": 70,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "oss",
+    "clean"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/t9_abx.py",
+   "lines": 25,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/test1_text.py",
+   "lines": 61,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "gen"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/test2_4bit_vision.py",
+   "lines": 154,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "gen"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/test3_audio.py",
+   "lines": 92,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "run"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/test4_audio2.py",
+   "lines": 81,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "run"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/test5_vision2.py",
+   "lines": 50,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "attempt"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/test6_fp16_vision.py",
+   "lines": 41,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "attempt"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/test7_hibrid.py",
+   "lines": 45,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "run"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/test_grounded.py",
+   "lines": 61,
+   "doc": "Teste pentru validator. Ruleaza: python3 test_grounded.py",
+   "imports": [],
+   "defs": [
+    "check"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/wsp.py",
+   "lines": 44,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "lfm3_asr"
+   ]
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/zim_read.py",
+   "lines": 30,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/81dd4b7547d9/zim_search.py",
+   "lines": 94,
+   "doc": "Cauta in ZIM-urile medicale si extrage textul articolelor, pentru grounding.",
+   "imports": [],
+   "defs": [
+    "clean_html",
+    "article_text",
+    "search",
+    "build_context"
+   ]
+  },
+  {
+   "path": "workdir/projects/cff5aa9643b2/cod/durata.py",
+   "lines": 45,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "parse_duration"
+   ]
+  },
+  {
+   "path": "workdir/projects/cff5aa9643b2/cod/test_durata.py",
+   "lines": 15,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "test_simple",
+    "test_combined",
+    "test_invalid"
+   ]
+  },
+  {
+   "path": "workdir/projects/db0157679ee5/cod/shop/__init__.py",
+   "lines": 0,
+   "doc": "",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/db0157679ee5/cod/shop/cart.py",
+   "lines": 32,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "Cart"
+   ]
+  },
+  {
+   "path": "workdir/projects/db0157679ee5/cod/shop/pricing.py",
+   "lines": 19,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "money",
+    "apply_discount",
+    "with_vat"
+   ]
+  },
+  {
+   "path": "workdir/projects/db0157679ee5/cod/tests/test_cart.py",
+   "lines": 25,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "test_discount",
+    "test_totals_with_qty",
+    "test_remove_partial"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/demo_code_task/expenses.py",
+   "lines": 97,
+   "doc": "CLI minimal pentru evidența cheltuielilor, bazat pe SQLite.",
+   "imports": [],
+   "defs": [
+    "get_db_path",
+    "connect",
+    "cmd_add",
+    "cmd_list",
+    "cmd_total",
+    "build_parser",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/demo_code_task/test_expenses.py",
+   "lines": 81,
+   "doc": "Teste pytest pentru CLI-ul expenses.py (rulat ca subprocess).",
+   "imports": [],
+   "defs": [
+    "run",
+    "db_path",
+    "test_add_and_list",
+    "test_total_global",
+    "test_total_filtered_by_category",
+    "test_add_invalid_suma_exits_nonzero"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/r0code/probe_local_speed.py",
+   "lines": 40,
+   "doc": "Măsoară prefill/gen tok/s pe modelul local din SVAI, prin API-ul nativ",
+   "imports": [],
+   "defs": [
+    "gen"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/r0code/probe_toolcall.py",
+   "lines": 84,
+   "doc": "Test minim de tool calling prin API-ul Ollama nativ (/api/chat).",
+   "imports": [],
+   "defs": [
+    "probe"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/r0code/r0code.py",
+   "lines": 924,
+   "doc": "r0code — harness de coding minimal, headless, apelabil de r0 / Claude / Hermes.",
+   "imports": [],
+   "defs": [
+    "ConfigError",
+    "ModelAttempt",
+    "Tools",
+    "Router",
+    "call_model",
+    "recover_text_tool_calls",
+    "parse_tool_calls",
+    "log_run",
+    "run_verify",
+    "run",
+    "ollama_models",
+    "print_models",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/r0code/vram_budget.py",
+   "lines": 50,
+   "doc": "Buget VRAM pentru candidații de coding care intră în 12GB.",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/install/agent-home.py",
+   "lines": 235,
+   "doc": "Retire a managed VM's administrator-owned Codex/Pi setup without touching core logins.",
+   "imports": [],
+   "defs": [
+    "real_path",
+    "atomic_file",
+    "archive_move",
+    "shell_agents",
+    "as_agent",
+    "copy_missing",
+    "retire",
+    "marked",
+    "retired",
+    "check",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/install/configure.py",
+   "lines": 137,
+   "doc": "Configure a preinstalled core from private JSON on stdin. Never log that JSON.",
+   "imports": [],
+   "defs": [
+    "accounts",
+    "setup_storage",
+    "installed_version",
+    "configure"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/install/previews.py",
+   "lines": 125,
+   "doc": "Install forwarding-only SSH access. Run as the VM operator; never prints private keys.",
+   "imports": [],
+   "defs": [
+    "atomic",
+    "configure"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/install/update.py",
+   "lines": 405,
+   "doc": "Install or upgrade this VM's core from a verified release folder (ADR 0082). Run as root.",
+   "imports": [],
+   "defs": [
+    "run",
+    "sha",
+    "version",
+    "write",
+    "service_env",
+    "port",
+    "api",
+    "sessions",
+    "busy",
+    "mcp_server",
+    "gate",
+    "copy_release",
+    "guard_guide",
+    "ensure_claude",
+    "optional",
+    "preview_state",
+    "previews",
+    "restarts",
+    "start",
+    "verify",
+    "record",
+    "prune",
+    "upgrade",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/src/preview/client.py",
+   "lines": 1436,
+   "doc": "Independent localhost previews and Mac access. Standard-library control client; OpenSSH (VMs) or HTTPS tunnels (sandboxes).",
+   "imports": [],
+   "defs": [
+    "private_json",
+    "save",
+    "exclusive",
+    "NoRedirect",
+    "ControlError",
+    "tls",
+    "network",
+    "control",
+    "website",
+    "Core",
+    "cause",
+    "unsent",
+    "describe",
+    "issuer",
+    "cores",
+    "own_threads",
+    "Upstream",
+    "UpgradeResponse",
+    "Proxy",
+    "Server",
+    "reachable",
+    "Relay",
+    "Tunnel",
+    "identity",
+    "read_only",
+    "visible",
+    "block",
+    "mac_stdin",
+    "mac_level",
+    "script_of",
+    "review",
+    "deliver",
+    "MacJobs",
+    "run",
+    "label",
+    "systemd",
+    "running",
+    "claim",
+    "serialized",
+    "windows",
+    "launch",
+    "configure",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/src/runtime/cursor-history.py",
+   "lines": 182,
+   "doc": "Capture Cursor's per-session SQLite store without copying a live WAL database.",
+   "imports": [],
+   "defs": [
+    "session_directory",
+    "regular",
+    "capture",
+    "restore"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/src/sync/client.py",
+   "lines": 525,
+   "doc": "Skills/settings sync, one-way MCP server copy, and one-way Codex and Pi setup import. Project files never sync.",
+   "imports": [],
+   "defs": [
+    "lock_file",
+    "owned_private",
+    "NoRedirect",
+    "private_json",
+    "tls",
+    "Remote",
+    "configuration_roots",
+    "import_codex",
+    "login_shell_env",
+    "resolved",
+    "portable_provider",
+    "pi_file",
+    "pi_setup",
+    "import_pi",
+    "cycle",
+    "load_connection",
+    "run",
+    "discover",
+    "launch_identity",
+    "wait_unlocked",
+    "systemd",
+    "launch",
+    "configure",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/src/sync/files.py",
+   "lines": 785,
+   "doc": "Shared, dependency-free file operations for the core and its local sync client.",
+   "imports": [],
+   "defs": [
+    "Conflict",
+    "portable_mcp",
+    "excluded",
+    "atomic_json",
+    "directory",
+    "ignore_all",
+    "safe_path",
+    "ignore_all",
+    "transfer",
+    "swap",
+    "Tree",
+    "worker"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/core_e2e.py",
+   "lines": 588,
+   "doc": "Real Rust/Codex tests with a fake website API (tests/fake_api.py). --foundation checks HTTP and diagnostics",
+   "imports": [],
+   "defs": [
+    "run",
+    "fixture_root",
+    "until",
+    "descendants",
+    "running_processes",
+    "reap_test_descendants",
+    "Service",
+    "next_event",
+    "wait_done",
+    "check_saved_pagination",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/core_fixture.py",
+   "lines": 1216,
+   "doc": "Deterministic Rust HTTP/Codex-protocol checks; no inference or database required.",
+   "imports": [],
+   "defs": [
+    "codex",
+    "ReplayTests",
+    "RecoveryTests",
+    "progress_checks",
+    "session_checks",
+    "queue_and_recovery_checks"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/cursor_http.py",
+   "lines": 130,
+   "doc": "Disposable Cursor account HTTP checks with a deterministic CLI; no real credentials.",
+   "imports": [],
+   "defs": [
+    "cursor",
+    "CursorAccounts"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/disk_writers.py",
+   "lines": 220,
+   "doc": "Real Linux cgroup/HTTP checks. Only run in an explicitly disposable privileged container.",
+   "imports": [],
+   "defs": [
+    "run",
+    "wait",
+    "seed",
+    "start",
+    "stop",
+    "request",
+    "level",
+    "session",
+    "groups",
+    "pids",
+    "frozen",
+    "new_writer",
+    "fill",
+    "free"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/fake_api.py",
+   "lines": 105,
+   "doc": "A stand-in for Cloudroom's website API (rewrite/storage-move-design.md), for tests only.",
+   "imports": [],
+   "defs": [
+    "FakeApi"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/fake_limit.py",
+   "lines": 85,
+   "doc": "Fake a plan limit in a Cloud sandbox, so testing #229 costs no real usage.",
+   "imports": [],
+   "defs": [
+    "binary",
+    "manage",
+    "limited",
+    "wrap"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/install.py",
+   "lines": 268,
+   "doc": "Installer contract checks using a temporary directory, never host configuration.",
+   "imports": [],
+   "defs": [
+    "InstallerTests",
+    "AgentHomeTests"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/pi_e2e.py",
+   "lines": 217,
+   "doc": "Real Pi + Rust HTTP, using disposable files and existing credentials. No database changes.",
+   "imports": [],
+   "defs": [
+    "main",
+    "native_fixture"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/pi_fixture.py",
+   "lines": 200,
+   "doc": "Pi RPC fixture with real owned tools; no model or external credentials.",
+   "imports": [],
+   "defs": [
+    "send",
+    "entry",
+    "finish"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/pi_http.py",
+   "lines": 400,
+   "doc": "Shared Rust HTTP lifecycle with mixed Codex/Pi protocol fixtures and no database.",
+   "imports": [],
+   "defs": [
+    "MixedHarnessTests"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/preview_client.py",
+   "lines": 230,
+   "doc": "Browser-facing preview regressions. Real HTTP/Unix sockets; no SSH or production access.",
+   "imports": [],
+   "defs": [
+    "App",
+    "PreviewTests",
+    "Json",
+    "ControlTests",
+    "UpstreamTimeoutTests",
+    "WindowsLifecycleTests",
+    "MacJobTests"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/previews_ssh.py",
+   "lines": 189,
+   "doc": "Disposable Linux E2E: agent CLI, exact socket ownership, real SSH, and live revocation.",
+   "imports": [],
+   "defs": [
+    "run",
+    "free_port",
+    "until",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/storage_e2e.py",
+   "lines": 345,
+   "doc": "Disk safety on an explicitly disposable Linux VM. Run as root, never a customer host.",
+   "imports": [],
+   "defs": [
+    "fixture",
+    "run",
+    "wait",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/sync_e2e.py",
+   "lines": 308,
+   "doc": "Real HTTP sync checks for skills/settings/login, including safe repository-sync retirement.",
+   "imports": [],
+   "defs": [
+    "SyncTests"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/tests/workspaces.py",
+   "lines": 233,
+   "doc": "Direct HTTP starts and durable workspace recovery; archive imports are retired.",
+   "imports": [],
+   "defs": [
+    "WorkspaceTests"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/server/src/assets/cloudroom-preview/client.py",
+   "lines": 1436,
+   "doc": "Independent localhost previews and Mac access. Standard-library control client; OpenSSH (VMs) or HTTPS tunnels (sandboxes).",
+   "imports": [],
+   "defs": [
+    "private_json",
+    "save",
+    "exclusive",
+    "NoRedirect",
+    "ControlError",
+    "tls",
+    "network",
+    "control",
+    "website",
+    "Core",
+    "cause",
+    "unsent",
+    "describe",
+    "issuer",
+    "cores",
+    "own_threads",
+    "Upstream",
+    "UpgradeResponse",
+    "Proxy",
+    "Server",
+    "reachable",
+    "Relay",
+    "Tunnel",
+    "identity",
+    "read_only",
+    "visible",
+    "block",
+    "mac_stdin",
+    "mac_level",
+    "script_of",
+    "review",
+    "deliver",
+    "MacJobs",
+    "run",
+    "label",
+    "systemd",
+    "running",
+    "claim",
+    "serialized",
+    "windows",
+    "launch",
+    "configure",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/server/src/assets/cloudroom-sync/client.py",
+   "lines": 525,
+   "doc": "Skills/settings sync, one-way MCP server copy, and one-way Codex and Pi setup import. Project files never sync.",
+   "imports": [],
+   "defs": [
+    "lock_file",
+    "owned_private",
+    "NoRedirect",
+    "private_json",
+    "tls",
+    "Remote",
+    "configuration_roots",
+    "import_codex",
+    "login_shell_env",
+    "resolved",
+    "portable_provider",
+    "pi_file",
+    "pi_setup",
+    "import_pi",
+    "cycle",
+    "load_connection",
+    "run",
+    "discover",
+    "launch_identity",
+    "wait_unlocked",
+    "systemd",
+    "launch",
+    "configure",
+    "main"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/server/src/assets/cloudroom-sync/files.py",
+   "lines": 785,
+   "doc": "Shared, dependency-free file operations for the core and its local sync client.",
+   "imports": [],
+   "defs": [
+    "Conflict",
+    "portable_mcp",
+    "excluded",
+    "atomic_json",
+    "directory",
+    "ignore_all",
+    "safe_path",
+    "ignore_all",
+    "transfer",
+    "swap",
+    "Tree",
+    "worker"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/plugins/automations/skills/workflow-scan/extract.py",
+   "lines": 408,
+   "doc": "Workflow scan extractor (docs/scopes/workflow-scan.md). Runs on the user's computer, standard library only.",
+   "imports": [],
+   "defs": [
+    "clean",
+    "cut",
+    "lines",
+    "iso",
+    "parse_ts",
+    "repo_of",
+    "record",
+    "claude",
+    "codex",
+    "text_of",
+    "pi",
+    "opencode",
+    "hermes",
+    "load",
+    "kept",
+    "chat_block",
+    "cmd_index",
+    "day_index",
+    "cmd_slices",
+    "features",
+    "cmd_groups",
+    "cmd_sessions",
+    "cmd_reduce"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/plugins/automations/skills/workflow-scan/readers.py",
+   "lines": 112,
+   "doc": "Workflow scan readers: one hidden cloud child of the lead per slice. Hidden children never wake their parent;",
+   "imports": [],
+   "defs": [
+    "room",
+    "load",
+    "save",
+    "report",
+    "start",
+    "spawn",
+    "wait",
+    "archive"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/suma.py",
+   "lines": 8,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "suma"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scratch/test_suma_test.py",
+   "lines": 16,
+   "doc": "",
+   "imports": [],
+   "defs": [
+    "testa_suma_lista",
+    "testa_suma_lista_goală"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/scripts/verifica_economii.py",
+   "lines": 223,
+   "doc": "Verificare independenta a economiilor de tokeni (dimag / arhiva / prag 100k).",
+   "imports": [],
+   "defs": [
+    "hr",
+    "agg",
+    "days",
+    "bucket",
+    "simulate"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/svai-imggen/dl_flux_support.py",
+   "lines": 46,
+   "doc": "Descarcă componentele de suport FLUX.1-schnell din oglinda Niansuh (ne-gated).",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/svai-imggen/dl_ltx_resume.py",
+   "lines": 32,
+   "doc": "Reia descărcarea LTX-Video 2B + encoder T5-XXL fp16 (pentru video).",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/svai-imggen/flux_core.py",
+   "lines": 188,
+   "doc": "Generare imagini cu FLUX.1-schnell cuantizat GGUF, pe RTX 3060 12 GB.",
+   "imports": [],
+   "defs": [
+    "load_flux_pipeline",
+    "generate_flux"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/svai-imggen/ltx_core.py",
+   "lines": 122,
+   "doc": "Generare video (text-to-video) cu LTX-Video 2B distilled, rulat pe SVAI.",
+   "imports": [],
+   "defs": [
+    "load_video_pipeline",
+    "generate_video"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/svai-imggen/patch_flux_app.py",
+   "lines": 97,
+   "doc": "Patch pe /srv/imggen/app.py: adaugă suport FLUX (engine=flux) pe lângă SDXL.",
+   "imports": [],
+   "defs": [
+    "rep"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/svai-imggen/sdxl_core.py",
+   "lines": 127,
+   "doc": "Shared image-generation logic (SDXL family), used by the web UI (app.py)",
+   "imports": [],
+   "defs": [
+    "slugify",
+    "load_pipeline",
+    "generate_image"
+   ]
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/svai-imggen/test_flux_load.py",
+   "lines": 76,
+   "doc": "Test de încărcare FLUX.1-schnell Q4_K_S GGUF — rulează pe CPU (placa nu e montată).",
+   "imports": [],
+   "defs": []
+  },
+  {
+   "path": "workdir/projects/ebcd14e0ea45/svai-imggen/video_routes.py",
+   "lines": 179,
+   "doc": "Rutele de generare video (LTX-Video 2B) — blueprint separat, ca să nu",
+   "imports": [],
+   "defs": [
+    "load_settings",
+    "get_pipe",
+    "GpuBusy",
+    "gpu_lock",
+    "api_video",
+    "video_generate",
+    "serve_video",
+    "video_progress",
+    "video_page"
+   ]
+  },
+  {
+   "path": "working_memory.py",
+   "lines": 91,
+   "doc": "Gestionarea memoriei de lucru: stocare și scurtare a rezultatelor tool-urilor.",
+   "imports": [],
+   "defs": [
+    "store",
+    "marker",
+    "make_stub",
+    "on_tool_result",
+    "is_short_stub",
+    "shorten",
+    "collapse_old"
+   ]
+  }
+ ],
+ "routes": [
+  {
+   "method": "GET",
+   "path": "/",
+   "func": "index",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/attachments",
+   "func": "upload_attachment",
+   "file": "upload_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": "Imagine atașată unui mesaj de chat; întoarce URL-ul local pe care",
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/chats",
+   "func": "list_chats",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/chats",
+   "func": "create_chat",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "DELETE",
+   "path": "/api/chats/{chat_id}",
+   "func": "delete_chat",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/chats/{chat_id}",
+   "func": "get_chat",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "PATCH",
+   "path": "/api/chats/{chat_id}",
+   "func": "update_chat",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/chats/{chat_id}/approve",
+   "func": "post_approve",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/chats/{chat_id}/cancel",
+   "func": "post_cancel",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/chats/{chat_id}/events",
+   "func": "chat_events",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/chats/{chat_id}/messages",
+   "func": "post_message",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "DELETE",
+   "path": "/api/chats/{chat_id}/turns/{turn_id}",
+   "func": "delete_turn",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/fs/browse",
+   "func": "browse",
+   "file": "fs_browse_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": "Listează directoarele din `path` (goală = prima rădăcină), doar citire.",
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/models",
+   "func": "list_models",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": "Catalog de modele disponibile (etapa E) — sursă pentru dropdown-urile",
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/projects",
+   "func": "list_projects",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/projects",
+   "func": "create_project",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "DELETE",
+   "path": "/api/projects/{project_id}",
+   "func": "delete_project",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/projects/{project_id}",
+   "func": "get_project",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "PATCH",
+   "path": "/api/projects/{project_id}",
+   "func": "update_project",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/projects/{project_id}/folders",
+   "func": "list_folders",
+   "file": "project_folder_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/projects/{project_id}/folders",
+   "func": "add_folder",
+   "file": "project_folder_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "DELETE",
+   "path": "/api/projects/{project_id}/folders/{folder_id}",
+   "func": "delete_folder",
+   "file": "project_folder_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "PATCH",
+   "path": "/api/projects/{project_id}/folders/{folder_id}",
+   "func": "update_folder",
+   "file": "project_folder_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/projects/{project_id}/folders/{folder_id}/reindex",
+   "func": "reindex_folder",
+   "file": "project_folder_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/projects/{project_id}/kb",
+   "func": "list_kb_files",
+   "file": "upload_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/projects/{project_id}/kb",
+   "func": "upload_kb_file",
+   "file": "upload_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "DELETE",
+   "path": "/api/projects/{project_id}/kb/{file_id}",
+   "func": "delete_kb_file",
+   "file": "upload_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/projects/{project_id}/kb/{file_id}/raw",
+   "func": "get_kb_file_raw",
+   "file": "upload_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/projects/{project_id}/memory",
+   "func": "get_project_memory",
+   "file": "project_memory_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/projects/{project_id}/reports",
+   "func": "list_reports",
+   "file": "project_report_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "DELETE",
+   "path": "/api/projects/{project_id}/reports/{report_id}",
+   "func": "unlist_report",
+   "file": "project_report_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/projects/{project_id}/rules",
+   "func": "list_rules",
+   "file": "project_rules_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "PATCH",
+   "path": "/api/projects/{project_id}/rules/{rule_id}",
+   "func": "update_rule",
+   "file": "project_rules_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/projects/{project_id}/rules/{rule_id}/approve",
+   "func": "approve_rule",
+   "file": "project_rules_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/projects/{project_id}/rules/{rule_id}/reject",
+   "func": "reject_rule",
+   "file": "project_rules_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/settings",
+   "func": "get_settings",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "PUT",
+   "path": "/api/settings",
+   "func": "put_settings",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/usage/cost",
+   "func": "get_cost",
+   "file": "usage_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/api/usage/stats",
+   "func": "get_stats",
+   "file": "usage_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": "`since`/`until` = unix timestamp (secunde); webui le calculează din",
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/api/video",
+   "func": "api_video",
+   "file": "workdir/projects/ebcd14e0ea45/svai-imggen/video_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/control/",
+   "func": "internal_control",
+   "file": "workdir/opensms/app/services/postApi.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/episodes/{episode_id}",
+   "func": "get_episode",
+   "file": "workdir/projects/81dd4b7547d9/robo-med-patch/app.py",
+   "label": null,
+   "kind": "http",
+   "doc": "One stored episode with the patient's demographics (email is never returned).",
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/favicon.ico",
+   "func": "favicon",
+   "file": "workdir/projects/81dd4b7547d9/robo-med-patch/app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/health",
+   "func": "health",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": "Health check endpoint. Returnează status ok.",
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/health",
+   "func": "health",
+   "file": "workdir/projects/81dd4b7547d9/robo-med-patch/app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/intake",
+   "func": "intake",
+   "file": "workdir/projects/81dd4b7547d9/robo-med-patch/app.py",
+   "label": null,
+   "kind": "http",
+   "doc": "Validate demographics + pillars (min 2 of 3) and store a new episode.",
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/patients/{patient_id}/episodes",
+   "func": "list_episodes",
+   "file": "workdir/projects/81dd4b7547d9/robo-med-patch/app.py",
+   "label": null,
+   "kind": "http",
+   "doc": "Episode ids for a patient, oldest first (basis for the evolution section).",
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/projects",
+   "func": "projects_page",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/report",
+   "func": "report_route",
+   "file": "workdir/projects/81dd4b7547d9/robo-med-patch/app.py",
+   "label": null,
+   "kind": "http",
+   "doc": "Synthesize a Romanian opinion report from an already-computed /search result.",
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/search",
+   "func": "search_articles",
+   "file": "workdir/projects/81dd4b7547d9/robo-med-patch/app.py",
+   "label": null,
+   "kind": "http",
+   "doc": "Rank source articles for a patient question (retrieval only, no opinion yet).",
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/settings",
+   "func": "settings_page",
+   "file": "app.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/sms",
+   "func": "send",
+   "file": "workdir/arhiva-opensms/mini_sms/sms_api.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/sms",
+   "func": "send",
+   "file": "workdir/mini_sms/sms_api.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/sms/",
+   "func": "process_sms_req",
+   "file": "workdir/opensms/app/services/postApi.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/sms/",
+   "func": "process_sms_req",
+   "file": "workdir/opensms/app/services/postFlask.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/video",
+   "func": "video_page",
+   "file": "workdir/projects/ebcd14e0ea45/svai-imggen/video_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "POST",
+   "path": "/video/generate",
+   "func": "video_generate",
+   "file": "workdir/projects/ebcd14e0ea45/svai-imggen/video_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/video/progress",
+   "func": "video_progress",
+   "file": "workdir/projects/ebcd14e0ea45/svai-imggen/video_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": "GET",
+   "path": "/videos/<path:name>",
+   "func": "serve_video",
+   "file": "workdir/projects/ebcd14e0ea45/svai-imggen/video_routes.py",
+   "label": null,
+   "kind": "http",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": null,
+   "path": "add",
+   "func": "cmd_add",
+   "file": "workdir/projects/ebcd14e0ea45/demo_code_task/expenses.py",
+   "label": null,
+   "kind": "cli",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": null,
+   "path": "list",
+   "func": "cmd_list",
+   "file": "workdir/projects/ebcd14e0ea45/demo_code_task/expenses.py",
+   "label": null,
+   "kind": "cli",
+   "doc": null,
+   "origin": "unknown"
+  },
+  {
+   "method": null,
+   "path": "total",
+   "func": "cmd_total",
+   "file": "workdir/projects/ebcd14e0ea45/demo_code_task/expenses.py",
+   "label": null,
+   "kind": "cli",
+   "doc": null,
+   "origin": "unknown"
+  }
+ ],
+ "tables": {
+  "chat_digests": [
+   "chat_id",
+   "project_id",
+   "chat_title",
+   "summary",
+   "log_cursor",
+   "updated_at"
+  ],
+  "folder_chunks": [
+   "content",
+   "project_id",
+   "folder_id",
+   "relpath",
+   "chunk_no"
+  ],
+  "folder_chunks_config": [
+   "k",
+   "v"
+  ],
+  "folder_chunks_content": [
+   "id",
+   "c0",
+   "c1",
+   "c2",
+   "c3",
+   "c4"
+  ],
+  "folder_chunks_data": [
+   "id",
+   "block"
+  ],
+  "folder_chunks_docsize": [
+   "id",
+   "sz"
+  ],
+  "folder_chunks_idx": [
+   "segid",
+   "term",
+   "pgno"
+  ],
+  "folder_files": [
+   "folder_id",
+   "relpath",
+   "mtime",
+   "size"
+  ],
+  "kb_chunks": [
+   "content",
+   "project_id",
+   "file_id",
+   "chunk_no"
+  ],
+  "kb_chunks_config": [
+   "k",
+   "v"
+  ],
+  "kb_chunks_content": [
+   "id",
+   "c0",
+   "c1",
+   "c2",
+   "c3"
+  ],
+  "kb_chunks_data": [
+   "id",
+   "block"
+  ],
+  "kb_chunks_docsize": [
+   "id",
+   "sz"
+  ],
+  "kb_chunks_idx": [
+   "segid",
+   "term",
+   "pgno"
+  ],
+  "kb_files": [
+   "id",
+   "project_id",
+   "filename",
+   "mime",
+   "size",
+   "status",
+   "error",
+   "summary",
+   "text",
+   "created_at",
+   "ready_at"
+  ],
+  "project_archive": [
+   "content",
+   "project_id",
+   "chat_id",
+   "chat_title",
+   "ts",
+   "role"
+  ],
+  "project_archive_config": [
+   "k",
+   "v"
+  ],
+  "project_archive_content": [
+   "id",
+   "c0",
+   "c1",
+   "c2",
+   "c3",
+   "c4",
+   "c5"
+  ],
+  "project_archive_data": [
+   "id",
+   "block"
+  ],
+  "project_archive_docsize": [
+   "id",
+   "sz"
+  ],
+  "project_archive_idx": [
+   "segid",
+   "term",
+   "pgno"
+  ],
+  "project_facts": [
+   "id",
+   "project_id",
+   "category",
+   "text",
+   "event_date",
+   "source_chat_id",
+   "source_chat_title",
+   "created_at",
+   "status",
+   "superseded_by",
+   "superseded_at"
+  ],
+  "project_folders": [
+   "id",
+   "project_id",
+   "path",
+   "mode",
+   "note",
+   "indexable",
+   "map_sig",
+   "map_text",
+   "index_status",
+   "index_error",
+   "indexed_files",
+   "indexed_at",
+   "created_at",
+   "updated_at"
+  ],
+  "project_reports": [
+   "id",
+   "project_id",
+   "chat_id",
+   "path",
+   "created_at",
+   "updated_at"
+  ],
+  "project_rules": [
+   "id",
+   "project_id",
+   "category",
+   "text",
+   "status",
+   "supersedes",
+   "superseded_by",
+   "source_chat_id",
+   "source_chat_title",
+   "created_at",
+   "decided_at"
+  ],
+  "projects": [
+   "id",
+   "title",
+   "description",
+   "prompt",
+   "created_at",
+   "updated_at",
+   "model",
+   "voice_only"
+  ],
+  "usage_log": [
+   "id",
+   "ts",
+   "model",
+   "purpose",
+   "chat_id",
+   "project_id",
+   "prompt_tokens",
+   "cache_hit_tokens",
+   "cache_miss_tokens",
+   "completion_tokens",
+   "latency_ms",
+   "cost_usd"
+  ]
+ },
+ "schema_source": "sqlite-live",
+ "web": {
+  "files": [
+   {
+    "path": "webui/api.js",
+    "lines": 11
+   },
+   {
+    "path": "webui/app.js",
+    "lines": 125
+   },
+   {
+    "path": "webui/attachments.js",
+    "lines": 68
+   },
+   {
+    "path": "webui/chat-list.js",
+    "lines": 294
+   },
+   {
+    "path": "webui/css/messages.css",
+    "lines": 920
+   },
+   {
+    "path": "webui/css/project_memory.css",
+    "lines": 327
+   },
+   {
+    "path": "webui/folder_browser.js",
+    "lines": 148
+   },
+   {
+    "path": "webui/index.html",
+    "lines": 62,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "webui/message-log.js",
+    "lines": 212
+   },
+   {
+    "path": "webui/notify.js",
+    "lines": 75
+   },
+   {
+    "path": "webui/project_folders.js",
+    "lines": 209
+   },
+   {
+    "path": "webui/project_memory.js",
+    "lines": 212
+   },
+   {
+    "path": "webui/project_reports.js",
+    "lines": 93
+   },
+   {
+    "path": "webui/project_rules.js",
+    "lines": 142
+   },
+   {
+    "path": "webui/projects.html",
+    "lines": 33,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "webui/projects.js",
+    "lines": 246
+   },
+   {
+    "path": "webui/settings.html",
+    "lines": 113,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "webui/settings.js",
+    "lines": 136
+   },
+   {
+    "path": "webui/token-rate.js",
+    "lines": 58
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/AES.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Acknowledgements.html",
+    "lines": 57,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Additional Security Requirements and Precautions.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Argon2id.html",
+    "lines": 174,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Authenticity and Integrity.html",
+    "lines": 48,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Authors.html",
+    "lines": 41,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Avoid Third-Party File Extensions.html",
+    "lines": 84,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/BLAKE2b-512.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/BLAKE2s-256.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Beginner's Tutorial.html",
+    "lines": 206,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Camellia.html",
+    "lines": 46,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Cascades.html",
+    "lines": 91,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Changing Passwords and Keyfiles.html",
+    "lines": 55,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Choosing Passwords and Keyfiles.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Command Line Usage for Unix.html",
+    "lines": 340,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Command Line Usage for Windows.html",
+    "lines": 343,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Command Line Usage.html",
+    "lines": 45,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/CompilingGuidelineLinux.html",
+    "lines": 311,
+    "inline_js": 0,
+    "inline_css": 18
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/CompilingGuidelineWin.html",
+    "lines": 589,
+    "inline_js": 0,
+    "inline_css": 18
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/CompilingGuidelines.html",
+    "lines": 46,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Contact.html",
+    "lines": 53,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Contributed Resources.html",
+    "lines": 64,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Conversion_Guide_VeraCrypt_1.26_and_Later.html",
+    "lines": 99,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Converting TrueCrypt volumes and partitions.html",
+    "lines": 46,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Creating New Volumes.html",
+    "lines": 111,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Data Leaks.html",
+    "lines": 72,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Default Mount Parameters.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Defragmenting.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Digital Signatures.html",
+    "lines": 105,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Disclaimers.html",
+    "lines": 46,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Documentation.html",
+    "lines": 168,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Donation.html",
+    "lines": 157,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/EFISecureBoot.html",
+    "lines": 244,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/EMV Smart Cards.html",
+    "lines": 87,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Encryption Algorithms.html",
+    "lines": 271,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Encryption Scheme.html",
+    "lines": 93,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/FAQ.html",
+    "lines": 770,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Favorite Volumes.html",
+    "lines": 114,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Hardware Acceleration.html",
+    "lines": 68,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Hash Algorithms.html",
+    "lines": 65,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Header Key Derivation.html",
+    "lines": 102,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Hibernation File.html",
+    "lines": 66,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Hidden Operating System.html",
+    "lines": 48,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Hidden Volume.html",
+    "lines": 96,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Hot Keys.html",
+    "lines": 39,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/How to Back Up Securely.html",
+    "lines": 111,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Incompatibilities.html",
+    "lines": 80,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Introduction.html",
+    "lines": 55,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Issues and Limitations.html",
+    "lines": 109,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Journaling File Systems.html",
+    "lines": 45,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Key Derivation Algorithms.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Keyfiles in VeraCrypt.html",
+    "lines": 235,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Keyfiles.html",
+    "lines": 222,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Kuznyechik.html",
+    "lines": 43,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Language Packs.html",
+    "lines": 53,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Legal Information.html",
+    "lines": 67,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Main Program Window.html",
+    "lines": 109,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Malware.html",
+    "lines": 60,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Memory Dump Files.html",
+    "lines": 64,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Miscellaneous.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Modes of Operation.html",
+    "lines": 129,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Mounting VeraCrypt Volumes.html",
+    "lines": 75,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Multi-User Environment.html",
+    "lines": 54,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Normal Unmount vs Force Unmount.html",
+    "lines": 76,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Notation.html",
+    "lines": 87,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Paging File.html",
+    "lines": 74,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Parallelization.html",
+    "lines": 49,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Personal Iterations Multiplier (PIM).html",
+    "lines": 156,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Physical Security.html",
+    "lines": 55,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Pipelining.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Plausible Deniability.html",
+    "lines": 76,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Portable Mode.html",
+    "lines": 86,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Preface.html",
+    "lines": 42,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Program Menu.html",
+    "lines": 207,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Protection of Hidden Volumes.html",
+    "lines": 126,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Random Number Generator.html",
+    "lines": 92,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Reallocated Sectors.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/References.html",
+    "lines": 237,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Release Notes.html",
+    "lines": 1484,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Removable Medium Volume.html",
+    "lines": 55,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Removing Encryption.html",
+    "lines": 79,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/SHA-256.html",
+    "lines": 42,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/SHA-512.html",
+    "lines": 42,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/SM4.html",
+    "lines": 71,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Security Model.html",
+    "lines": 113,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Security Requirements and Precautions.html",
+    "lines": 89,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Security Requirements for Hidden Volumes.html",
+    "lines": 172,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Security Tokens & Smart Cards.html",
+    "lines": 40,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Serpent.html",
+    "lines": 53,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Sharing over Network.html",
+    "lines": 55,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Source Code.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Standard Compliance.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Streebog.html",
+    "lines": 43,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Supported Operating Systems.html",
+    "lines": 60,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Supported Systems for System Encryption.html",
+    "lines": 57,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/System Encryption.html",
+    "lines": 85,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/System Favorite Volumes.html",
+    "lines": 86,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Technical Details.html",
+    "lines": 67,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Trim Operation.html",
+    "lines": 58,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Troubleshooting.html",
+    "lines": 453,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/TrueCrypt Support.html",
+    "lines": 43,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Twofish.html",
+    "lines": 45,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Unencrypted Data in RAM.html",
+    "lines": 76,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Uninstalling VeraCrypt.html",
+    "lines": 49,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Using VeraCrypt Without Administrator Privileges.html",
+    "lines": 60,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/VeraCrypt Background Task.html",
+    "lines": 53,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/VeraCrypt Hidden Operating System.html",
+    "lines": 258,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/VeraCrypt License.html",
+    "lines": 439,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/VeraCrypt Memory Protection.html",
+    "lines": 105,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/VeraCrypt RAM Encryption.html",
+    "lines": 157,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/VeraCrypt Rescue Disk.html",
+    "lines": 207,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/VeraCrypt System Files.html",
+    "lines": 105,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/VeraCrypt Volume Format Specification.html",
+    "lines": 738,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/VeraCrypt Volume.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Volume Clones.html",
+    "lines": 45,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Wear-Leveling.html",
+    "lines": 63,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/Whirlpool.html",
+    "lines": 45,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/donation.js",
+    "lines": 9
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/pbkdf2.html",
+    "lines": 80,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/en/styles.css",
+    "lines": 176
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/AES.html",
+    "lines": 57,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Acknowledgements.html",
+    "lines": 59,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Additional Security Requirements and Precautions.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Argon2id.html",
+    "lines": 174,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Authenticity and Integrity.html",
+    "lines": 53,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Authors.html",
+    "lines": 43,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Avoid Third-Party File Extensions.html",
+    "lines": 84,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/BLAKE2b-512.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/BLAKE2s-256.html",
+    "lines": 58,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Beginner's Tutorial.html",
+    "lines": 243,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Camellia.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Cascades.html",
+    "lines": 91,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Changing Passwords and Keyfiles.html",
+    "lines": 55,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Choosing Passwords and Keyfiles.html",
+    "lines": 59,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Command Line Usage for Unix.html",
+    "lines": 339,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Command Line Usage for Windows.html",
+    "lines": 339,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Command Line Usage.html",
+    "lines": 45,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/CompilingGuidelineLinux.html",
+    "lines": 312,
+    "inline_js": 0,
+    "inline_css": 18
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/CompilingGuidelineWin.html",
+    "lines": 583,
+    "inline_js": 0,
+    "inline_css": 18
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/CompilingGuidelines.html",
+    "lines": 46,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Contact.html",
+    "lines": 54,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Contributed Resources.html",
+    "lines": 64,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Conversion_Guide_VeraCrypt_1.26_and_Later.html",
+    "lines": 100,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Converting TrueCrypt volumes and partitions.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Creating New Volumes.html",
+    "lines": 133,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Data Leaks.html",
+    "lines": 90,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Default Mount Parameters.html",
+    "lines": 57,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Defragmenting.html",
+    "lines": 52,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Digital Signatures.html",
+    "lines": 121,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Disclaimers.html",
+    "lines": 54,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Documentation.html",
+    "lines": 171,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Donation.html",
+    "lines": 155,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/EFISecureBoot.html",
+    "lines": 242,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/EMV Smart Cards.html",
+    "lines": 85,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Encryption Algorithms.html",
+    "lines": 271,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Encryption Scheme.html",
+    "lines": 108,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/FAQ.html",
+    "lines": 912,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Favorite Volumes.html",
+    "lines": 132,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Hardware Acceleration.html",
+    "lines": 86,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Hash Algorithms.html",
+    "lines": 64,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Header Key Derivation.html",
+    "lines": 114,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Hibernation File.html",
+    "lines": 84,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Hidden Operating System.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Hidden Volume.html",
+    "lines": 122,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Hot Keys.html",
+    "lines": 40,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/How to Back Up Securely.html",
+    "lines": 136,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Incompatibilities.html",
+    "lines": 94,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Introduction.html",
+    "lines": 74,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Issues and Limitations.html",
+    "lines": 176,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Journaling File Systems.html",
+    "lines": 52,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Key Derivation Algorithms.html",
+    "lines": 52,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Keyfiles in VeraCrypt.html",
+    "lines": 298,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Keyfiles.html",
+    "lines": 113,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Kuznyechik.html",
+    "lines": 44,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Language Packs.html",
+    "lines": 54,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Legal Information.html",
+    "lines": 67,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Main Program Window.html",
+    "lines": 135,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Malware.html",
+    "lines": 72,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Memory Dump Files.html",
+    "lines": 71,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Miscellaneous.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Modes of Operation.html",
+    "lines": 133,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Mounting VeraCrypt Volumes.html",
+    "lines": 107,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Multi-User Environment.html",
+    "lines": 61,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Normal Unmount vs Force Unmount.html",
+    "lines": 76,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Notation.html",
+    "lines": 88,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Paging File.html",
+    "lines": 87,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Parallelization.html",
+    "lines": 61,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Personal Iterations Multiplier (PIM).html",
+    "lines": 173,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Physical Security.html",
+    "lines": 66,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Pipelining.html",
+    "lines": 59,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Plausible Deniability.html",
+    "lines": 92,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Portable Mode.html",
+    "lines": 99,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Preface.html",
+    "lines": 42,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Program Menu.html",
+    "lines": 283,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Protection of Hidden Volumes.html",
+    "lines": 144,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Random Number Generator.html",
+    "lines": 118,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Reallocated Sectors.html",
+    "lines": 57,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/References.html",
+    "lines": 237,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Release Notes.html",
+    "lines": 1567,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Removable Medium Volume.html",
+    "lines": 66,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Removing Encryption.html",
+    "lines": 92,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/SHA-256.html",
+    "lines": 44,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/SHA-512.html",
+    "lines": 44,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/SM4.html",
+    "lines": 62,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Security Model.html",
+    "lines": 166,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Security Requirements and Precautions.html",
+    "lines": 94,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Security Requirements for Hidden Volumes.html",
+    "lines": 252,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Security Tokens & Smart Cards.html",
+    "lines": 43,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Serpent.html",
+    "lines": 63,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Sharing over Network.html",
+    "lines": 65,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Source Code.html",
+    "lines": 52,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Standard Compliance.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Streebog.html",
+    "lines": 45,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Supported Operating Systems.html",
+    "lines": 60,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Supported Systems for System Encryption.html",
+    "lines": 60,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/System Encryption.html",
+    "lines": 108,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/System Favorite Volumes.html",
+    "lines": 105,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Technical Details.html",
+    "lines": 67,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Trim Operation.html",
+    "lines": 73,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Troubleshooting.html",
+    "lines": 529,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/TrueCrypt Support.html",
+    "lines": 44,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Twofish.html",
+    "lines": 49,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Unencrypted Data in RAM.html",
+    "lines": 102,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Uninstalling VeraCrypt.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Using VeraCrypt Without Administrator Privileges.html",
+    "lines": 71,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/VeraCrypt Background Task.html",
+    "lines": 61,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/VeraCrypt Hidden Operating System.html",
+    "lines": 359,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/VeraCrypt License.html",
+    "lines": 441,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/VeraCrypt Memory Protection.html",
+    "lines": 105,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/VeraCrypt RAM Encryption.html",
+    "lines": 157,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/VeraCrypt Rescue Disk.html",
+    "lines": 252,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/VeraCrypt System Files.html",
+    "lines": 109,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/VeraCrypt Volume Format Specification.html",
+    "lines": 758,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/VeraCrypt Volume.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Volume Clones.html",
+    "lines": 49,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Wear-Leveling.html",
+    "lines": 83,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/Whirlpool.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/donation.js",
+    "lines": 9
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/pbkdf2.html",
+    "lines": 82,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/ru/styles.css",
+    "lines": 176
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/AES.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Acknowledgements.html",
+    "lines": 59,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Additional Security Requirements and Precautions.html",
+    "lines": 52,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Argon2id.html",
+    "lines": 174,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Authenticity and Integrity.html",
+    "lines": 45,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Authors.html",
+    "lines": 39,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Avoid Third-Party File Extensions.html",
+    "lines": 84,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/BLAKE2b-512.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/BLAKE2s-256.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Beginner's Tutorial.html",
+    "lines": 179,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Camellia.html",
+    "lines": 49,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Cascades.html",
+    "lines": 61,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Changing Passwords and Keyfiles.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Choosing Passwords and Keyfiles.html",
+    "lines": 44,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Command Line Usage for Unix.html",
+    "lines": 339,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Command Line Usage for Windows.html",
+    "lines": 330,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Command Line Usage.html",
+    "lines": 45,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/CompilingGuidelineLinux.html",
+    "lines": 312,
+    "inline_js": 0,
+    "inline_css": 18
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/CompilingGuidelineWin.html",
+    "lines": 584,
+    "inline_js": 0,
+    "inline_css": 18
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/CompilingGuidelines.html",
+    "lines": 46,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Contact.html",
+    "lines": 53,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Contributed Resources.html",
+    "lines": 61,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Conversion_Guide_VeraCrypt_1.26_and_Later.html",
+    "lines": 99,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Converting TrueCrypt volumes and partitions.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Creating New Volumes.html",
+    "lines": 84,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Data Leaks.html",
+    "lines": 63,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Default Mount Parameters.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Defragmenting.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Digital Signatures.html",
+    "lines": 100,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Disclaimers.html",
+    "lines": 43,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Documentation.html",
+    "lines": 168,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Donation.html",
+    "lines": 156,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/EFISecureBoot.html",
+    "lines": 242,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/EMV Smart Cards.html",
+    "lines": 74,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Encryption Algorithms.html",
+    "lines": 270,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Encryption Scheme.html",
+    "lines": 95,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/FAQ.html",
+    "lines": 666,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Favorite Volumes.html",
+    "lines": 99,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Hardware Acceleration.html",
+    "lines": 60,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Hash Algorithms.html",
+    "lines": 71,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Header Key Derivation.html",
+    "lines": 95,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Hibernation File.html",
+    "lines": 51,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Hidden Operating System.html",
+    "lines": 48,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Hidden Volume.html",
+    "lines": 80,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Hot Keys.html",
+    "lines": 39,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/How to Back Up Securely.html",
+    "lines": 76,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Incompatibilities.html",
+    "lines": 76,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Introduction.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Issues and Limitations.html",
+    "lines": 94,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Journaling File Systems.html",
+    "lines": 43,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Key Derivation Algorithms.html",
+    "lines": 52,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Keyfiles in VeraCrypt.html",
+    "lines": 202,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Keyfiles.html",
+    "lines": 171,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Kuznyechik.html",
+    "lines": 40,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Language Packs.html",
+    "lines": 53,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Legal Information.html",
+    "lines": 66,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Main Program Window.html",
+    "lines": 92,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Malware.html",
+    "lines": 55,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Memory Dump Files.html",
+    "lines": 46,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Miscellaneous.html",
+    "lines": 46,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Modes of Operation.html",
+    "lines": 129,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Mounting VeraCrypt Volumes.html",
+    "lines": 61,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Multi-User Environment.html",
+    "lines": 47,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Normal Unmount vs Force Unmount.html",
+    "lines": 76,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Notation.html",
+    "lines": 87,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Paging File.html",
+    "lines": 55,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Parallelization.html",
+    "lines": 52,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Personal Iterations Multiplier (PIM).html",
+    "lines": 153,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Physical Security.html",
+    "lines": 49,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Pipelining.html",
+    "lines": 48,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Plausible Deniability.html",
+    "lines": 65,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Portable Mode.html",
+    "lines": 72,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Preface.html",
+    "lines": 42,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Program Menu.html",
+    "lines": 175,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Protection of Hidden Volumes.html",
+    "lines": 106,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Random Number Generator.html",
+    "lines": 101,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Reallocated Sectors.html",
+    "lines": 41,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/References.html",
+    "lines": 235,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Release Notes.html",
+    "lines": 1478,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Removable Medium Volume.html",
+    "lines": 52,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Removing Encryption.html",
+    "lines": 67,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/SHA-256.html",
+    "lines": 44,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/SHA-512.html",
+    "lines": 42,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/SM4.html",
+    "lines": 63,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Security Model.html",
+    "lines": 95,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Security Requirements and Precautions.html",
+    "lines": 88,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Security Requirements for Hidden Volumes.html",
+    "lines": 131,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Security Tokens & Smart Cards.html",
+    "lines": 38,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Serpent.html",
+    "lines": 48,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Sharing over Network.html",
+    "lines": 49,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Source Code.html",
+    "lines": 50,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Standard Compliance.html",
+    "lines": 46,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Streebog.html",
+    "lines": 41,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Supported Operating Systems.html",
+    "lines": 59,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Supported Systems for System Encryption.html",
+    "lines": 57,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/System Encryption.html",
+    "lines": 73,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/System Favorite Volumes.html",
+    "lines": 70,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Technical Details.html",
+    "lines": 67,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Trim Operation.html",
+    "lines": 57,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Troubleshooting.html",
+    "lines": 436,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/TrueCrypt Support.html",
+    "lines": 42,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Twofish.html",
+    "lines": 43,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Unencrypted Data in RAM.html",
+    "lines": 69,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Uninstalling VeraCrypt.html",
+    "lines": 49,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Using VeraCrypt Without Administrator Privileges.html",
+    "lines": 56,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt Background Task.html",
+    "lines": 53,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt Hidden Operating System.html",
+    "lines": 173,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt License.html",
+    "lines": 353,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt Memory Protection.html",
+    "lines": 105,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt RAM Encryption.html",
+    "lines": 156,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt Rescue Disk.html",
+    "lines": 174,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt System Files.html",
+    "lines": 104,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt Volume Format Specification.html",
+    "lines": 727,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt Volume.html",
+    "lines": 46,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Volume Clones.html",
+    "lines": 41,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Wear-Leveling.html",
+    "lines": 48,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/Whirlpool.html",
+    "lines": 43,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/donation.js",
+    "lines": 9
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/pbkdf2.html",
+    "lines": 82,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/VeraCrypt/doc/html/zh-cn/styles.css",
+    "lines": 176
+   },
+   {
+    "path": "workdir/VeraCrypt/src/License.html",
+    "lines": 252,
+    "inline_js": 0,
+    "inline_css": 3
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/.ladle/index.html",
+    "lines": 12,
+    "inline_js": 0,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/.ladle/ladle.css",
+    "lines": 10
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/index.html",
+    "lines": 126,
+    "inline_js": 69,
+    "inline_css": 0
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/public/sw.js",
+    "lines": 197
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/src/app.css",
+    "lines": 1101
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/src/components/ui/markdown-code-highlight.css",
+    "lines": 62
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/src/components/ui/theme.css",
+    "lines": 1090
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/examples/plugins/composer-customization/app.css",
+    "lines": 38
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/examples/plugins/content-script/app.css",
+    "lines": 4
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/plugins/inline-vis/skills/inline-vis/example.html",
+    "lines": 142,
+    "inline_js": 9,
+    "inline_css": 62
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/plugins/monaco-editor/monaco-bundle/editor.js",
+    "lines": 18
+   },
+   {
+    "path": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/plugins/monaco-editor/monaco-bundle/worker.js",
+    "lines": 6
+   }
+  ],
+  "theme_file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/src/components/ui/theme.css",
+  "css_vars": [
+   "--accent",
+   "--accent-foreground",
+   "--animate-spin",
+   "--ansi-0",
+   "--ansi-1",
+   "--ansi-10",
+   "--ansi-11",
+   "--ansi-12",
+   "--ansi-13",
+   "--ansi-14",
+   "--ansi-15",
+   "--ansi-2",
+   "--ansi-3",
+   "--ansi-4",
+   "--ansi-5",
+   "--ansi-6",
+   "--ansi-7",
+   "--ansi-8",
+   "--ansi-9",
+   "--ansi-bg-fg-0",
+   "--ansi-bg-fg-1",
+   "--ansi-bg-fg-10",
+   "--ansi-bg-fg-11",
+   "--ansi-bg-fg-12",
+   "--ansi-bg-fg-13",
+   "--ansi-bg-fg-14",
+   "--ansi-bg-fg-15",
+   "--ansi-bg-fg-2",
+   "--ansi-bg-fg-3",
+   "--ansi-bg-fg-4",
+   "--ansi-bg-fg-5",
+   "--ansi-bg-fg-6",
+   "--ansi-bg-fg-7",
+   "--ansi-bg-fg-8",
+   "--ansi-bg-fg-9",
+   "--attention",
+   "--background",
+   "--bb-sidebar-open-in-split-background",
+   "--bb-sidebar-row-height",
+   "--bb-sidebar-row-height-coarse",
+   "--bb-sidebar-sticky-child-row-gap",
+   "--bb-sidebar-sticky-label-gap",
+   "--bb-sidebar-sticky-label-height",
+   "--bb-sidebar-sticky-label-top",
+   "--bb-sidebar-sticky-parent-base-top",
+   "--bb-sidebar-sticky-parent-base-z",
+   "--bb-sidebar-sticky-parent-stride",
+   "--bb-sidebar-sticky-project-top",
+   "--bb-sidebar-sticky-row-gap",
+   "--bb-sidebar-sticky-row-height",
+   "--bb-sidebar-sticky-stack-padding",
+   "--bb-sidebar-sticky-stack-padding-top",
+   "--bb-sidebar-sticky-tier-height",
+   "--bb-sidebar-sticky-tier-shield-bottom-height",
+   "--bb-sidebar-sticky-tier-shield-top-height",
+   "--bb-sidebar-sticky-tier-top",
+   "--bb-sidebar-sticky-tier-z-index",
+   "--border",
+   "--border-hairline",
+   "--border-seam",
+   "--border-seam-vertical",
+   "--brand-discord",
+   "--canvas",
+   "--card",
+   "--card-foreground",
+   "--color-accent",
+   "--color-accent-foreground",
+   "--color-attention",
+   "--color-background",
+   "--color-border",
+   "--color-border-hairline",
+   "--color-border-seam",
+   "--color-border-seam-vertical",
+   "--color-brand-discord",
+   "--color-card",
+   "--color-card-foreground",
+   "--color-composer",
+   "--color-destructive",
+   "--color-destructive-foreground",
+   "--color-destructive-text",
+   "--color-diff-added",
+   "--color-diff-removed",
+   "--color-file-accent",
+   "--color-foreground",
+   "--color-input",
+   "--color-muted",
+   "--color-muted-foreground",
+   "--color-popover",
+   "--color-popover-foreground",
+   "--color-pr-merged",
+   "--color-primary",
+   "--color-primary-foreground",
+   "--color-primary-text",
+   "--color-readback-foreground",
+   "--color-ring",
+   "--color-secondary",
+   "--color-secondary-foreground",
+   "--color-sidebar",
+   "--color-sidebar-accent",
+   "--color-sidebar-accent-foreground",
+   "--color-sidebar-border",
+   "--color-sidebar-foreground",
+   "--color-sidebar-ring",
+   "--color-state-active",
+   "--color-state-hover",
+   "--color-subtle-foreground",
+   "--color-success",
+   "--color-success-foreground",
+   "--color-surface-attention",
+   "--color-surface-destructive",
+   "--color-surface-destructive-border",
+   "--color-surface-raised",
+   "--color-surface-raised-solid",
+   "--color-surface-recessed",
+   "--color-surface-recessed-soft-solid",
+   "--color-surface-recessed-solid",
+   "--color-surface-scrim",
+   "--color-surface-selected",
+   "--color-surface-selected-border",
+   "--color-timeline-accent",
+   "--color-version-upgrade",
+   "--color-warning",
+   "--color-warning-text",
+   "--composer",
+   "--destructive",
+   "--destructive-foreground",
+   "--destructive-text",
+   "--diff-added",
+   "--diff-removed",
+   "--diffs-dark",
+   "--diffs-dark-addition-color",
+   "--diffs-dark-bg",
+   "--diffs-dark-deletion-color",
+   "--diffs-light",
+   "--diffs-light-addition-color",
+   "--diffs-light-bg",
+   "--diffs-light-deletion-color",
+   "--file-accent",
+   "--font-mono",
+   "--font-sans",
+   "--font-serif",
+   "--font-terminal",
+   "--foreground",
+   "--icon-stroke-width",
+   "--ink",
+   "--input",
+   "--muted",
+   "--muted-foreground",
+   "--pill-foreground",
+   "--pill-icon",
+   "--pill-shadow",
+   "--pill-surface",
+   "--pill-surface-border",
+   "--pill-surface-selected",
+   "--pill-surface-selected-border",
+   "--popover",
+   "--popover-foreground",
+   "--pr-merged",
+   "--primary",
+   "--primary-foreground",
+   "--primary-text",
+   "--radius",
+   "--radius-lg",
+   "--radius-md",
+   "--radius-sm",
+   "--radius-xl",
+   "--readback-foreground",
+   "--resource-source-shelf-action-block",
+   "--resource-source-shelf-action-inline",
+   "--resource-source-shelf-inset",
+   "--resource-source-shelf-label-gap",
+   "--resource-source-shelf-section-gap",
+   "--ring",
+   "--secondary",
+   "--secondary-foreground",
+   "--shadow",
+   "--shadow-2xl",
+   "--shadow-2xs",
+   "--shadow-blur",
+   "--shadow-color",
+   "--shadow-lg",
+   "--shadow-lift",
+   "--shadow-md",
+   "--shadow-message",
+   "--shadow-opacity",
+   "--shadow-sm",
+   "--shadow-spread",
+   "--shadow-x",
+   "--shadow-xl",
+   "--shadow-xs",
+   "--shadow-y",
+   "--shine-icon-edge-opacity",
+   "--sidebar",
+   "--sidebar-accent",
+   "--sidebar-accent-foreground",
+   "--sidebar-border",
+   "--sidebar-foreground",
+   "--sidebar-ring",
+   "--sidebar-search-match",
+   "--sidebar-search-match-border",
+   "--skill-mention-foreground",
+   "--spacing",
+   "--state-active",
+   "--state-hover",
+   "--subtle-foreground",
+   "--success",
+   "--success-foreground",
+   "--surface-attention",
+   "--surface-destructive",
+   "--surface-destructive-border",
+   "--surface-raised",
+   "--surface-raised-solid",
+   "--surface-recessed",
+   "--surface-recessed-soft-solid",
+   "--surface-recessed-solid",
+   "--surface-scrim",
+   "--surface-selected",
+   "--surface-selected-border",
+   "--text-2xs",
+   "--text-2xs--line-height",
+   "--text-base",
+   "--text-base--line-height",
+   "--text-sm",
+   "--text-sm--line-height",
+   "--text-xs",
+   "--text-xs--line-height",
+   "--timeline-accent",
+   "--tracking-normal",
+   "--version-upgrade",
+   "--warning",
+   "--warning-text"
+  ],
+  "favicon": true
+ },
+ "sparu": [
+  {
+   "file": "agent.py",
+   "issue": "460 linii > 300"
+  },
+  {
+   "file": "app.py",
+   "issue": "315 linii > 300"
+  },
+  {
+   "file": "r0code/r0code.py",
+   "issue": "924 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/.github/workflows/validate_translation_formats.py",
+   "issue": "329 linii > 300"
+  },
+  {
+   "file": "workdir/opensms/app/main.py",
+   "issue": "562 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/build_oferta_db.py",
+   "issue": "383 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_allinone_docs.py",
+   "issue": "424 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_allinone_oferte.py",
+   "issue": "315 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_allinone_xlsx.py",
+   "issue": "301 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_anexa_calcul_xlsx.py",
+   "issue": "444 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_anexa_studii.py",
+   "issue": "345 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_casa_docs.py",
+   "issue": "462 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_casa_oferte.py",
+   "issue": "382 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_casa_xlsx.py",
+   "issue": "336 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_cjvr_docs.py",
+   "issue": "843 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_cjvr_xlsx.py",
+   "issue": "368 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_lic_docs.py",
+   "issue": "594 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_lic_oferte.py",
+   "issue": "507 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_lic_xlsx.py",
+   "issue": "419 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_linkuri.py",
+   "issue": "501 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_mf.py",
+   "issue": "471 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_mf_oferte.py",
+   "issue": "340 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_mf_xlsx.py",
+   "issue": "311 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_nc_docs.py",
+   "issue": "832 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_nota_principala.py",
+   "issue": "350 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_note_comasate.py",
+   "issue": "411 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_note_santier.py",
+   "issue": "664 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_oferta.py",
+   "issue": "320 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/gen_oferte_finale.py",
+   "issue": "309 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/verifica_anexa_xlsx.py",
+   "issue": "385 linii > 300"
+  },
+  {
+   "file": "workdir/projects/7c8155f8f195/verifica_note_santier_excel.py",
+   "issue": "340 linii > 300"
+  },
+  {
+   "file": "workdir/projects/81dd4b7547d9/bench/report3.py",
+   "issue": "331 linii > 300"
+  },
+  {
+   "file": "workdir/projects/81dd4b7547d9/svai-info.py",
+   "issue": "462 linii > 300"
+  },
+  {
+   "file": "workdir/projects/81dd4b7547d9/svai_info.py",
+   "issue": "462 linii > 300"
+  },
+  {
+   "file": "workdir/projects/81dd4b7547d9/sysinfo.py",
+   "issue": "862 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/r0code/r0code.py",
+   "issue": "924 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/install/update.py",
+   "issue": "405 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/src/preview/client.py",
+   "issue": "1436 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/src/sync/client.py",
+   "issue": "525 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/core/src/sync/files.py",
+   "issue": "785 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/server/src/assets/cloudroom-preview/client.py",
+   "issue": "1436 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/server/src/assets/cloudroom-sync/client.py",
+   "issue": "525 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/server/src/assets/cloudroom-sync/files.py",
+   "issue": "785 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/plugins/automations/skills/workflow-scan/extract.py",
+   "issue": "408 linii > 300"
+  },
+  {
+   "file": "webui/css/messages.css",
+   "issue": "920 linii > 300"
+  },
+  {
+   "file": "webui/css/project_memory.css",
+   "issue": "327 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/Command Line Usage for Unix.html",
+   "issue": "340 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/Command Line Usage for Windows.html",
+   "issue": "343 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/CompilingGuidelineLinux.html",
+   "issue": "311 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/CompilingGuidelineLinux.html",
+   "issue": "inline JS 0 / CSS 18 linii"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/CompilingGuidelineWin.html",
+   "issue": "589 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/CompilingGuidelineWin.html",
+   "issue": "inline JS 0 / CSS 18 linii"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/FAQ.html",
+   "issue": "770 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/Release Notes.html",
+   "issue": "1484 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/Troubleshooting.html",
+   "issue": "453 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/VeraCrypt License.html",
+   "issue": "439 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/en/VeraCrypt Volume Format Specification.html",
+   "issue": "738 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/Command Line Usage for Unix.html",
+   "issue": "339 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/Command Line Usage for Windows.html",
+   "issue": "339 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/CompilingGuidelineLinux.html",
+   "issue": "312 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/CompilingGuidelineLinux.html",
+   "issue": "inline JS 0 / CSS 18 linii"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/CompilingGuidelineWin.html",
+   "issue": "583 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/CompilingGuidelineWin.html",
+   "issue": "inline JS 0 / CSS 18 linii"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/FAQ.html",
+   "issue": "912 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/Release Notes.html",
+   "issue": "1567 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/Troubleshooting.html",
+   "issue": "529 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/VeraCrypt Hidden Operating System.html",
+   "issue": "359 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/VeraCrypt License.html",
+   "issue": "441 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/ru/VeraCrypt Volume Format Specification.html",
+   "issue": "758 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/Command Line Usage for Unix.html",
+   "issue": "339 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/Command Line Usage for Windows.html",
+   "issue": "330 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/CompilingGuidelineLinux.html",
+   "issue": "312 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/CompilingGuidelineLinux.html",
+   "issue": "inline JS 0 / CSS 18 linii"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/CompilingGuidelineWin.html",
+   "issue": "584 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/CompilingGuidelineWin.html",
+   "issue": "inline JS 0 / CSS 18 linii"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/FAQ.html",
+   "issue": "666 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/Release Notes.html",
+   "issue": "1478 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/Troubleshooting.html",
+   "issue": "436 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt License.html",
+   "issue": "353 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/doc/html/zh-cn/VeraCrypt Volume Format Specification.html",
+   "issue": "727 linii > 300"
+  },
+  {
+   "file": "workdir/VeraCrypt/src/License.html",
+   "issue": "inline JS 0 / CSS 3 linii"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/index.html",
+   "issue": "inline JS 69 / CSS 0 linii"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/src/app.css",
+   "issue": "1101 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/apps/app/src/components/ui/theme.css",
+   "issue": "1090 linii > 300"
+  },
+  {
+   "file": "workdir/projects/ebcd14e0ea45/scratch/cloudroom/gui/plugins/inline-vis/skills/inline-vis/example.html",
+   "issue": "inline JS 9 / CSS 62 linii"
+  }
+ ]
+}

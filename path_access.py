@@ -1,6 +1,7 @@
 """Unde poate lucra un agent pe disc: workdir-ul propriu (separat per
 proiect) plus folderele legate de proiect (ro = doar citire, rw = și
-scriere). Fișierele cu secrete nu se citesc nicăieri prin fs_read.
+scriere) pentru scriere; citirea e liberă oriunde. Fișierele cu secrete nu se
+afișează prin fs_read.
 
 Shell-ul nu e restricționat aici: modul ro e impus doar la fs_write,
 iar pentru shell rămâne regulă în prompt (vezi folder_map.py)."""
@@ -58,9 +59,8 @@ def read_error(agent: Any, full_path: str, shown_path: str) -> str | None:
     """Mesajul de refuz pentru citire/listare, sau None dacă e permisă."""
     if is_secret(full_path):
         return f"Eroare: '{shown_path}' pare să conțină secrete (chei, parole). Acces refuzat."
-    if _inside(getattr(agent, "workdir", BASE_WORKDIR), full_path) or folder_for(agent, full_path):
-        return None
-    return f"Eroare: calea '{shown_path}' iese în afara workdir și a folderelor proiectului. Acces refuzat."
+    # citirea e permisă oriunde pe disc (decizia lui Sorin, 2026-11-07); doar scrierea are zone
+    return None
 
 
 def write_policy(agent: Any, full_path: str) -> str:

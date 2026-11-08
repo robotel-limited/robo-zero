@@ -6,11 +6,15 @@ llm:
   timeout_seconds: 300  # 300 decizia Sorin 2026-11-01 (era 120; prompt eval lung la modele locale)
   max_retries: 3
   retry_backoff_seconds: [2, 4, 8]
+  temperature: 0.0          # determinism — temp 1.0 + seed aleator dădeau măsurători nereproductibile (2026-11-07)
+  seed: 42
+  max_tokens: 1200          # sub 1000, răspunsurile cu preambul + apeluri de unelte se trunchiază (finish=length)
 
 agent:
   workdir: /srv/robo-zero/workdir
   max_iterations: 50
   max_subordinate_depth: 3
+  tool_choice: required     # forțează apelul de unealtă (repară eșecul tip A4); auto-recall mutat pe break_text (vezi agent.py)
   repetition_warn_count: 3
   repetition_abort_count: 5
 

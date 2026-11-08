@@ -131,7 +131,7 @@ async def compact_if_needed(
     tail_start = _safe_tail_start(history, max(1, len(history) - KEEP_LAST_MESSAGES))
     middle = history[1:tail_start]
     if middle:
-        summary_text = await _summarize(middle)
+        summary_text = await _summarize(middle, model=model)
         summary_message = {
             "role": "assistant",
             "content": f"[Rezumat automat al conversației anterioare]\n{summary_text}",
@@ -144,7 +144,7 @@ async def compact_if_needed(
     return result
 
 
-async def _summarize(messages: list[dict[str, Any]]) -> str:
+async def _summarize(messages: list[dict[str, Any]], model: str | None = None) -> str:
     transcript = "\n".join(_format_message(m) for m in messages)
     prompt = [
         {
@@ -158,7 +158,7 @@ async def _summarize(messages: list[dict[str, Any]]) -> str:
         },
         {"role": "user", "content": transcript},
     ]
-    response = await llm.chat(prompt, purpose="compaction")
+    response = await llm.chat(prompt, purpose="compaction", model=model)
     return response.content or "(rezumat indisponibil)"
 
 

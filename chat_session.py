@@ -16,6 +16,7 @@ import project_hooks
 import settings_store
 import usage_log
 from agent import Agent, AgentCancelled, AgentError
+from llm import ModelToolingUnsupportedError
 from notifications import notify_task_ready
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
@@ -126,6 +127,24 @@ class ChatSession:
         except AgentCancelled:
             self.agent.history = history.sanitize(self.agent.history)
             self._append_log("cancelled", text="Rulare anulată de utilizator.")
+        except ModelToolingUnsupportedError as e:
+            # Modelul a generat el însuși un apel de tool stricat; provider-ul
+            # l-a respins. Mesajul stricat e deja în istoric (agent.py îl scrie
+            # înainte de execuție), deci acest chat rămâne otrăvit — orice
+            # mesaj nou va lovi aceeași eroare. Pași clari, în engleză, ca
+            # orice utilizator să știe ce are de făcut, nu doar JSON brut.
+            self._append_log(
+                "error",
+                text=(
+                    f"{e}\n\n"
+                    "This chat cannot continue — the broken tool call is now baked "
+                    "into its history and every retry will repeat this error.\n"
+                    "What to do:\n"
+                    "1. Delete this chat.\n"
+                    "2. Pick a different model.\n"
+                    "3. Start a new chat and resume the task there."
+                ),
+            )
         except AgentError as e:
             self._append_log("error", text=str(e))
         except Exception as e:  # defensiv: o eroare neprevăzută nu trebuie să rămână tăcută

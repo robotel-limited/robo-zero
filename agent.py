@@ -192,7 +192,12 @@ class Agent:
         self._last_user_message = user_message
 
         tool_schemas = [t.schema() for t in self.tools.values()]
+        # ce trimite cererea în afara mesajelor: schemele tool-urilor + plafonul
+        # de ieșire (rezervat ca prompt + ieșire să nu depășească fereastra pe
+        # modelele locale cu fereastră mică — vezi llm.OUTPUT_TOKENS, varianta A
+        # 2026-11-08). Pe cloud (fereastră 1M) rezervarea e neglijabilă.
         schema_tokens = len(json.dumps(tool_schemas)) // history.CHARS_PER_TOKEN
+        reserved_tokens = schema_tokens + llm.OUTPUT_TOKENS
         auto_recall_done = False
 
         for _ in range(_AGENT_CFG["max_iterations"]):
@@ -200,7 +205,7 @@ class Agent:
                 raise AgentCancelled("Rulare anulată de utilizator.")
 
             compacted = await history.compact_if_needed(
-                self.history, model=self._chat_model(), reserved_tokens=schema_tokens
+                self.history, model=self._chat_model(), reserved_tokens=reserved_tokens
             )
             if compacted is not self.history:
                 self.history = compacted
@@ -245,6 +250,9 @@ class Agent:
                 self._emit("final", text=final_text)
                 return final_text
 
+            # argumentele stricate nu intră brute în istoric: modelul și le copia
+            # la retry, învelite în {"arguments": ...}, crescând de la 4 KB la 66 KB
+            broken = {tc.id: self._broken_args_note(tc, response) for tc in response.tool_calls}
             self.history.append(
                 {
                     "role": "assistant",
@@ -253,7 +261,10 @@ class Agent:
                         {
                             "id": tc.id,
                             "type": "function",
-                            "function": {"name": tc.name, "arguments": tc.arguments},
+                            "function": {
+                                "name": tc.name,
+                                "arguments": "{}" if broken[tc.id] else tc.arguments,
+                            },
                         }
                         for tc in response.tool_calls
                     ],
@@ -266,7 +277,10 @@ class Agent:
                     raise AgentCancelled("Rulare anulată de utilizator.")
 
                 self._emit("tool_call", name=tc.name, arguments=tc.arguments)
-                result_text, break_loop = await self._execute_tool_call(tc.name, tc.arguments)
+                if broken[tc.id]:
+                    result_text, break_loop = broken[tc.id], False
+                else:
+                    result_text, break_loop = await self._execute_tool_call(tc.name, tc.arguments)
                 self._emit("tool_result", name=tc.name, message=result_text)
                 self.history.append(
                     {"role": "tool", "tool_call_id": tc.id, "content": await self._wm_content(tc, result_text)}
@@ -302,6 +316,29 @@ class Agent:
 
         raise AgentError(
             f"Agentul a atins limita de {_AGENT_CFG['max_iterations']} iterații fără răspuns final."
+        )
+
+    @staticmethod
+    def _broken_args_note(tc: Any, response: Any) -> str | None:
+        """Mesajul pentru model dacă argumentele nu sunt un obiect JSON valid; None dacă sunt OK."""
+        try:
+            if isinstance(json.loads(tc.arguments) if tc.arguments else {}, dict):
+                return None
+            err = "argumentele nu formează un obiect JSON"
+        except json.JSONDecodeError as e:
+            err = str(e)
+        if response.truncated:
+            return (
+                f"Eroare: apelul '{tc.name}' a fost TĂIAT la limita de ieșire a modelului "
+                f"({response.max_tokens} tokeni; argumentele au ajuns la {len(tc.arguments)} caractere) "
+                f"— nu e o greșeală de escapare. Nu repeta același apel și nu-l înveli în alt JSON. "
+                "Trimite argumente mai scurte: la code_task un task concis (fișiere + comportament + "
+                "verify), nu cod; în loc de fs_write cu un fișier mare, fă modificări punctuale "
+                "(code_task sau shell_execute) sau împarte conținutul."
+            )
+        return (
+            f"Eroare: argumente JSON invalide pentru tool '{tc.name}': {err}. "
+            "Trimite din nou argumentele ca obiect JSON simplu, fără să-l înveli în alt JSON."
         )
 
     async def _execute_tool_call(self, name: str, raw_arguments: str) -> tuple[str, bool]:

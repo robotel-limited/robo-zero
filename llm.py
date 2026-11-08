@@ -40,7 +40,16 @@ RETRY_BACKOFF = _LLM_CFG["retry_backoff_seconds"]
 # complet, deci răspunsurile cu preambul + apeluri de unelte se trunchiau.
 TEMPERATURE = _LLM_CFG.get("temperature")
 SEED = _LLM_CFG.get("seed")
-MAX_TOKENS = _LLM_CFG.get("max_tokens")
+
+# Plafon de ieșire UNIC pentru toate modelele (decizia Sorin 2026-11-08,
+# varianta A): o singură valoare, nu per-model. 8192 e suficient pentru apeluri
+# de unelte lungi (code_task/fs_write) fără trunchiere (finish_reason=length).
+# Pe modelele locale cu fereastră mică (32768) această ieșire e REZERVATĂ din
+# buget în history.compact_if_needed (via agent.py reserved_tokens), ca
+# prompt + ieșire să nu depășească fereastra. Înlocuiește settings.max_tokens
+# (=1200, calibrat pe llama-server local) care, aplicat global de la 2026-11-07,
+# tăia apelurile de unelte ale modelelor cloud.
+OUTPUT_TOKENS = 8192
 
 _DEEPSEEK_ENDPOINT = "https://api.deepseek.com/chat/completions"
 
@@ -189,10 +198,45 @@ class ToolCall:
 class LlmResponse:
     content: str | None
     tool_calls: list[ToolCall] = field(default_factory=list)
+    truncated: bool = False
+    max_tokens: int | None = None
 
 
 class LlmError(Exception):
     """Eroare definitivă (după epuizarea reîncercărilor) la apelul providerului."""
+
+
+class ModelToolingUnsupportedError(LlmError):
+    """Raised when the PROVIDER rejects the request because the MODEL itself
+    generated a tool call whose arguments are not valid JSON (not our bug,
+    not transient, retry won't help) — the chosen model can't do
+    function-calling correctly on this task. The current chat stays
+    poisoned (the broken message is already in history), it must be
+    resumed in a new chat with a different model."""
+
+    def __init__(self, model: str, raw: str):
+        self.model = model
+        super().__init__(
+            f"Model '{model}' is unable to perform the task (it generated an "
+            f"invalid tool call). Choose another model in a new chat."
+        )
+
+
+# Known signatures of "the provider rejected the tool call because the
+# model itself generated it malformed" — not a request error on our side,
+# so there's no point showing the provider's raw JSON.
+_TOOLING_UNSUPPORTED_MARKERS = (
+    ("invalid_parameter_error", "function.arguments"),
+)
+
+
+def _is_tooling_unsupported(status_code: int, body: str) -> bool:
+    if status_code != 400:
+        return False
+    lowered = body.lower()
+    return any(
+        all(marker in lowered for marker in markers) for markers in _TOOLING_UNSUPPORTED_MARKERS
+    )
 
 
 def _provider_cfg(model: str) -> dict[str, str]:
@@ -236,7 +280,9 @@ async def chat(
     payload: dict[str, Any] = {"model": model, "messages": attachments.inline_images(messages)}
     _temp = TEMPERATURE if temperature is None else temperature
     _seed = SEED if seed is None else seed
-    _max = MAX_TOKENS if max_tokens is None else max_tokens
+    # plafon de ieșire unic pentru toate modelele (OUTPUT_TOKENS); un apelant
+    # poate încă suprascrie explicit prin max_tokens (ex. extracții de fundal)
+    _max = max_tokens if max_tokens is not None else OUTPUT_TOKENS
     if _temp is not None:
         payload["temperature"] = _temp
     if _seed is not None:
@@ -278,6 +324,8 @@ async def chat(
                 elif resp.status_code >= 400:
                     # Eroare de client (4xx, altele decât 429) — nu are sens
                     # să reîncercăm, e o problemă de request, nu tranzitorie.
+                    if _is_tooling_unsupported(resp.status_code, resp.text):
+                        raise ModelToolingUnsupportedError(model, resp.text[:500])
                     raise LlmError(
                         f"{model} a răspuns {resp.status_code}: {resp.text[:500]}"
                     )
@@ -290,7 +338,9 @@ async def chat(
                     else:
                         latency_ms = (time.perf_counter() - attempt_start) * 1000
                         usage_log.record(model, purpose, data.get("usage"), latency_ms)
-                        return _parse_response(data, model)
+                        parsed = _parse_response(data, model)
+                        parsed.max_tokens = _max
+                        return parsed
 
             if attempt < MAX_RETRIES:
                 backoff = RETRY_BACKOFF[min(attempt, len(RETRY_BACKOFF) - 1)]
@@ -314,4 +364,6 @@ def _parse_response(data: dict[str, Any], model: str | None = None) -> LlmRespon
         )
         for tc in raw_tool_calls
     ]
-    return LlmResponse(content=content, tool_calls=tool_calls)
+    return LlmResponse(
+        content=content, tool_calls=tool_calls, truncated=choice.get("finish_reason") == "length"
+    )

@@ -4,6 +4,7 @@
 
 import json
 import os
+import re
 import signal
 import uuid
 from pathlib import Path
@@ -341,6 +342,20 @@ class Agent:
             "Trimite din nou argumentele ca obiect JSON simplu, fără să-l înveli în alt JSON."
         )
 
+    @staticmethod
+    def _mentions_existing_dimag_path(raw_arguments: str) -> bool:
+        """Repo-ul /srv/robo-dimag e o cale reală: redirect-ul spre memorie se
+        aplică doar când „dimag” nu e parte dintr-o cale care există pe disc."""
+        for token in re.findall(r"/[^\s\"'`;|&<>]*dimag[^\s\"'`;|&<>]*", raw_arguments, re.IGNORECASE):
+            # urcă până la segmentul care conține „dimag”: fișierele noi dintr-un
+            # repo existent (ex. /srv/robo-dimag/nou.py) contează și ele
+            path = token.rstrip("/")
+            while "dimag" in path.lower():
+                if os.path.exists(path):
+                    return True
+                path = os.path.dirname(path)
+        return False
+
     async def _execute_tool_call(self, name: str, raw_arguments: str) -> tuple[str, bool]:
         """Execută un apel de tool. Nu ridică excepție pentru erori normale
         (JSON stricat, tool necunoscut, argumente lipsă) — acelea devin
@@ -352,7 +367,8 @@ class Agent:
         except (json.JSONDecodeError, ValueError) as e:
             return (f"Eroare: argumente JSON invalide pentru tool '{name}': {e}", False)
 
-        if name in ("fs_read", "fs_list", "shell_execute") and "dimag" in raw_arguments.lower():
+        if (name in ("fs_read", "fs_list", "shell_execute") and "dimag" in raw_arguments.lower()
+                and not self._mentions_existing_dimag_path(raw_arguments)):
             # "dimag" confundat cu o cale/folder (vezi prompts/agent.system.md) —
             # harness-ul redirecționează forțat către memory_recall, în loc să
             # lase doar mesajul de acces refuzat (pe care modelul îl ignoră).

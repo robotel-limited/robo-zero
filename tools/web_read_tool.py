@@ -62,7 +62,11 @@ class WebRead(Tool):
                 message=f"Eroare robo-crawl ({error.get('code')}): {error.get('message')}"
             )
 
-        markdown = data.get("markdown") or "(pagină fără conținut text extras)"
+        markdown = data.get("markdown") or (
+            "Nu există conținut text extras la acest URL — nu reîncerca aceeași adresă, "
+            "nici cu alt parametru de pagină. Try another approach: caută altă sursă sau "
+            "informează utilizatorul că nu ai găsit conținut."
+        )
         title = data.get("meta", {}).get("title") or ""
         return ToolResult(message=f"# {title}\n\n{markdown}" if title else markdown)
 

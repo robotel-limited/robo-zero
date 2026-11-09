@@ -273,21 +273,41 @@ class Agent:
             )
 
             break_text: str | None = None
-            for tc in response.tool_calls:
-                if self.cancelled:
-                    raise AgentCancelled("Rulare anulată de utilizator.")
+            answered_ids: set[str] = set()
+            try:
+                for tc in response.tool_calls:
+                    if self.cancelled:
+                        raise AgentCancelled("Rulare anulată de utilizator.")
 
-                self._emit("tool_call", name=tc.name, arguments=tc.arguments)
-                if broken[tc.id]:
-                    result_text, break_loop = broken[tc.id], False
-                else:
-                    result_text, break_loop = await self._execute_tool_call(tc.name, tc.arguments)
-                self._emit("tool_result", name=tc.name, message=result_text)
-                self.history.append(
-                    {"role": "tool", "tool_call_id": tc.id, "content": await self._wm_content(tc, result_text)}
-                )
-                if break_loop:
-                    break_text = result_text
+                    self._emit("tool_call", name=tc.name, arguments=tc.arguments)
+                    if broken[tc.id]:
+                        result_text, break_loop = broken[tc.id], False
+                    else:
+                        result_text, break_loop = await self._execute_tool_call(tc.name, tc.arguments)
+                    self._emit("tool_result", name=tc.name, message=result_text)
+                    self.history.append(
+                        {"role": "tool", "tool_call_id": tc.id, "content": await self._wm_content(tc, result_text)}
+                    )
+                    answered_ids.add(tc.id)
+                    if break_loop:
+                        break_text = result_text
+            except BaseException:
+                # cancel sau excepție neprevăzută la mijlocul buclei: mesajul
+                # assistant cu tool_calls e deja în istoric (mai sus), așa că
+                # fiecare tool_call_id neajuns la execuție trebuie completat
+                # cu un răspuns tool, altfel istoricul rămâne otrăvit definitiv
+                # (providerul respinge orice request viitor pe acest chat cu
+                # 400 "insufficient tool messages following tool_calls").
+                for tc in response.tool_calls:
+                    if tc.id not in answered_ids:
+                        self.history.append(
+                            {
+                                "role": "tool",
+                                "tool_call_id": tc.id,
+                                "content": "Eroare: execuția a fost întreruptă înainte ca acest tool să răspundă.",
+                            }
+                        )
+                raise
 
             if break_text is not None:
                 if not auto_recall_done and self._looks_insufficient(break_text):

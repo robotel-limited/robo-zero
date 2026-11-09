@@ -27,6 +27,9 @@ CODE_EXTENSIONS = {
 }
 
 ALLOWED_TIER = "sub"
+# coco (Command Code, modele free) e permis pentru că escaladează singur pe
+# abonamentul MiMo (tier „sub”) dacă eșuează — decizia Sorin 2026-11-08
+ALLOWED_TIERS = ("coco", "sub")
 
 FS_WRITE_REFUSAL = (
     "Eroare: code_guard e pornit — fișierele de cod ({ext}) nu se scriu cu "

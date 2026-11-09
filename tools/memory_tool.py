@@ -57,7 +57,14 @@ class MemoryRecall(Tool):
 
         items = data.get("data", [])
         if not items:
-            return ToolResult(message="Nimic relevant găsit în memorie.")
+            # Fără rezultate, modelele mai slabe (ex. qwen-flash) nu știu ce
+            # altă acțiune să aleagă și repetă identic același apel până la
+            # guard-ul de repetiție din agent.py (oprire la 5). Se termină
+            # direct bucla aici, cu mesajul ca răspuns final.
+            return ToolResult(
+                message="Nimic relevant găsit în memorie pentru această întrebare.",
+                break_loop=True,
+            )
 
         lines = [f"- {item.get('text', '')}" for item in items]
         return ToolResult(message="\n".join(lines))

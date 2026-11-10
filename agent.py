@@ -2,7 +2,6 @@
 (diferit de a0: fiecare instanță Agent are propriul dict de tool-uri).
 """
 
-import hashlib
 import json
 import os
 import re
@@ -76,33 +75,6 @@ _WEAK_MARKERS = (
     "nu am găsit",
 )
 
-# Guard-ul de buclă: detectorii numără apelurile dintr-o fereastră de
-# _LOOP_WINDOW apeluri (ca un tool apelat demult să nu declanșeze azi un
-# avertisment); pragurile de avertizare/oprire sunt în conf/settings.yaml,
-# secțiunea agent, și se citesc cu .get() ca un config vechi fără cheile noi.
-_LOOP_WINDOW = 12
-# cât din argumente/rezultate păstrăm în raportul AgentLoopAborted
-_LOOP_SNIPPET = 200
-# textul comun de la finalul oricărui avertisment de buclă
-_LOOP_SWITCH = (
-    "Schimbă abordarea: alt tool, alte argumente, "
-    "sau răspunde cu ce ai și spune ce te blochează."
-)
-
-
-def _clip(text: str) -> str:
-    """Trunchiază un argument/rezultat pentru raportul de oprire al buclei."""
-    if len(text) <= _LOOP_SNIPPET:
-        return text
-    return text[:_LOOP_SNIPPET] + "…"
-
-
-def _digest(text: str) -> str:
-    """Hash-ul stabil al unui mesaj de rezultat — pentru detectorul
-    noprogress (identitate prin hash, nu comparație de stringuri lungi)."""
-    return hashlib.sha256(text.encode("utf-8", "replace")).hexdigest()
-
-
 class AgentError(Exception):
     """Eroare vizibilă care încheie rularea curentă (limită de iterații sau repetiție)."""
 
@@ -111,44 +83,10 @@ class AgentCancelled(AgentError):
     """Rularea a fost anulată explicit de utilizator (etapa 2: POST /cancel)."""
 
 
-class AgentLoopAborted(AgentError):
-    """Oprirea buclei de un detector de repetiție (consecutive / cycle /
-    failure / noprogress). Subclasă de AgentError, deci e prinsă de orice
-    handler existent `except AgentError`.
-
-    `detector`  — numele detectorului care a declanșat oprirea
-    `tool`      — tool-ul monitorizat
-    `count`     — numărul de apeluri problematice numărate în fereastră
-    `entries`   — ultimele apeluri (tool, argumente, rezultat), fiecare
-                  trunchiat la _LOOP_SNIPPET caractere"""
-
-    def __init__(
-        self,
-        detector: str,
-        tool: str,
-        count: int,
-        entries: list[tuple[str, str, str]] | tuple[tuple[str, str, str], ...] = (),
-    ) -> None:
-        self.detector = detector
-        self.tool = tool
-        self.count = count
-        self.entries = [(_t, _clip(str(a)), _clip(str(m))) for _t, a, m in entries][-5:]
-        super().__init__(self._report())
-
-    def _report(self) -> str:
-        """Raport uman în limba română: ce s-a încercat și de ce s-a oprit."""
-        linii = [
-            f"Bucla oprită de detectorul {self.detector}: tool-ul '{self.tool}' a atins "
-            f"pragul de {self.count} apeluri problematice în fereastra curentă.",
-            "Ultimele apeluri:",
-        ]
-        for i, (tool, args, msg) in enumerate(self.entries, 1):
-            linii.append(f"  {i}. {tool}({args}) -> {msg or '(fără rezultat)'}")
-        linii.append(_LOOP_SWITCH)
-        return "\n".join(linii)
-
-    def __str__(self) -> str:
-        return self._report()
+# Importul stă DUPĂ definiția AgentError: agent_loopguard importă la rândul lui
+# AgentError din acest modul (AgentLoopAborted îl extinde), deci clasa de bază
+# trebuie deja să existe în acest punct — altfel import circular.
+from agent_loopguard import AgentLoopAborted, LoopGuard  # noqa: E402
 
 
 # (tip_eveniment, date) -> None — hook opțional folosit de app.py/chat_session.py
@@ -191,13 +129,10 @@ class Agent:
         self._obs_key = uuid.uuid4().hex[:8]
         self._obs_n = 0
         self.tools: dict[str, Tool] = self._build_tools()
-        # ultimele apeluri (tool, argumente_json) — pentru detectoarele
-        # consecutive/cycle; fereastra are _LOOP_WINDOW apeluri (vezi constanta)
-        self._recent_calls: list[tuple[str, str]] = []
-        # aceeași fereastră, dar cu mesajul rezultat — pentru detectoarele
-        # failure (mesaje „Eroare…”) și noprogress (aceleași mesaje repetate),
-        # evaluate abia după tool.execute
-        self._recent_results: list[tuple[str, str, str]] = []
+        # guard-ul de buclă (agent_loopguard.LoopGuard): fereastra de apeluri
+        # + detectoarele consecutive/cycle/failure/noprogress, cu pragurile
+        # din conf/settings.yaml (secțiunea agent), citite tot din _AGENT_CFG
+        self._loop_guard = LoopGuard(_AGENT_CFG)
         # anulare (etapa 2): flag verificat la începutul fiecărei iterații și
         # înainte de fiecare tool; subprocesul shell curent (dacă există)
         # primește SIGTERM — vezi tools/shell_tool.py.
@@ -493,8 +428,14 @@ class Agent:
             return (f"Eroare: tool necunoscut '{name}'.", False)
 
         # detectoarele care nu au nevoie de rezultat (consecutive + cycle) —
-        # înainte de execuție; ridică AgentLoopAborted la pragul de oprire
-        repetition_note = self._check_repetition(name, raw_arguments)
+        # înainte de execuție; LoopGuard ridică AgentLoopAborted la pragul de
+        # oprire, iar evenimentul `loop_aborted` se emite aici (locul vechii
+        # emisii din guard), apoi excepția se re-randuie
+        try:
+            repetition_note = self._loop_guard.check_repetition(name, raw_arguments)
+        except AgentLoopAborted as exc:
+            self._emit("loop_aborted", **exc.event_data)
+            raise
 
         pre_check = getattr(tool, "pre_check", None)
         if callable(pre_check) and pre_check(args) and not self._is_voice_only():
@@ -509,7 +450,11 @@ class Agent:
 
         message = safety.mask_secrets(result.message)
         # detectoarele care au nevoie de rezultat abia acum, după tool.execute
-        result_note = self._check_result_repetition(name, raw_arguments, message)
+        try:
+            result_note = self._loop_guard.check_result_repetition(name, raw_arguments, message)
+        except AgentLoopAborted as exc:
+            self._emit("loop_aborted", **exc.event_data)
+            raise
         notes = [n for n in (repetition_note, result_note) if n]
         if notes:
             message = "\n".join(notes) + "\n" + message
@@ -538,109 +483,3 @@ class Agent:
         if any(marker in lowered for marker in _STRONG_MARKERS):
             return True
         return not tools_used and any(marker in lowered for marker in _WEAK_MARKERS)
-
-    def _check_repetition(self, name: str, raw_arguments: str) -> str | None:
-        """Urmărește ultimele apeluri (tool, argumente) în fereastra de
-        _LOOP_WINDOW apeluri; avertizează la 2 repetiții, oprește rularea la 4
-        (vezi plan, secțiunea Bucla și maparea tool-calls). Două detectoare,
-        ambele evaluate înainte de execuție:
-          consecutive — aceleași argumente una alta (streak),
-          cycle       — aceeași cheie (tool, argumente) reapărută în fereastră
-                        chiar neconsecutive (prinde A,B,A,B)."""
-        key = (name, raw_arguments)
-        self._recent_calls.append(key)
-        self._recent_calls = self._recent_calls[-_LOOP_WINDOW:]
-
-        streak = 0
-        for call in reversed(self._recent_calls):
-            if call == key:
-                streak += 1
-            else:
-                break
-        # de câte ori a mai apărut cheia în fereastră, chiar și neconsecutive
-        cycle = sum(1 for call in self._recent_calls if call == key)
-
-        warn_at = _AGENT_CFG.get("repetition_warn_count", 2)
-        abort_at = _AGENT_CFG.get("repetition_abort_count", 4)
-
-        # consecutive înainte de cycle: la un streak pur sunt egale, iar numele
-        # detectorului trebuie să spună exact ce s-a întâmplat; apelul curent
-        # nu are încă rezultat (message="")
-        if streak >= abort_at:
-            raise self._loop_abort("consecutive", name, streak, raw_arguments, "")
-        if cycle >= abort_at:
-            raise self._loop_abort("cycle", name, cycle, raw_arguments, "")
-        if streak >= warn_at:
-            return self._loop_note(
-                "consecutive",
-                f"tool-ul '{name}' a fost apelat de {streak} ori consecutiv cu aceleași argumente",
-            )
-        if cycle >= warn_at:
-            return self._loop_note(
-                "cycle",
-                f"tool-ul '{name}' cu aceleași argumente a reapărut de {cycle} ori în "
-                f"ultimele {_LOOP_WINDOW} apeluri (chiar neconsecutive)",
-            )
-        return None
-
-    def _check_result_repetition(self, name: str, raw_arguments: str, message: str) -> str | None:
-        """Detectoarele care au nevoie de rezultat, evaluate după tool.execute,
-        tot în fereastra de _LOOP_WINDOW apeluri (nu doar consecutiv):
-          failure   — tool-ul întoarce mesaje care încep cu „Eroare”, indiferent
-                      de argumente,
-          noprogress — tool-ul întoarce mereu același mesaj (comparat prin hash)."""
-        self._recent_results.append((name, raw_arguments, message))
-        self._recent_results = self._recent_results[-_LOOP_WINDOW:]
-
-        same_tool = [m for tool, _, m in self._recent_results if tool == name]
-        failures = sum(1 for m in same_tool if m.lower().startswith("eroare"))
-        digest = _digest(message)
-        identical = sum(1 for m in same_tool if _digest(m) == digest)
-
-        failure_warn = _AGENT_CFG.get("failure_warn_count", 2)
-        failure_abort = _AGENT_CFG.get("failure_abort_count", 4)
-        noprogress_warn = _AGENT_CFG.get("noprogress_warn_count", 2)
-        noprogress_abort = _AGENT_CFG.get("noprogress_abort_count", 4)
-
-        if failures >= failure_abort:
-            raise self._loop_abort("failure", name, failures, raw_arguments, message, result_recorded=True)
-        if identical >= noprogress_abort:
-            raise self._loop_abort("noprogress", name, identical, raw_arguments, message, result_recorded=True)
-        if failures >= failure_warn:
-            return self._loop_note(
-                "failure",
-                f"tool-ul '{name}' a întors mesaje care încep cu „Eroare” de {failures} ori "
-                f"în ultimele {_LOOP_WINDOW} apeluri",
-            )
-        if identical >= noprogress_warn:
-            return self._loop_note(
-                "noprogress",
-                f"tool-ul '{name}' a întors același mesaj de {identical} ori "
-                f"în ultimele {_LOOP_WINDOW} apeluri",
-            )
-        return None
-
-    def _loop_note(self, detector: str, detail: str) -> str:
-        """Notă de avertizare, prefixată mesajului tool-ului: numește
-        detectorul și numărul de apeluri și dă instrucțiunea de schimbare."""
-        return f"[Avertisment de buclă — detectorul {detector}: {detail}. {_LOOP_SWITCH}]"
-
-    def _loop_abort(
-        self,
-        detector: str,
-        tool: str,
-        count: int,
-        raw_arguments: str,
-        message: str,
-        result_recorded: bool = False,
-    ) -> AgentLoopAborted:
-        """Construiește oprirea de buclă: întâi evenimentul `loop_aborted`
-        pentru UI (SSE), apoi excepția cu ultimele apeluri din fereastră —
-        ridicată de apelant, prinsă de handlerele `except AgentError`.
-        `result_recorded` = apelul curent e deja în fereastră (opusul: oprire
-        înainte de execuție, când rezultatul lui nu există încă)."""
-        entries = list(self._recent_results)
-        if not result_recorded:
-            entries.append((tool, raw_arguments, message))
-        self._emit("loop_aborted", detector=detector, tool=tool, count=count)
-        return AgentLoopAborted(detector, tool, count, entries[-5:])

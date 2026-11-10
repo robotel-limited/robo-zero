@@ -72,7 +72,11 @@ composeForm.addEventListener("submit", async (ev) => {
   unlockAudio();
   composeInput.value = "";
   clearPendingAttachments();
-  setRunning(true);
+  // while a run is active this submit is a steer (the server returns
+  // "steered"): don't flip the running state again, and don't reset it on
+  // failure — the original run is still going
+  const wasRunning = runActive;
+  if (!wasRunning) setRunning(true);
   try {
     await api(`/api/chats/${currentChatId}/messages`, {
       method: "POST",
@@ -81,7 +85,7 @@ composeForm.addEventListener("submit", async (ev) => {
     });
   } catch (e) {
     appendMessage("message-error", `Error sending: ${e.message}`);
-    setRunning(false);
+    if (!wasRunning) setRunning(false);
   }
 });
 

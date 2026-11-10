@@ -41,7 +41,7 @@ ConfirmCallback = Callable[[str, str], Awaitable[bool]]
 # tool_calls și pare un răspuns nesigur/incomplet, bucla face automat un
 # memory_recall pe mesajul utilizatorului înainte să dea răspunsul final —
 # nu lăsăm decizia doar pe modelul ales, care poate "uita" să caute în dimag.
-_INSUFFICIENT_INFO_MARKERS = (
+_STRONG_MARKERS = (
     "nu am suficiente informații",
     "nu am suficient context",
     "nu am acces la",
@@ -56,6 +56,17 @@ _INSUFFICIENT_INFO_MARKERS = (
     "i'm not sure",
     "i don't know",
     "i do not have access to",
+    "if you provide",
+    "please provide the",
+    "let me know if you'd like",
+    "once the key is available",
+)
+
+# Markeri "slabi" (familia find/exist) — apar firesc și în rapoarte de stare
+# corecte după ce tool-urile au fost deja folosite (ex. "vm1 nu există"),
+# deci declanșează auto-recall doar dacă NU s-a executat niciun tool în
+# turul curent (vezi tools_used în _run și _looks_insufficient).
+_WEAK_MARKERS = (
     "is missing",
     "does not exist",
     "cannot find",
@@ -63,10 +74,6 @@ _INSUFFICIENT_INFO_MARKERS = (
     "nu găsesc",
     "nu există",
     "nu am găsit",
-    "if you provide",
-    "please provide the",
-    "let me know if you'd like",
-    "once the key is available",
 )
 
 # Guard-ul de buclă: detectorii numără apelurile dintr-o fereastră de
@@ -272,6 +279,9 @@ class Agent:
         schema_tokens = len(json.dumps(tool_schemas)) // history.CHARS_PER_TOKEN
         reserved_tokens = schema_tokens + llm.OUTPUT_TOKENS
         auto_recall_done = False
+        # True dacă s-a executat deja un tool real (nu terminal response) în
+        # turul curent — gating pentru markerii "slabi" din _looks_insufficient
+        tools_used = False
 
         for _ in range(_AGENT_CFG["max_iterations"]):
             if self.cancelled:
@@ -295,7 +305,7 @@ class Agent:
 
             if not response.tool_calls:
                 final_text = response.content or ""
-                if not auto_recall_done and self._looks_insufficient(final_text):
+                if not auto_recall_done and self._looks_insufficient(final_text, tools_used):
                     auto_recall_done = True
                     self.history.append({"role": "assistant", "content": final_text})
                     self._emit("auto_recall", query=user_message)
@@ -361,6 +371,8 @@ class Agent:
                         {"role": "tool", "tool_call_id": tc.id, "content": await self._wm_content(tc, result_text)}
                     )
                     answered_ids.add(tc.id)
+                    if not broken[tc.id] and not break_loop:
+                        tools_used = True
                     if break_loop:
                         break_text = result_text
             except BaseException:
@@ -382,7 +394,7 @@ class Agent:
                 raise
 
             if break_text is not None:
-                if not auto_recall_done and self._looks_insufficient(break_text):
+                if not auto_recall_done and self._looks_insufficient(break_text, tools_used):
                     # cu tool_choice=required modelul termină mereu prin tool-ul
                     # "response", deci ramura de mai sus (fără tool_calls) nu se
                     # mai declanșează niciodată — auto-recall-ul trebuie verificat
@@ -510,13 +522,22 @@ class Agent:
         return await agent_wm.wm_content(self, tc, result_text)
 
     @staticmethod
-    def _looks_insufficient(text: str) -> bool:
+    def _looks_insufficient(text: str, tools_used: bool) -> bool:
         """Detectează euristic un răspuns final nesigur/incomplet (fără
         tool_calls), ca să declanșeze automat un memory_recall în dimag —
         regulă obligatorie pentru toți agenții, nu doar pentru modelele cu
-        tool-calling nativ nesigur (ex. gpt-oss pe build-ul curent)."""
+        tool-calling nativ nesigur (ex. gpt-oss pe build-ul curent).
+
+        Markerii "strong" (epistemici) declanșează mereu. Markerii "weak"
+        (familia find/exist, ex. "nu există") apar firesc în rapoarte de
+        stare corecte după ce tool-urile au fost deja folosite — declanșează
+        doar dacă încă nu s-a executat niciun tool în turul curent (fals
+        pozitiv real: raport SSH valid "vm1 inactive / nu există" după 2
+        apeluri ssh, 2026-11)."""
         lowered = text.lower()
-        return any(marker in lowered for marker in _INSUFFICIENT_INFO_MARKERS)
+        if any(marker in lowered for marker in _STRONG_MARKERS):
+            return True
+        return not tools_used and any(marker in lowered for marker in _WEAK_MARKERS)
 
     def _check_repetition(self, name: str, raw_arguments: str) -> str | None:
         """Urmărește ultimele apeluri (tool, argumente) în fereastra de

@@ -80,3 +80,9 @@ project_memory:
   chunk_tokens: 20000         # conținut nou mai mare se procesează pe bucăți
   context_budget_tokens: 6000 # buget pentru rezumatele celorlalte chat-uri în system prompt
   tool_result_max_chars: 2000 # cât dintr-un rezultat de tool intră în extragere
+
+rules:
+  near_match_threshold: 0.85   # difflib SequenceMatcher pe text normalizat
+  promote_distinct_chats: 3    # K: pending atins din ≥K chat-uri distincte -> auto-approve
+  expire_pending_days: 30      # M: pending nere-văzut de M zile & times_seen==1 -> auto-reject
+  global_min_projects: 3       # N: lecție aprobată în ≥N proiecte -> propune global

@@ -3,14 +3,23 @@ comportamentului agentului, extrase automat dar aplicate în context doar
 după aprobarea lui pe cardul proiectului. Același SQLite ca
 project_memory_store.py (data/projects.db)."""
 
+import difflib
+import re
 import sqlite3
 import time
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 _PROJECT_ROOT = Path(__file__).resolve().parent
 _DB_PATH = _PROJECT_ROOT / "data" / "projects.db"
 _DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+# pragurile ciclului de viață (Etapa 1: near_match_threshold) — citite cu
+# .get(), un settings.yaml vechi fără blocul rules merge cu valorile implicite
+with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
+    _RULES_CFG = (yaml.safe_load(f) or {}).get("rules") or {}
 
 
 def _connect() -> sqlite3.Connection:
@@ -38,11 +47,106 @@ def init_db() -> None:
             )
             """
         )
+        # Etapa 1: coloanele de viață adăugate idempotent pe un DB vechi
+        # (PRAGMA table_info -> doar ce lipsește), apoi sightings
+        cols = {row[1] for row in conn.execute("PRAGMA table_info(project_rules)")}
+        for name, ddl in (
+            ("scope", "TEXT NOT NULL DEFAULT 'project'"),
+            ("times_seen", "INTEGER NOT NULL DEFAULT 1"),
+            ("last_seen_at", "REAL"),
+            ("decided_by", "TEXT"),
+        ):
+            if name not in cols:
+                conn.execute(f"ALTER TABLE project_rules ADD COLUMN {name} {ddl}")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_rules_project ON project_rules(project_id, status)")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS rule_sightings (
+                rule_id INTEGER NOT NULL,
+                source_chat_id TEXT,
+                seen_at REAL NOT NULL,
+                PRIMARY KEY (rule_id, source_chat_id)
+            )
+            """
+        )
 
 
 def _row(row: sqlite3.Row | None) -> dict[str, Any] | None:
     return dict(row) if row else None
+
+
+# ce se taie de la finalul unui text înainte de comparare (punctuație + spații)
+_PUNCT_FINAL = " \t.,;:!?…\"'”’)]}»"
+
+
+def _normalize(text: str) -> str:
+    """lowercase, spații colapsate, strip, punctuație finală tăiată —
+    baza oricărei comparații near-match."""
+    s = re.sub(r"\s+", " ", str(text or "").lower()).strip()
+    return s.rstrip(_PUNCT_FINAL).strip()
+
+
+def _ratio(a: str, b: str) -> float:
+    """difflib pe textele normalizate — aceeași formulă oriunde se compară
+    două reguli (find_near_match, cleanup-ul de near-dupe)."""
+    return difflib.SequenceMatcher(None, _normalize(a), _normalize(b)).ratio()
+
+
+def find_near_match(
+    project_id: str,
+    text: str,
+    threshold: float | None = None,
+    statuses: Any = None,
+) -> dict[str, Any] | None:
+    """Cea mai apropiată regulă existentă din proiect: raportul maxim
+    (difflib pe text normalizat) care atinge `threshold` (pragul din config
+    cât timp None), altfel None. `statuses` limitează statusurile; None =
+    orice status."""
+    if threshold is None:
+        threshold = float(_RULES_CFG.get("near_match_threshold", 0.85))
+    mine = _normalize(text)
+    if not mine:
+        return None
+    if isinstance(statuses, str):
+        statuses = (statuses,)
+    sql = "SELECT * FROM project_rules WHERE project_id = ?"
+    params: list[Any] = [project_id]
+    if statuses:
+        sql += " AND status IN (%s)" % ", ".join("?" for _ in statuses)
+        params.extend(statuses)
+    with _connect() as conn:
+        rows = conn.execute(sql, params).fetchall()
+    best: dict[str, Any] | None = None
+    best_ratio = threshold
+    for row in rows:
+        ratio = _ratio(mine, row["text"])
+        if ratio >= threshold and (best is None or ratio > best_ratio):
+            best, best_ratio = dict(row), ratio
+    return best
+
+
+def record_sighting(rule_id: int, source_chat_id: str | None) -> None:
+    """INSERT OR IGNORE în rule_sightings (PK rule_id+chat: același chat nu
+    dublează), apoi times_seen = COUNT(sightings) și last_seen_at = acum."""
+    now = time.time()
+    chat = source_chat_id or ""
+    with _connect() as conn:
+        conn.execute(
+            "INSERT OR IGNORE INTO rule_sightings (rule_id, source_chat_id, seen_at) VALUES (?, ?, ?)",
+            (rule_id, chat, now),
+        )
+        conn.execute(
+            "UPDATE project_rules SET times_seen = "
+            "(SELECT COUNT(*) FROM rule_sightings WHERE rule_id = ?), last_seen_at = ? WHERE id = ?",
+            (rule_id, now, rule_id),
+        )
+
+
+def distinct_chats(rule_id: int) -> int:
+    """Nr. de chat-uri distincte care au văzut regula (rânduri în sightings)."""
+    with _connect() as conn:
+        row = conn.execute("SELECT COUNT(*) FROM rule_sightings WHERE rule_id = ?", (rule_id,)).fetchone()
+    return int(row[0])
 
 
 def add_rule(
@@ -54,12 +158,35 @@ def add_rule(
     supersedes: int | None = None,
 ) -> int:
     with _connect() as conn:
+        now = time.time()
         cur = conn.execute(
             "INSERT INTO project_rules (project_id, category, text, supersedes, "
-            "source_chat_id, source_chat_title, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (project_id, category, text, supersedes, source_chat_id, source_chat_title, time.time()),
+            "source_chat_id, source_chat_title, created_at, last_seen_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (project_id, category, text, supersedes, source_chat_id, source_chat_title, now, now),
         )
         return int(cur.lastrowid)
+
+
+def add_or_merge(
+    project_id: str,
+    text: str,
+    category: str = "",
+    source_chat_id: str | None = None,
+    source_chat_title: str | None = None,
+    supersedes: int | None = None,
+) -> tuple[int, bool]:
+    """(rule_id, created): un near-match pending/aprovat primește o sighting
+    și nu se mai creează rând nou; altfel se creează regula nouă cu o
+    sighting-semilă. Un `supersedes` explicit ocolește comasarea — o
+    înlocuire e intenționată, nu dublare."""
+    if supersedes is None:
+        match = find_near_match(project_id, text, statuses=("pending", "approved"))
+        if match is not None:
+            record_sighting(int(match["id"]), source_chat_id)
+            return int(match["id"]), False
+    rule_id = add_rule(project_id, text, category, source_chat_id, source_chat_title, supersedes=supersedes)
+    record_sighting(rule_id, source_chat_id)
+    return rule_id, True
 
 
 def get_rule(rule_id: int) -> dict[str, Any] | None:
@@ -160,18 +287,20 @@ def _loop_rule_text(detector: str, tool: str, count: int) -> str:
 
 def propose_from_loop_abort(project_id, detector, tool, count, source_chat_id=None, source_chat_title=None):
     '''Etapa C: oprirea de buclă -> regulă candidată pending. Text = lecție GENERALĂ
-    (fără argumente/URL din .entries). Dedup: dacă există deja o regulă cu exact același
-    text pentru proiect (ORICE status), nu inserează și întoarce None.'''
+    (fără argumente/URL din .entries). Etapa 1: dedup-ul e near-match, nu doar text
+    identic — un apropiat pending/aprovat primește sighting și nu se mai creează rând
+    nou; un apropiat cu alt status (respins/superseded) blochează re-propunerea, ca
+    dedup-ul vechi pe orice status.'''
     project_id = (project_id or '').strip()
     tool = (tool or '').strip()
     detector = (detector or '').strip()
     if not project_id or not tool:
         return None
     text = _loop_rule_text(detector, tool, count)
-    for existing in list_for(project_id):
-        if existing['text'] == text:
-            return None
-    return add_rule(project_id, text, 'buclă', source_chat_id, source_chat_title)
+    match = find_near_match(project_id, text)
+    if match is not None and match["status"] not in ("pending", "approved"):
+        return None
+    return add_or_merge(project_id, text, 'buclă', source_chat_id, source_chat_title)
 
 
 init_db()

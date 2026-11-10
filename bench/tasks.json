@@ -1,0 +1,44 @@
+[
+ {
+  "id": "T1-gguf",
+  "src": "561976876357",
+  "pattern": "web_search ciclic (102 apeluri, 14 distincte)",
+  "text": "Identifică pe internet un model GGUF de ~9B, bun la tool calling, pe care să-l putem testa A/B cu SenseNova-Loop-9B deja instalat pe svai. Dă-mi 2-3 candidați cu link Hugging Face și motivul alegerii.",
+  "model": "deepseek-v4-pro"
+ },
+ {
+  "id": "T2-learnharness",
+  "src": "faafd8309557",
+  "pattern": "web_read fără progres (100x pagină goală)",
+  "text": "Verifică https://github.com/amosblomqvist/learnharness și spune-mi dacă ne ajută la ceva pentru robo-zero. Răspuns scurt: ce face, licență, verdict.",
+  "model": "deepseek-v4-pro"
+ },
+ {
+  "id": "T3-fastrlm",
+  "src": "6576fb8a28b8",
+  "pattern": "web_search repetat identic",
+  "text": "https://github.com/avbiswas/fast-rlm — verifică cum ne-ar putea fi util. Răspuns scurt cu verdict.",
+  "model": "qwen-flash"
+ },
+ {
+  "id": "T4-cli-anything",
+  "src": "8e2d558e201e",
+  "pattern": "45 shell_execute",
+  "text": "Verifică acest repo: https://github.com/HKUDS/CLI-Anything. Nu instala nimic. Spune ce face și dacă merită adoptat.",
+  "model": "deepseek-flash"
+ },
+ {
+  "id": "T5-cmd-free",
+  "src": "154087738e3c",
+  "pattern": "fs_read/shell explorare lungă, atins plafonul 50",
+  "text": "Găsește modelele FREE disponibile în Command Code (CLI-ul `cmd`, instalat pe acest server). Află cum se apelează neinteractiv. Nu modifica nimic.",
+  "model": "gpt-oss-20b"
+ },
+ {
+  "id": "T6-gg-framework",
+  "src": "0641f212064a",
+  "pattern": "57 shell_execute",
+  "text": "https://github.com/KenKaiii/gg-framework — analizează-l în vederea adoptării ca înlocuitor pentru Claude Code. Nu instala nimic. Verdict scurt.",
+  "model": "deepseek-flash"
+ }
+]

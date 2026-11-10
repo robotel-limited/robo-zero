@@ -49,3 +49,24 @@ async def reject_rule(project_id: str, rule_id: int):
     if rule["status"] != "pending":
         raise HTTPException(status_code=400, detail="Regula nu mai e în așteptare.")
     return rules.reject(rule_id)
+
+
+@router.get("/api/rules/global")
+async def list_global_rules(status: str = "approved"):
+    return rules.list_global(status=status)
+
+
+@router.post("/api/rules/global/suggest")
+async def suggest_global_rules():
+    """Rulează suggest_globals() și întoarce id-urile regulilor globale propuse."""
+    return {"proposed": rules.suggest_globals()}
+
+
+@router.post("/api/rules/global/{rule_id}/approve")
+async def approve_global_rule(rule_id: int):
+    rule = rules.get_rule(rule_id)
+    if rule is None or rule["scope"] != "global":
+        raise HTTPException(status_code=404, detail="Regulă globală inexistentă.")
+    if rule["status"] != "pending":
+        raise HTTPException(status_code=400, detail="Regula nu mai e în așteptare.")
+    return rules.approve(rule_id)

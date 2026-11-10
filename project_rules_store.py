@@ -290,6 +290,87 @@ def sweep_lifecycle(project_id: str) -> dict[str, Any]:
     return {"approved": approved_ids, "expired": expired_ids}
 
 
+def list_global(status: str = "approved") -> list[dict[str, Any]]:
+    """Listează regulile globale (scope='global') filtrate pe status."""
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM project_rules WHERE scope = 'global' AND status = ? ORDER BY category, created_at",
+            (status,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def propose_global(text: str, category: str = "", origin_project_id: str | None = None) -> int:
+    """Creează o regulă globală pending (scope='global'). Dedup near-match pe globalele
+    existente (orice status): dacă există una similară, nu mai adaugă."""
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM project_rules WHERE scope = 'global'",
+        ).fetchall()
+    mine = _normalize(text)
+    threshold = float(_RULES_CFG.get("near_match_threshold", 0.85))
+    for row in rows:
+        if _ratio(mine, row["text"]) >= threshold:
+            return int(row["id"])
+    rule_id = add_rule(
+        project_id=origin_project_id or "",
+        text=text,
+        category=category,
+        source_chat_id=None,
+        source_chat_title=None,
+    )
+    with _connect() as conn:
+        conn.execute("UPDATE project_rules SET scope = 'global' WHERE id = ?", (rule_id,))
+    return rule_id
+
+
+def suggest_globals() -> list[int]:
+    """Grupează regulile 'approved' scope='project' near-match CROSS-proiect.
+    Un grup prezent în ≥N proiecte distincte și fără global near-match existent
+    → propose_global (pending scope='global'). Întoarce lista de rule_id propuse."""
+    N = int(_RULES_CFG.get("global_min_projects", 3))
+    threshold = float(_RULES_CFG.get("near_match_threshold", 0.85))
+    with _connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM project_rules WHERE scope = 'project' AND status = 'approved'"
+        ).fetchall()
+    approved = [dict(r) for r in rows]
+
+    # cluster single-linkage pe textele aprobate cross-proiect
+    n = len(approved)
+    parent = list(range(n))
+
+    def _root(x: int) -> int:
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            if _ratio(approved[i]["text"], approved[j]["text"]) >= threshold:
+                ri, rj = _root(i), _root(j)
+                if ri != rj:
+                    parent[rj] = ri
+
+    groups: dict[int, list[dict]] = {}
+    for idx in range(n):
+        groups.setdefault(_root(idx), []).append(approved[idx])
+
+    proposed: list[int] = []
+    for cluster in groups.values():
+        pids = {r["project_id"] for r in cluster}
+        if len(pids) < N:
+            continue
+        # reprezentantul: regula cea mai lungă din cluster
+        rep = max(cluster, key=lambda r: len(r["text"]))
+        rule_id = propose_global(rep["text"], rep["category"], rep["project_id"])
+        # propose_global întoarce id-ul unui existent dacă era near-match — nu dublăm
+        if rule_id not in proposed:
+            proposed.append(rule_id)
+    return proposed
+
+
 def delete_project(project_id: str) -> None:
     with _connect() as conn:
         conn.execute("DELETE FROM project_rules WHERE project_id = ?", (project_id,))

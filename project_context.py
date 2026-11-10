@@ -92,10 +92,17 @@ def _rules_block(header: str, items: list[dict]) -> str:
     return f"{header}\n{body}"
 
 
+_RULES_GLOBAL_HEADER = (
+    "## Reguli globale (aplicate tuturor proiectelor)\n"
+    "*La conflict, regula per-proiect sau instrucțiunea explicită are prioritate.*"
+)
+
+
 def _rules(project_id: str) -> str:
+    global_block = _rules_block(_RULES_GLOBAL_HEADER, rules.list_global(status="approved"))
     approved = _rules_block(_RULES_HEADER, rules.list_for(project_id, status="approved"))
     pending = _rules_block(_RULES_PENDING_HEADER, rules.list_for(project_id, status="pending"))
-    return "\n\n".join(b for b in (approved, pending) if b)
+    return "\n\n".join(b for b in (global_block, approved, pending) if b)
 
 
 def _other_chats(project_id: str, exclude_chat_id: str | None) -> str:

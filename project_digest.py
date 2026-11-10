@@ -93,6 +93,8 @@ def _entry_line(entry: dict[str, Any]) -> str | None:
     if kind == "user":
         images = f" [{len(entry['images'])} captură/i atașate]" if entry.get("images") else ""
         return f"[utilizator {when}] {entry.get('text', '')}{images}"
+    if kind == "steer":
+        return f"[corecție utilizator mid-run {when}] {entry.get('text', '')}"
     if kind == "final":
         return f"[agent {when}] {entry.get('text', '')}"
     if kind == "tool_result" and entry.get("name") not in _SKIPPED_TOOLS:

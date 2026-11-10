@@ -48,6 +48,24 @@ def git_sha():
         return "unknown"
 
 
+def backup_and_clear_rules(pid, results_dir):
+    """Izolare baseline: la începutul unei rulări, regulile proiectului
+    «Benchmark r0» se copiază ca rânduri JSON în results/ (backup), apoi se
+    șterg din DB — ca o regulă veche să nu strice măsurătoarea."""
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    import project_rules_store
+    rules = project_rules_store.list_for(pid)
+    results_dir = Path(results_dir)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    backup = results_dir / f"bench_rules_backup-{int(time.time())}.json"
+    backup.write_text(json.dumps(rules, ensure_ascii=False, indent=2), encoding="utf-8")
+    project_rules_store.delete_project(pid)
+    print(f"backup {len(rules)} reguli -> {backup.name}; «Benchmark r0» golit",
+          flush=True)
+    return backup
+
+
 def run_task(task, pid, label):
     if task.get("model"):  # modelul pe care s-a blocat sarcina inițial
         api("PATCH", f"/api/projects/{pid}", {"model": task["model"]})
@@ -113,6 +131,7 @@ def main():
     out = results_dir / f"{label}.jsonl"
     sha = git_sha()
     pid = project_id()
+    backup_and_clear_rules(pid, results_dir)  # baseline fără reguli (B.5)
     for t in tasks:  # strict secvențial
         row = run_task(t, pid, label)
         row["git_sha"] = sha

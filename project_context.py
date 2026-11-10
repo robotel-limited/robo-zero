@@ -2,6 +2,7 @@
 al unui chat (prompt proiect + fișă + rezumatele celorlalte chat-uri, în
 limita bugetului) și diferențele fișei pentru un chat deja deschis."""
 
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -16,6 +17,9 @@ import project_kb_store as kb
 import project_memory_store as store
 import project_rules_store as rules
 import projects_store
+import rule_effect_store
+
+_log = logging.getLogger(__name__)
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
@@ -98,11 +102,34 @@ _RULES_GLOBAL_HEADER = (
 )
 
 
-def _rules(project_id: str) -> str:
-    global_block = _rules_block(_RULES_GLOBAL_HEADER, rules.list_global(status="approved"))
-    approved = _rules_block(_RULES_HEADER, rules.list_for(project_id, status="approved"))
-    pending = _rules_block(_RULES_PENDING_HEADER, rules.list_for(project_id, status="pending"))
-    return "\n\n".join(b for b in (global_block, approved, pending) if b)
+def _select_rules(project_id: str) -> tuple[list, list, list]:
+    """Selecția regulilor injectate: (globale aprobate, proiect aprobate,
+    proiect pending) — exact selecția dinainte de separarea de formatare."""
+    return (
+        rules.list_global(status="approved"),
+        rules.list_for(project_id, status="approved"),
+        rules.list_for(project_id, status="pending"),
+    )
+
+
+def _rules(project_id: str, chat_id: str | None = None) -> str:
+    """Blocul de reguli din context; `chat_id` e chatul în care se injectează
+    (expunere înregistrată pentru măsurarea efectului — vezi rule_effect_store).
+    Textul e identic cu cel de dinaintea separării selecției de formatare."""
+    global_rules, approved, pending = _select_rules(project_id)
+    blocks = (
+        _rules_block(_RULES_GLOBAL_HEADER, global_rules),
+        _rules_block(_RULES_HEADER, approved),
+        _rules_block(_RULES_PENDING_HEADER, pending),
+    )
+    ids = [int(r["id"]) for r in (*global_rules, *approved, *pending)]
+    try:
+        rule_effect_store.record_exposures(ids, chat_id)
+    except Exception:
+        # contextul nu trebuie să crape niciodată din cauza măsurătorii
+        _log.warning("record_exposures eșuat (rule_ids=%s, chat=%s)", ids, chat_id,
+                     exc_info=True)
+    return "\n\n".join(b for b in blocks if b)
 
 
 def _other_chats(project_id: str, exclude_chat_id: str | None) -> str:
@@ -170,7 +197,7 @@ def build_initial(project_id: str, exclude_chat_id: str | None) -> str | None:
     if project["prompt"].strip():
         blocks.append(project["prompt"].strip())
     blocks.append(_fisa(project_id))
-    rules_block = _rules(project_id)
+    rules_block = _rules(project_id, exclude_chat_id)
     if rules_block:
         blocks.append(rules_block)
     others = _other_chats(project_id, exclude_chat_id)

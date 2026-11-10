@@ -21,6 +21,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SETTINGS_PATH = ROOT / "conf" / "settings.yaml"
 DEFAULT_DB = ROOT / "data" / "projects.db"
 REPORTS_DIR = ROOT / "reports"
+if str(ROOT) not in sys.path:  # importurile din rădăcina repo-ului (rule_effect_store)
+    sys.path.insert(0, str(ROOT))
 
 QUERY_A = """
 SELECT r.id, r.project_id, r.category, r.text, r.status, r.decided_at, r.decided_by,
@@ -41,6 +43,11 @@ ORDER BY status, decided_at
 RULE_LINE = "    • [{category}] {text}  (decided_by: {by})"
 RULE_LINE_PENDING = "    • [{category}] {text}"
 NONE_LINE = "  (nicio regulă)"
+EFFECT_HEADER = "Efectul regulilor:"
+EFFECT_LINE = ("    • [{id}] rată prevenire {pct}% (expusă în {exp} chat-uri, "
+               "reapărută de {rec} ori) — {text}")
+EFFECT_WARN = "  ⚠ ineficientă"
+EFFECT_EMPTY = "  (încă prea puține date (minim 3 expuneri/regulă))"
 
 
 def load_settings():
@@ -97,6 +104,51 @@ def _section(title, rows, pending=False):
     return lines
 
 
+def _effect_rows(db_path):
+    """effect_summary() de pe DB-ul raportului (--db). Fără tabelul
+    rule_exposures (DB vechi) sau la orice eșec -> [] (secțiunea «fără date»)."""
+    try:
+        conn = sqlite3.connect(str(db_path))
+        try:
+            has = conn.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='rule_exposures'"
+            ).fetchone()
+        finally:
+            conn.close()
+    except sqlite3.Error as err:
+        print(f"WARNING: citire rule_exposures eșuat: {err}", file=sys.stderr)
+        return []
+    if not has:
+        return []
+    old_path = None
+    try:
+        import project_rules_store as prs
+        import rule_effect_store as res
+        old_path = prs._DB_PATH
+        prs._DB_PATH = Path(db_path)
+        return res.effect_summary()
+    except Exception as err:
+        print(f"WARNING: efectul regulilor nu poate fi citit: {err}", file=sys.stderr)
+        return []
+    finally:
+        if old_path is not None:
+            prs._DB_PATH = old_path
+
+
+def _effect_line(rule):
+    rate = rule.get("prevention_rate")
+    line = EFFECT_LINE.format(
+        id=rule["id"],
+        pct="n/a" if rate is None else f"{rate * 100:.0f}",
+        exp=rule["exposures"],
+        rec=rule["recurrences"],
+        text=(rule.get("text") or "")[:120],
+    )
+    if rate is not None and rate < 0.5:
+        line += EFFECT_WARN
+    return line
+
+
 def generate_report(db_path, days):
     """Construiește raportul text pentru ultimele `days` zile."""
     rows_a, rows_b, cutoff = _fetch(db_path, days)
@@ -137,6 +189,14 @@ def generate_report(db_path, days):
     lines.extend(_section("Propuse (pending)", g_pending, pending=True))
     if g_rejected:
         lines.extend(_section("Respinse", g_rejected))
+    lines.append("")
+
+    lines.append(EFFECT_HEADER)
+    effect = _effect_rows(db_path)
+    if effect:
+        lines.extend(_effect_line(rule) for rule in effect)
+    else:
+        lines.append(EFFECT_EMPTY)
     lines.append("")
 
     decided = [

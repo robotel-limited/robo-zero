@@ -12,3 +12,4 @@ data/*.db
 data/project_kb/
 data/usage.jsonl*
 scratchpad/
+bench/results/

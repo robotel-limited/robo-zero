@@ -15,8 +15,12 @@ agent:
   max_iterations: 50
   max_subordinate_depth: 3
   tool_choice: required     # forțează apelul de unealtă (repară eșecul tip A4); auto-recall mutat pe break_text (vezi agent.py)
-  repetition_warn_count: 3
-  repetition_abort_count: 5
+  repetition_warn_count: 2      # guard buclă (consecutive/cycle): avertizare la 2 repetiții (a fost 3)
+  repetition_abort_count: 4     # guard buclă: AgentLoopAborted la 4 (a fost 5)
+  failure_warn_count: 2         # detector failure: 2 mesaje „Eroare…” de la același tool în fereastră
+  failure_abort_count: 4        # detector failure: oprire la 4
+  noprogress_warn_count: 2      # detector noprogress: 2 rezultate identice de la același tool
+  noprogress_abort_count: 4     # detector noprogress: oprire la 4
 
 server:
   host: 0.0.0.0

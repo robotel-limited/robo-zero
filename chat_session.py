@@ -71,13 +71,15 @@ class ChatSession:
             self._turn_invalidated_by_compaction = True
         self._refresh_project_context()
 
-    def _refresh_project_context(self) -> None:
+    def _refresh_project_context(self, task_text: str | None = None) -> None:
         """(Re)construiește blocul de proiect din system prompt; dacă system
         prompt-ul există deja (chat mutat între proiecte, istoric compactat),
         îl înlocuiește pe loc."""
         self.facts_seen_at = time.time()
         self.agent.project_prompt = (
-            project_context.build_initial(self.project_id, self.id) if self.project_id else None
+            project_context.build_initial(self.project_id, self.id, task_text=task_text)
+            if self.project_id
+            else None
         )
         if self.agent.history and self.agent.history[0].get("role") == "system":
             self.agent.history[0] = {"role": "system", "content": self.agent._system_prompt()}
@@ -87,7 +89,7 @@ class ChatSession:
             return user_message
         project_hooks.before_message(self)
         if not self.agent.history or self.facts_seen_at == 0:
-            self._refresh_project_context()
+            self._refresh_project_context(task_text=user_message)
             return user_message
         since = self.facts_seen_at
         self.facts_seen_at = time.time()

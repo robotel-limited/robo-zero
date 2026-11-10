@@ -94,6 +94,14 @@ rules:
   promote_distinct_chats: 3    # K: pending atins din ≥K chat-uri distincte -> auto-approve
   expire_pending_days: 30      # M: pending nere-văzut de M zile & times_seen==1 -> auto-reject
   global_min_projects: 3       # N: lecție aprobată în ≥N proiecte -> propune global
+  relevance:
+    enabled: true
+    brain_url: "http://10.22.22.2:8931"
+    brain_token_env: ROBO_BRAIN_TOKEN
+    max_rules: 8
+    min_score: 0.30
+    approved_bonus: 0.10
+    timeout_s: 3
 
 weekly_report:
   discord_webhook_url: ""

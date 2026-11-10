@@ -143,6 +143,9 @@ async def _digest(session: Any, project_id: str) -> None:
             session._append_log("project_memory_updated", added=added, replaced=replaced)
         if rules_proposed:
             session._append_log("project_rules_proposed", added=rules_proposed)
+        sweep = rules_store.sweep_lifecycle(project_id)
+        if sweep["approved"] or sweep["expired"]:
+            session._append_log("project_rules_lifecycle", approved=sweep["approved"], expired=sweep["expired"])
 
 
 async def _call_llm(session: Any, project_id: str, lines: list[str]) -> dict[str, Any]:

@@ -264,6 +264,32 @@ def reject(rule_id: int) -> dict[str, Any] | None:
     return get_rule(rule_id)
 
 
+def sweep_lifecycle(project_id: str) -> dict[str, Any]:
+    """Auto-aprobă pending cu distinct_chats >= K; expiră pending vechi cu times_seen==1.
+    Întoarce {"approved": [rule_id, ...], "expired": [rule_id, ...]}."""
+    K = int(_RULES_CFG.get("promote_distinct_chats", 3))
+    M = int(_RULES_CFG.get("expire_pending_days", 30))
+    cutoff = time.time() - M * 86400
+
+    approved_ids: list[int] = []
+    expired_ids: list[int] = []
+
+    for rule in list_for(project_id, status="pending"):
+        rid = int(rule["id"])
+        if distinct_chats(rid) >= K:
+            approve(rid)
+            with _connect() as conn:
+                conn.execute("UPDATE project_rules SET decided_by = 'auto' WHERE id = ?", (rid,))
+            approved_ids.append(rid)
+        elif (rule["last_seen_at"] or rule["created_at"]) < cutoff and int(rule["times_seen"]) == 1:
+            reject(rid)
+            with _connect() as conn:
+                conn.execute("UPDATE project_rules SET decided_by = 'auto' WHERE id = ?", (rid,))
+            expired_ids.append(rid)
+
+    return {"approved": approved_ids, "expired": expired_ids}
+
+
 def delete_project(project_id: str) -> None:
     with _connect() as conn:
         conn.execute("DELETE FROM project_rules WHERE project_id = ?", (project_id,))

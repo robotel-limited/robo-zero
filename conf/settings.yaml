@@ -102,6 +102,9 @@ rules:
     min_score: 0.30
     approved_bonus: 0.10
     timeout_s: 3
+  success:
+    enabled: true        # reguli candidate din chat-urile reușite (categoria 'reușită')
+    max_per_chat: 2      # câte reguli de succes pot fi propuse per rulare de digest
 
 weekly_report:
   discord_webhook_url: ""

@@ -17,8 +17,10 @@ import project_memory_store as store
 import project_rules_store as rules_store
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
-with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
-    _CFG = yaml.safe_load(f)["project_memory"]
+with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as _f:
+    _yaml_root = yaml.safe_load(_f)
+    _CFG = _yaml_root["project_memory"]
+    _RULES_CFG: dict[str, Any] = (_yaml_root.get("rules") or {}).get("success") or {}
 
 # project_search ar readuce fapte din alte chat-uri (sursă greșită, duplicate);
 # response e dublat de intrarea `final`
@@ -41,6 +43,8 @@ Răspunzi strict cu un obiect JSON de forma:
 ], "rules": [
   {"op": "add", "category": "...", "text": "..."},
   {"op": "supersede", "rule_id": 7, "category": "...", "text": "..."}
+], "success_rules": [
+  {"op": "add", "category": "...", "text": "..."}
 ]}
 
 Reguli pentru summary:
@@ -64,7 +68,23 @@ Reguli pentru rules (reguli învățate — LISTA REGULI de mai jos arată toate
 - dacă o regulă nouă corectează sau înlocuiește o regulă deja cu status "aprobată", folosești "supersede" cu rule_id-ul acelei reguli, NU "add";
 - nu propune din nou o regulă deja "respinsă" sau deja existentă (pending/aprobată), reformulată echivalent;
 - fiecare regulă e de sine stătătoare (1-2 propoziții), category: 1-2 cuvinte;
-- dacă nu e nimic nou de propus, rules = []."""
+- dacă nu e nimic nou de propus, rules = [].
+
+Reguli pentru success_rules (DOAR dacă în MESAJELE NOI discuția s-a încheiat cu succes — vezi marcajul din antet):
+- extragi 0-2 reguli care surprind o ABORDARE sau un PAS GENERAL care a dus la rezultatul reușit și merită repetat în acest proiect pe sarcini similare (ex. „pentru verificarea X, rularea testului Y înainte de commit a prins problema — fă-o de fiecare dată");
+- reguli de proces/abordare, NU fapte despre proiect (acelea sunt în fișă) și NU valori punctuale din această discuție (fără URL-uri, ID-uri, nume de fișier specifice);
+- nu repeta o regulă deja existentă (orice status) reformulată echivalent;
+- fiecare regulă de sine stătătoare, 1-2 propoziții; `category` se ignoră (se forțează în cod);
+- dacă discuția NU s-a încheiat cu succes sau nu e nimic clar reutilizabil, success_rules = []."""
+
+
+def _chat_succeeded(session: Any) -> bool:
+    """Ultimul entry terminal (final/error/cancelled) din log este 'final'."""
+    terminale = ("final", "error", "cancelled")
+    for entry in reversed(session.log):
+        if entry.get("type") in terminale:
+            return entry.get("type") == "final"
+    return False
 
 
 def _entry_line(entry: dict[str, Any]) -> str | None:
@@ -124,15 +144,25 @@ async def _digest(session: Any, project_id: str) -> None:
         added: list[str] = []
         replaced: list[dict[str, str]] = []
         rules_proposed: list[str] = []
+        success_rules_proposed: list[str] = []
+        # calculat o singură dată, înainte de bucla pe chunk-uri
+        succeeded = _chat_succeeded(session)
         try:
             for chunk in _chunks(lines):
                 if not chunk:
                     continue
-                result = await _call_llm(session, project_id, [line for _, line in chunk])
+                result = await _call_llm(session, project_id, [line for _, line in chunk], succeeded)
                 if session.project_id != project_id or not session._path().exists():
                     return  # chat mutat sau șters cât a durat apelul LLM
                 _apply_ops(session, project_id, result.get("ops") or [], added, replaced)
                 _apply_rule_ops(session, project_id, result.get("rules") or [], rules_proposed)
+                # hard gate: success_rules se aplică DOAR dacă enabled ȘI chat reușit
+                if _RULES_CFG.get("enabled", True) and succeeded:
+                    _apply_success_rule_ops(
+                        session, project_id,
+                        result.get("success_rules") or [],
+                        success_rules_proposed,
+                    )
                 last_index = chunk[-1][0]
                 store.save_digest(
                     session.id, project_id, session.title, str(result.get("summary") or ""), last_index + 1
@@ -143,12 +173,14 @@ async def _digest(session: Any, project_id: str) -> None:
             session._append_log("project_memory_updated", added=added, replaced=replaced)
         if rules_proposed:
             session._append_log("project_rules_proposed", added=rules_proposed)
+        if success_rules_proposed:
+            session._append_log("project_success_rules_proposed", added=success_rules_proposed)
         sweep = rules_store.sweep_lifecycle(project_id)
         if sweep["approved"] or sweep["expired"]:
             session._append_log("project_rules_lifecycle", approved=sweep["approved"], expired=sweep["expired"])
 
 
-async def _call_llm(session: Any, project_id: str, lines: list[str]) -> dict[str, Any]:
+async def _call_llm(session: Any, project_id: str, lines: list[str], succeeded: bool) -> dict[str, Any]:
     facts = store.active_facts(project_id)
     digest = store.get_digest(session.id)
     fisa = "\n".join(
@@ -162,10 +194,12 @@ async def _call_llm(session: Any, project_id: str, lines: list[str]) -> dict[str
         for r in rules_store.list_for(project_id)
         if r["status"] in _RULE_STATUS_RO
     ) or "(nicio regulă încă)"
+    stare = "ÎNCHEIATĂ CU SUCCES" if succeeded else "neîncheiată cu succes"
     user_content = (
         f"Data de azi: {date.today().isoformat()}\n\n"
         f"(1) FIȘA:\n{fisa}\n\n(2) REZUMATUL:\n{summary}\n\n"
-        f"(3) LISTA REGULI (toate, cu status):\n{rules}\n\n(4) MESAJELE NOI:\n" + "\n".join(lines)
+        f"(3) LISTA REGULI (toate, cu status):\n{rules}\n\n"
+        f"Starea discuției: {stare}\n\n(4) MESAJELE NOI:\n" + "\n".join(lines)
     )
     response = await llm.chat(
         [{"role": "system", "content": _SYSTEM_PROMPT}, {"role": "user", "content": user_content}],
@@ -225,3 +259,23 @@ def _apply_rule_ops(session: Any, project_id: str, ops: list[Any], proposed: lis
             project_id, text, category, session.id, session.title, supersedes=supersedes
         )
         proposed.append(text)
+
+
+def _apply_success_rule_ops(
+    session: Any, project_id: str, ops: list[Any], proposed: list[str]
+) -> None:
+    """Oglinda minimală a lui _apply_rule_ops pentru chat-uri reușite.
+    Categoria forțată la 'reușită', supersedes=None, respectă max_per_chat."""
+    max_per_chat = _RULES_CFG.get("max_per_chat", 2)
+    aplicate = 0
+    for op in ops:
+        if aplicate >= max_per_chat:
+            break
+        if not isinstance(op, dict) or not str(op.get("text") or "").strip():
+            continue
+        text = str(op["text"]).strip()
+        rules_store.add_or_merge(
+            project_id, text, "reușită", session.id, session.title, supersedes=None
+        )
+        proposed.append(text)
+        aplicate += 1

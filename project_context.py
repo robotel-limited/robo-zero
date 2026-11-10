@@ -18,12 +18,17 @@ import project_memory_store as store
 import project_rules_store as rules
 import projects_store
 import rule_effect_store
+import rule_relevance
 
 _log = logging.getLogger(__name__)
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
-    _CFG = yaml.safe_load(f)["project_memory"]
+    _FULL_CFG = yaml.safe_load(f)
+_CFG = _FULL_CFG["project_memory"]
+_RELEVANCE_ENABLED: bool = (
+    (_FULL_CFG.get("rules") or {}).get("relevance", {}).get("enabled", True)
+)
 
 _FISA_HEADER = (
     "## Fișa proiectului\n"
@@ -112,24 +117,49 @@ def _select_rules(project_id: str) -> tuple[list, list, list]:
     )
 
 
-def _rules(project_id: str, chat_id: str | None = None) -> str:
-    """Blocul de reguli din context; `chat_id` e chatul în care se injectează
-    (expunere înregistrată pentru măsurarea efectului — vezi rule_effect_store).
-    Textul e identic cu cel de dinaintea separării selecției de formatare."""
-    global_rules, approved, pending = _select_rules(project_id)
-    blocks = (
-        _rules_block(_RULES_GLOBAL_HEADER, global_rules),
-        _rules_block(_RULES_HEADER, approved),
-        _rules_block(_RULES_PENDING_HEADER, pending),
-    )
-    ids = [int(r["id"]) for r in (*global_rules, *approved, *pending)]
+def _rules(
+    project_id: str,
+    chat_id: str | None = None,
+    task_text: str | None = None,
+) -> str:
+    """Blocul de reguli din context. Dacă `task_text` e furnizat și relevance e
+    activat, filtrează candidații prin rule_relevance.select; eșec -> toți candidații.
+    `record_exposures` primește DOAR id-urile efectiv injectate."""
     try:
-        rule_effect_store.record_exposures(ids, chat_id)
+        global_rules, approved, pending = _select_rules(project_id)
+
+        # construiește lista de candidați cu blocul lor
+        candidates: list[tuple[str, dict]] = (
+            [("global", r) for r in global_rules]
+            + [("approved", r) for r in approved]
+            + [("pending", r) for r in pending]
+        )
+
+        if _RELEVANCE_ENABLED and task_text and candidates:
+            selected = rule_relevance.select(task_text, candidates)
+            if selected is not None:
+                candidates = selected
+
+        # reconstruiește listele pe bloc pentru formatare
+        sel_global = [r for bloc, r in candidates if bloc == "global"]
+        sel_approved = [r for bloc, r in candidates if bloc == "approved"]
+        sel_pending = [r for bloc, r in candidates if bloc == "pending"]
+
+        blocks = (
+            _rules_block(_RULES_GLOBAL_HEADER, sel_global),
+            _rules_block(_RULES_HEADER, sel_approved),
+            _rules_block(_RULES_PENDING_HEADER, sel_pending),
+        )
+        ids = [int(r["id"]) for _, r in candidates]
+        try:
+            rule_effect_store.record_exposures(ids, chat_id)
+        except Exception:
+            _log.warning("record_exposures eșuat (rule_ids=%s, chat=%s)", ids, chat_id,
+                         exc_info=True)
+        return "\n\n".join(b for b in blocks if b)
     except Exception:
-        # contextul nu trebuie să crape niciodată din cauza măsurătorii
-        _log.warning("record_exposures eșuat (rule_ids=%s, chat=%s)", ids, chat_id,
-                     exc_info=True)
-    return "\n\n".join(b for b in blocks if b)
+        _log.warning("_rules eșuat pentru project_id=%s", project_id, exc_info=True)
+        return ""
 
 
 def _other_chats(project_id: str, exclude_chat_id: str | None) -> str:
@@ -189,7 +219,11 @@ def _folders(project_id: str) -> str:
     return "\n\n".join(parts)
 
 
-def build_initial(project_id: str, exclude_chat_id: str | None) -> str | None:
+def build_initial(
+    project_id: str,
+    exclude_chat_id: str | None,
+    task_text: str | None = None,
+) -> str | None:
     project = projects_store.get(project_id)
     if project is None:
         return None
@@ -197,7 +231,7 @@ def build_initial(project_id: str, exclude_chat_id: str | None) -> str | None:
     if project["prompt"].strip():
         blocks.append(project["prompt"].strip())
     blocks.append(_fisa(project_id))
-    rules_block = _rules(project_id, exclude_chat_id)
+    rules_block = _rules(project_id, exclude_chat_id, task_text=task_text)
     if rules_block:
         blocks.append(rules_block)
     others = _other_chats(project_id, exclude_chat_id)

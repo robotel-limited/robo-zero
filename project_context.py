@@ -32,6 +32,12 @@ _RULES_HEADER = (
     "Corecții de comportament confirmate de Sorin în discuții anterioare ale "
     "proiectului — au prioritate asupra abordării implicite a agentului."
 )
+_RULES_PENDING_HEADER = (
+    "## Reguli candidate (neverificate)\n"
+    "Lecții învățate automat din discuții anterioare, încă neconfirmate de Sorin. "
+    "Aplică-le cu prudență — Sorin le poate respinge. Dacă una contrazice o regulă "
+    "aprobată de mai sus sau o instrucțiune explicită, aceea din urmă are prioritate."
+)
 _SEARCH_NOTE = (
     "Pentru detalii exacte din discuțiile proiectului sau din fișierele bazei de "
     "cunoștințe (doze, date, cifre, formulări) care nu apar mai sus, folosește "
@@ -76,15 +82,20 @@ def _fisa(project_id: str) -> str:
     return f"{_FISA_HEADER}\n{body}"
 
 
-def _rules(project_id: str) -> str:
-    approved = rules.list_for(project_id, status="approved")
-    if not approved:
+def _rules_block(header: str, items: list[dict]) -> str:
+    if not items:
         return ""
     sections: dict[str, list[str]] = {}
-    for rule in approved:
+    for rule in items:
         sections.setdefault(rule["category"] or "Altele", []).append(f"- {rule['text']}")
     body = "\n".join(f"### {cat}\n" + "\n".join(lines) for cat, lines in sections.items())
-    return f"{_RULES_HEADER}\n{body}"
+    return f"{header}\n{body}"
+
+
+def _rules(project_id: str) -> str:
+    approved = _rules_block(_RULES_HEADER, rules.list_for(project_id, status="approved"))
+    pending = _rules_block(_RULES_PENDING_HEADER, rules.list_for(project_id, status="pending"))
+    return "\n\n".join(b for b in (approved, pending) if b)
 
 
 def _other_chats(project_id: str, exclude_chat_id: str | None) -> str:

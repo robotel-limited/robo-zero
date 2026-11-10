@@ -218,7 +218,7 @@ def _apply_rule_ops(session: Any, project_id: str, ops: list[Any], proposed: lis
                 candidate = None
             if candidate is not None and candidate["project_id"] == project_id and candidate["status"] == "approved":
                 supersedes = candidate["id"]
-        rules_store.add_rule(
+        rules_store.add_or_merge(
             project_id, text, category, session.id, session.title, supersedes=supersedes
         )
         proposed.append(text)

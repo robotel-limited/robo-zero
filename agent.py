@@ -13,6 +13,7 @@ from typing import Any, Awaitable, Callable
 import yaml
 
 import agent_config
+import agent_recall
 import agent_tools
 import agent_wm
 import attachments
@@ -35,45 +36,6 @@ _SHELL_CFG = _SETTINGS["shell"]
 # (tool_name, detail_pentru_UI) -> True dacă utilizatorul aprobă
 ConfirmCallback = Callable[[str, str], Awaitable[bool]]
 
-# Regulă obligatorie pentru toți agenții (nu doar oss, care are tool-calling
-# nativ nesigur pe build-ul curent de llama.cpp): dacă răspunsul final nu are
-# tool_calls și pare un răspuns nesigur/incomplet, bucla face automat un
-# memory_recall pe mesajul utilizatorului înainte să dea răspunsul final —
-# nu lăsăm decizia doar pe modelul ales, care poate "uita" să caute în dimag.
-_STRONG_MARKERS = (
-    "nu am suficiente informații",
-    "nu am suficient context",
-    "nu am acces la",
-    "nu știu sigur",
-    "nu sunt sigur",
-    "nu sunt sigură",
-    "nu am informații despre",
-    "nu pot răspunde cu certitudine",
-    "nu am date despre",
-    "ar trebui să verific",
-    "i don't have enough information",
-    "i'm not sure",
-    "i don't know",
-    "i do not have access to",
-    "if you provide",
-    "please provide the",
-    "let me know if you'd like",
-    "once the key is available",
-)
-
-# Markeri "slabi" (familia find/exist) — apar firesc și în rapoarte de stare
-# corecte după ce tool-urile au fost deja folosite (ex. "vm1 nu există"),
-# deci declanșează auto-recall doar dacă NU s-a executat niciun tool în
-# turul curent (vezi tools_used în _run și _looks_insufficient).
-_WEAK_MARKERS = (
-    "is missing",
-    "does not exist",
-    "cannot find",
-    "could not find",
-    "nu găsesc",
-    "nu există",
-    "nu am găsit",
-)
 
 class AgentError(Exception):
     """Eroare vizibilă care încheie rularea curentă (limită de iterații sau repetiție)."""
@@ -215,7 +177,7 @@ class Agent:
         reserved_tokens = schema_tokens + llm.OUTPUT_TOKENS
         auto_recall_done = False
         # True dacă s-a executat deja un tool real (nu terminal response) în
-        # turul curent — gating pentru markerii "slabi" din _looks_insufficient
+        # turul curent — gating pentru markerii "slabi" din agent_recall.looks_insufficient
         tools_used = False
 
         for _ in range(_AGENT_CFG["max_iterations"]):
@@ -240,28 +202,11 @@ class Agent:
 
             if not response.tool_calls:
                 final_text = response.content or ""
-                if not auto_recall_done and self._looks_insufficient(final_text, tools_used):
+                if not auto_recall_done and agent_recall.looks_insufficient(final_text, tools_used):
                     auto_recall_done = True
                     self.history.append({"role": "assistant", "content": final_text})
-                    self._emit("auto_recall", query=user_message)
-                    recall_tool = self.tools.get("memory_recall")
-                    recall_message = "[memorie dimag: indisponibilă]"
-                    if recall_tool is not None:
-                        result = await recall_tool.execute(query=user_message)
-                        recall_message = result.message
                     self.history.append(
-                        {
-                            # NU "system": template-ul SenseNova (SSN, :8093)
-                            # ridică excepție jinja „System message must be at
-                            # the beginning" la orice system care nu e primul,
-                            # deci run-ul cădea cu 500. Ca "user" merge pe toate
-                            # modelele locale (și gpt-oss îl citea oricum).
-                            "role": "user",
-                            "content": (
-                                "[auto-recall dimag — răspunsul anterior a părut nesigur/incomplet, "
-                                "s-a căutat automat context relevant]\n" + recall_message
-                            ),
-                        }
+                        {"role": "user", "content": await agent_recall.auto_recall(self, user_message)}
                     )
                     continue
                 self.history.append({"role": "assistant", "content": final_text})
@@ -329,26 +274,14 @@ class Agent:
                 raise
 
             if break_text is not None:
-                if not auto_recall_done and self._looks_insufficient(break_text, tools_used):
+                if not auto_recall_done and agent_recall.looks_insufficient(break_text, tools_used):
                     # cu tool_choice=required modelul termină mereu prin tool-ul
                     # "response", deci ramura de mai sus (fără tool_calls) nu se
                     # mai declanșează niciodată — auto-recall-ul trebuie verificat
                     # și aici, pe textul trimis prin response, altfel moare (2026-11-07)
                     auto_recall_done = True
-                    self._emit("auto_recall", query=user_message)
-                    recall_tool = self.tools.get("memory_recall")
-                    recall_message = "[memorie dimag: indisponibilă]"
-                    if recall_tool is not None:
-                        result = await recall_tool.execute(query=user_message)
-                        recall_message = result.message
                     self.history.append(
-                        {
-                            "role": "user",
-                            "content": (
-                                "[auto-recall dimag — răspunsul anterior a părut nesigur/incomplet, "
-                                "s-a căutat automat context relevant]\n" + recall_message
-                            ),
-                        }
+                        {"role": "user", "content": await agent_recall.auto_recall(self, user_message)}
                     )
                     continue
                 self._emit("final", text=break_text)
@@ -465,21 +398,3 @@ class Agent:
 
     async def _wm_content(self, tc: Any, result_text: str) -> str:
         return await agent_wm.wm_content(self, tc, result_text)
-
-    @staticmethod
-    def _looks_insufficient(text: str, tools_used: bool) -> bool:
-        """Detectează euristic un răspuns final nesigur/incomplet (fără
-        tool_calls), ca să declanșeze automat un memory_recall în dimag —
-        regulă obligatorie pentru toți agenții, nu doar pentru modelele cu
-        tool-calling nativ nesigur (ex. gpt-oss pe build-ul curent).
-
-        Markerii "strong" (epistemici) declanșează mereu. Markerii "weak"
-        (familia find/exist, ex. "nu există") apar firesc în rapoarte de
-        stare corecte după ce tool-urile au fost deja folosite — declanșează
-        doar dacă încă nu s-a executat niciun tool în turul curent (fals
-        pozitiv real: raport SSH valid "vm1 inactive / nu există" după 2
-        apeluri ssh, 2026-11)."""
-        lowered = text.lower()
-        if any(marker in lowered for marker in _STRONG_MARKERS):
-            return True
-        return not tools_used and any(marker in lowered for marker in _WEAK_MARKERS)

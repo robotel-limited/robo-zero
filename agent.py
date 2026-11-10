@@ -66,8 +66,13 @@ class Agent:
         browser_box: BrowserBox | None = None,
         project_id: str | None = None,
         working_memory: bool = False,
+        task_type: str | None = None,
     ) -> None:
         self.workdir = workdir or _AGENT_CFG["workdir"]
+        # tipul sarcinii (extras #4): dicționarul agent.task_types din
+        # conf/settings.yaml îi poate limita bucla la mai puține iterații;
+        # None = fallback la agent.max_iterations global (comportament vechi)
+        self.task_type = task_type
         self.shell_timeout_seconds = _SHELL_CFG["timeout_seconds"]
         self.confirm = confirm
         # blocul de proiect (prompt + fișă + rezumate) — setat de chat_session.py
@@ -180,7 +185,15 @@ class Agent:
         # turul curent — gating pentru markerii "slabi" din agent_recall.looks_insufficient
         tools_used = False
 
-        for _ in range(_AGENT_CFG["max_iterations"]):
+        # plafonul de iterații per tip de sarcină (extras #4): task_types[task_type]
+        # din settings, altfel plafonul global — task_type None = ca înainte
+        task_max = (
+            _AGENT_CFG.get("task_types", {})
+            .get(self.task_type or "", {})
+            .get("max_iterations", _AGENT_CFG["max_iterations"])
+        )
+
+        for _ in range(task_max):
             if self.cancelled:
                 raise AgentCancelled("Rulare anulată de utilizator.")
 
@@ -288,7 +301,7 @@ class Agent:
                 return break_text
 
         raise AgentError(
-            f"Agentul a atins limita de {_AGENT_CFG['max_iterations']} iterații fără răspuns final."
+            f"Agentul a atins limita de {task_max} iterații fără răspuns final."
         )
 
     @staticmethod

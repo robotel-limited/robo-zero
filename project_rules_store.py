@@ -386,6 +386,7 @@ def _loop_rule_text(detector: str, tool: str, count: int) -> str:
                        'argumente — schimbă abordarea.'),
         'consecutive': (f"'{tool}' apelat identic de mai multe ori la rând fără progres. "
                         'Schimbă argumentele sau abordarea.'),
+        'per_tool_failure': f"Evită să apelez tool-ul {tool!r} mai mult de câteva ori dacă returnează mereu eroare.",
     }
     return mesaje.get(detector, (f"Buclă oprită (detector {detector}) pe tool-ul '{tool}'. "
                                  f'Evită repetarea aceluiași apel {tool} când nu aduce progres — '

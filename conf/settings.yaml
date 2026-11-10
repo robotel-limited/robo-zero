@@ -21,6 +21,14 @@ agent:
   failure_abort_count: 4        # detector failure: oprire la 4
   noprogress_warn_count: 2      # detector noprogress: 2 rezultate identice de la același tool
   noprogress_abort_count: 4     # detector noprogress: oprire la 4
+  per_tool_failure_abort: 6   # același tool -> abort după 6 eșecuri cumulate pe sesiune
+
+  task_types:
+    research:
+      max_iterations: 30
+    coding:
+      max_iterations: 40
+    # (implicit/default = agent.max_iterations = 50)
 
 server:
   host: 0.0.0.0

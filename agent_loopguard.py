@@ -106,6 +106,11 @@ class LoopGuard:
         # failure (mesaje „Eroare…”) și noprogress (aceleași mesaje repetate),
         # evaluate abia după tool.execute
         self._recent_results: list[tuple[str, str, str]] = []
+        # contorul per tool name al eșecurilor CUMULATE pe durata sesiunii
+        # (extras #4): fără fereastră, fără reset — dacă un singur tool
+        # depășește per_tool_failure_abort, bucla se oprește cu detectorul
+        # per_tool_failure (detectorul global failure rămâne pe fereastră)
+        self._tool_failure_counts: dict[str, int] = {}
 
     def check_repetition(self, name: str, raw_arguments: str) -> str | None:
         """Urmărește ultimele apeluri (tool, argumente) în fereastra de
@@ -161,9 +166,14 @@ class LoopGuard:
         self._recent_results = self._recent_results[-_LOOP_WINDOW:]
 
         same_tool = [m for tool, _, m in self._recent_results if tool == name]
+        is_failure = message.lower().startswith("eroare")
         failures = sum(1 for m in same_tool if m.lower().startswith("eroare"))
         digest = _digest(message)
         identical = sum(1 for m in same_tool if _digest(m) == digest)
+        if is_failure:
+            # contor cumulativ pe sesiune, per tool name (extras #4): nu se
+            # resetează și nu are fereastră, spre deosebire de detectorul failure
+            self._tool_failure_counts[name] = self._tool_failure_counts.get(name, 0) + 1
 
         failure_warn = self._agent_cfg.get("failure_warn_count", 2)
         failure_abort = self._agent_cfg.get("failure_abort_count", 4)
@@ -174,6 +184,20 @@ class LoopGuard:
             raise self._loop_abort("failure", name, failures, raw_arguments, message, result_recorded=True)
         if identical >= noprogress_abort:
             raise self._loop_abort("noprogress", name, identical, raw_arguments, message, result_recorded=True)
+        # plafonul per tool (extras #4): eșecuri CUMULATE pe durata sesiunii,
+        # nu în fereastră — un tool care eșuează mereu (ex. web_read cu 401)
+        # oprește bucla chiar dacă detectorul global failure nu-l atinge
+        if is_failure:
+            per_tool_abort = self._agent_cfg.get("per_tool_failure_abort", 6)
+            if self._tool_failure_counts[name] >= per_tool_abort:
+                raise self._loop_abort(
+                    "per_tool_failure",
+                    name,
+                    self._tool_failure_counts[name],
+                    raw_arguments,
+                    message,
+                    result_recorded=True,
+                )
         if failures >= failure_warn:
             return self._loop_note(
                 "failure",

@@ -94,3 +94,7 @@ rules:
   promote_distinct_chats: 3    # K: pending atins din ≥K chat-uri distincte -> auto-approve
   expire_pending_days: 30      # M: pending nere-văzut de M zile & times_seen==1 -> auto-reject
   global_min_projects: 3       # N: lecție aprobată în ≥N proiecte -> propune global
+
+weekly_report:
+  discord_webhook_url: ""
+  report_days: 7

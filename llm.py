@@ -121,6 +121,17 @@ MODEL_CATALOG: dict[str, dict[str, str | int]] = {
         "label": "LFM3 Omni 2B (local, SVAI)",
         "context_tokens": 32_768,
     },
+    # Local, pe SVAI: Qwen3.6-35B-A3B-UD-IQ4_NL Q4-ish, /srv/llama.cpp, port
+    # 8096 (-c 65536 --n-cpu-moe 20, ~11.5GB VRAM — parametri din sweep-ul
+    # Hermes 2026-11-10, vezi qsweep.tsv). Unitate systemd "llama-qwen36",
+    # start-on-demand, Conflicts cu llama-oss/llama-ssn (un singur model pe
+    # GPU, decizie Sorin 2026-11-01).
+    "qwen3.6-35b-a3b": {
+        "endpoint": "http://192.168.0.152:8096/v1/chat/completions",
+        "api_key_env": "LLAMA_OSS_API_KEY",
+        "label": "Qwen3.6 35B A3B (local, SVAI)",
+        "context_tokens": 65_536,
+    },
 }
 
 DEFAULT_CONTEXT_TOKENS = 128_000  # fallback dacă un model nou nu are context_tokens în catalog
@@ -134,11 +145,12 @@ def context_tokens_for(model: str | None) -> int:
 
 _OSS_SSH_HOST = "svai"
 # modele locale pornite la cerere pe GPU-ul svai: model -> (unitate systemd, /health).
-# llama-oss și llama-ssn au Conflicts= reciproc, deci pornirea unuia îl oprește
+# llama-oss, llama-ssn și llama-qwen36 au Conflicts= reciproc, deci pornirea unuia îl oprește
 # pe celălalt — un singur model pe GPU (decizie Sorin 2026-11-01).
 _LOCAL_UNITS = {
     "gpt-oss-20b": ("llama-oss", "http://192.168.0.152:8091/health"),
     "sensenova-loop-9b": ("llama-ssn", "http://192.168.0.152:8093/health"),
+    "qwen3.6-35b-a3b": ("llama-qwen36", "http://192.168.0.152:8096/health"),
 }
 _OSS_FINAL_MARKER = "<|channel|>final<|message|>"
 _OSS_STRAY_TOKENS_RE = re.compile(r"<\|[a-z_]+\|>")
@@ -289,6 +301,11 @@ async def chat(
         payload["seed"] = _seed
     if _max is not None:
         payload["max_tokens"] = _max
+    if model == "qwen3.6-35b-a3b":
+        # modelul gândește implicit (reasoning_content) — Sorin nu are nevoie
+        # de thinking, se descurcă ok și fără (verificat de Hermes în sweep,
+        # vezi qwen_S_nothink.json/qwen_S_off.json: răspuns identic, mai rapid)
+        payload["chat_template_kwargs"] = {"enable_thinking": False}
     if tools:
         payload["tools"] = tools
     if response_format:

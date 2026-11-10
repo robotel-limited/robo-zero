@@ -256,6 +256,16 @@ async def post_message(chat_id: str, body: dict):
         raise HTTPException(status_code=400, detail="Imagini atașate invalide.")
     if not text and not images:
         raise HTTPException(status_code=400, detail="Mesajul e vid.")
+    if session.is_running:
+        # în loc de 409: mesajul intră ca steer în rularea activă (steer-ul e
+        # doar text — imaginile n-ar avea unde să fie atașate în tură)
+        if images:
+            raise HTTPException(
+                status_code=409,
+                detail="Imaginile nu pot fi trimise în timpul unei rulări active — trimite doar text sau anulează mai întâi.",
+            )
+        session.steer(text)
+        return {"status": "steered"}
     try:
         session.start_run(text, images)
     except RuntimeError as e:

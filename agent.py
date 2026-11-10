@@ -104,6 +104,10 @@ class Agent:
         # înainte de fiecare tool; subprocesul shell curent (dacă există)
         # primește SIGTERM — vezi tools/shell_tool.py.
         self.cancelled = False
+        # steer-uri (corecturi trimise de utilizator în timpul rulării — vezi
+        # add_steer/chat_session.steer): coadă drenată doar la începutul unei
+        # iterații, când istoricul e valid (toate tool_calls au răspunsurile lor)
+        self.pending_steers: list[str] = []
         self.current_shell_proc: Any = None
         # sub-agentul pornit curent de call_subordinate.py (dacă există),
         # pentru ca request_cancel() să se propage în cascadă — vezi acolo.
@@ -138,6 +142,28 @@ class Agent:
         if self.current_subordinate is not None:
             self.current_subordinate.request_cancel()
 
+    def add_steer(self, text: str) -> None:
+        """Programează un mesaj de utilizator pentru rularea activă (steer:
+        nu anulează și nu repornește tură, mesajul e injectat la următoarea
+        iterație sigură — vezi chat_session.steer)."""
+        self.pending_steers.append(text)
+
+    def _drain_steers(self) -> None:
+        """Mută steer-ele programate în istoric ca mesaje user. Chemat DOAR
+        la începutul unei iterații (după verificarea anulării, înainte de
+        compactare/llm.chat): acolo fiecare tool_calls din istoric are deja
+        răspunsul lui tool. Niciodată între un mesaj assistant cu tool_calls
+        și răspunsurile lui — providerul le-ar respinge pe restul turilor."""
+        while self.pending_steers:
+            text = self.pending_steers.pop(0)
+            self.history.append(
+                {
+                    "role": "user",
+                    "content": f"[Corectură de la utilizator în timpul rulării — ține cont de ea și continuă sarcina]\n{text}",
+                }
+            )
+            self._emit("steer_applied", text=text)
+
     def _build_tools(self) -> dict[str, Tool]:
         return agent_tools.build_tools(self)
 
@@ -154,6 +180,9 @@ class Agent:
         """Rulează bucla agentului pentru un mesaj de utilizator și întoarce
         textul răspunsului final (cel care devine mesajul verde în UI).
         `images` = căi locale /files/uploads/... ale capturilor atașate."""
+        # steer-ele rămase nedrenate de la o tură anterioară nu au ce căuta
+        # în istoricul unei ture noi — le aruncăm la start, nu în timpul ei
+        self.pending_steers = []
         try:
             return await self._run(user_message, images or [])
         finally:
@@ -197,6 +226,10 @@ class Agent:
             if self.cancelled:
                 raise AgentCancelled("Rulare anulată de utilizator.")
 
+            # steer-ele programate în timpul rulării intră în istoric aici,
+            # înainte de compactare/llm.chat — vezi _drain_steers
+            self._drain_steers()
+
             compacted = await history.compact_if_needed(
                 self.history, model=self._chat_model(), reserved_tokens=reserved_tokens
             )
@@ -223,6 +256,11 @@ class Agent:
                     )
                     continue
                 self.history.append({"role": "assistant", "content": final_text})
+                if self.pending_steers:
+                    # utilizatorul a trimis un steer cât timp modelul genera
+                    # finalul: nu încheiem — următoarea iterație le drenează în
+                    # istoric și modelul continuă ținând cont de ele
+                    continue
                 self._emit("final", text=final_text)
                 return final_text
 

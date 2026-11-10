@@ -8,6 +8,13 @@ const approvalText = document.getElementById("approval-text");
 const sendBtn = document.getElementById("send-btn");
 const cancelBtn = document.getElementById("cancel-btn");
 
+// original label/title of the send button, read once from the DOM: while a run
+// is active the button becomes "Redirect" (mid-run steer) and reverts after
+const SEND_LABEL = sendBtn.textContent;
+const SEND_TITLE = sendBtn.title;
+// single source of truth for "a run is active", read by app.js at submit time
+let runActive = false;
+
 // tool_result from image_generate returns the message "Image generated: /files/images/<id>.jpg"
 const IMAGE_PATH_RE = /\/files\/images\/[\w.-]+\.(?:jpg|jpeg|png)\b/;
 
@@ -119,6 +126,15 @@ function renderLogEntry(entry) {
     case "user":
       appendMessage("message-user", entry.text, entry.images, entry.turn_id);
       break;
+    case "steer":
+      appendMessage("message-user message-steer", `↪ Redirect: ${entry.text}`, null, entry.turn_id);
+      break;
+    case "steer_applied":
+      appendMessage("message-memory", "↪ Redirect applied to current run");
+      break;
+    case "steer_dropped":
+      appendMessage("message-error", `↪ Redirect arrived after the run ended, not applied — send it again: ${entry.text}`);
+      break;
     case "tool_call":
       if (settings.verbose)
         appendMessage("message-tool-call", `→ ${entry.name}(${entry.arguments})`, null, entry.turn_id);
@@ -188,8 +204,12 @@ function hideApproval() {
 }
 
 function setRunning(running) {
+  runActive = running;
   cancelBtn.classList.toggle("hidden", !running);
-  sendBtn.disabled = running;
+  // the send button stays usable while a run is active: it switches to
+  // "Redirect" (sends a steer into the running agent) instead of disabling
+  sendBtn.textContent = running ? "Redirect" : SEND_LABEL;
+  sendBtn.title = running ? "Redirect" : SEND_TITLE;
   if (!running) hideApproval();
   if (running) showTypingIndicator();
   else hideTypingIndicator();

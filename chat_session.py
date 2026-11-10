@@ -161,6 +161,12 @@ class ChatSession:
         except Exception as e:  # defensiv: o eroare neprevăzută nu trebuie să rămână tăcută
             self._append_log("error", text=f"Eroare neprevăzută: {e}")
         finally:
+            # steer sosit după ce bucla a ieșit (final/eroare/anulare): nu mai
+            # are unde intra — îl semnalăm explicit în loc să-l pierdem tăcut
+            if self.agent.pending_steers:
+                for text in self.agent.pending_steers:
+                    self._append_log("steer_dropped", text=text)
+                self.agent.pending_steers = []
             self._close_turn()
             self._save()
             try:
@@ -211,6 +217,17 @@ class ChatSession:
         self.agent.request_cancel()
         if self._pending_approval is not None and not self._pending_approval.done():
             self._pending_approval.set_result(False)
+        return True
+
+    def steer(self, text: str) -> bool:
+        """Injectează un mesaj în rularea activă, fără s-o anuleze sau s-o
+        repornească: agentul îl absoarbe la următoarea iterație sigură
+        (agent.add_steer + _drain_steers). Întoarce False dacă nu există
+        o rulare activă."""
+        if not self.is_running:
+            return False
+        self.agent.add_steer(text)
+        self._append_log("steer", text=text)
         return True
 
     # --- ștergerea unei ture (mesaj user + tool calls + răspuns final) -----

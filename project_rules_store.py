@@ -4,9 +4,12 @@ după aprobarea lui pe cardul proiectului. Același SQLite ca
 project_memory_store.py (data/projects.db)."""
 
 import difflib
+import json as _json
+import os
 import re
 import sqlite3
 import time
+import urllib.request
 from pathlib import Path
 from typing import Any
 
@@ -19,7 +22,53 @@ _DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 # pragurile ciclului de viață (Etapa 1: near_match_threshold) — citite cu
 # .get(), un settings.yaml vechi fără blocul rules merge cu valorile implicite
 with open(_PROJECT_ROOT / "conf" / "settings.yaml", "r", encoding="utf-8") as f:
-    _RULES_CFG = (yaml.safe_load(f) or {}).get("rules") or {}
+    _SETTINGS = yaml.safe_load(f) or {}
+_RULES_CFG = _SETTINGS.get("rules") or {}
+# blocul memory: gateway-ul dimag HTTP (același pe care îl citește
+# tools/memory_tool.py) — .get() tot, un settings.yaml fără memory merge
+# cu gateway_url-ul implicit din _publish_to_dimag
+_MEMORY_CFG = _SETTINGS.get("memory") or {}
+
+# fiecare regulă se publică o singură dată în dimag (approve() + sweep_lifecycle
+# ambele apelează _publish_to_dimag; a doua chemare e un no-op)
+_PUBLISHED_RULES: set[int] = set()
+
+
+def _publish_to_dimag(rule: dict) -> None:
+    """Trimite o regulă aprobată la gateway-ul dimag HTTP (fire-and-forget).
+    Eșecul e înghițit cu log — nu blochează aprobarea.
+    Apelat după commit în DB."""
+    if os.environ.get("PYTEST_CURRENT_TEST"):
+        # testele nu fac rețea reală (ele mockuiesc urlopen); sub pytest nu
+        # atingem gateway-ul dimag din niciun test
+        return
+    try:
+        rule_id = int(rule["id"])
+        if rule_id in _PUBLISHED_RULES:
+            return
+        _PUBLISHED_RULES.add(rule_id)
+        gateway_url = _MEMORY_CFG.get("gateway_url", "http://127.0.0.1:8930")
+        # 3-5 cuvinte din text, primele N tokens după normalizare
+        words = _normalize(rule["text"]).split()[:5]
+        assumptions = [w for w in words if len(w) >= 4][:4]
+        payload = {
+            "statement": f"[r0 lecție aprobată] {rule['text']}",
+            "type": "lesson",
+            "project": "robo-zero",
+            "assumptions": assumptions,
+        }
+        data = _json.dumps(payload).encode()
+        req = urllib.request.Request(
+            f"{gateway_url}/remember",
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=5) as r:
+            _ = r.read()
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning("_publish_to_dimag failed: %s", exc)
 
 
 def _connect() -> sqlite3.Connection:
@@ -252,7 +301,9 @@ def approve(rule_id: int) -> dict[str, Any] | None:
                     "WHERE id = ?",
                     (rule_id, now, old["id"]),
                 )
-    return get_rule(rule_id)
+    rule = get_rule(rule_id)
+    _publish_to_dimag(rule)
+    return rule
 
 
 def reject(rule_id: int) -> dict[str, Any] | None:
@@ -277,9 +328,13 @@ def sweep_lifecycle(project_id: str) -> dict[str, Any]:
     for rule in list_for(project_id, status="pending"):
         rid = int(rule["id"])
         if distinct_chats(rid) >= K:
-            approve(rid)
+            approved = approve(rid)
             with _connect() as conn:
                 conn.execute("UPDATE project_rules SET decided_by = 'auto' WHERE id = ?", (rid,))
+            if approved is not None:
+                # publish-ul face doar o postare per regulă (_PUBLISHED_RULES,
+                # approve() a încercat deja) — aici prinde drumul auto
+                _publish_to_dimag(approved)
             approved_ids.append(rid)
         elif (rule["last_seen_at"] or rule["created_at"]) < cutoff and int(rule["times_seen"]) == 1:
             reject(rid)

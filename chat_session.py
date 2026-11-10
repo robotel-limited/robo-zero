@@ -147,26 +147,15 @@ class ChatSession:
                 ),
             )
         except AgentLoopAborted as e:
-            self._append_log("error", text=str(e))
+            self._append_log('error', text=str(e))
             if self.project_id:
                 try:
-                    text = (
-                        f"Bucla oprită (detector {e.detector}) pe tool-ul '{e.tool}': "
-                        f"{e.count} apeluri problematice în aceeași fereastră. "
-                        f"Evită repetarea aceluiași apel {e.tool} când nu aduce progres — "
-                        "schimbă abordarea sau raportează blocajul în loc să reîncerci."
-                    )
-                    if e.entries:
-                        text += f" Ex. ultim apel: {e.entries[-1][1]}"
-                    project_rules_store.add_rule(
-                        project_id=self.project_id,
-                        text=text[:400],
-                        category="buclă",
-                        source_chat_id=self.id,
-                        source_chat_title=self.title,
+                    project_rules_store.propose_from_loop_abort(
+                        self.project_id, e.detector, e.tool, e.count,
+                        self.id, self.title,
                     )
                 except Exception as ex:
-                    self._append_log("error", text=f"Salvare regulă din buclă: {ex}")
+                    self._append_log('error', text=f'Salvare regulă din buclă: {ex}')
         except AgentError as e:
             self._append_log("error", text=str(e))
         except Exception as e:  # defensiv: o eroare neprevăzută nu trebuie să rămână tăcută

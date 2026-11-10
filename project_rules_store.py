@@ -142,4 +142,36 @@ def delete_project(project_id: str) -> None:
         conn.execute("DELETE FROM project_rules WHERE project_id = ?", (project_id,))
 
 
+def _loop_rule_text(detector: str, tool: str, count: int) -> str:
+    mesaje = {
+        'failure': (f"Tool-ul '{tool}' a întors erori repetat. Nu relua același apel cu "
+                    'aceleași argumente — schimbă sursa/abordarea sau oprește-te și raportează blocajul.'),
+        'cycle': (f"Reapare aceeași secvență de apeluri la '{tool}'. Dacă nu avansează, "
+                  'schimbă strategia în loc să reiei ciclul.'),
+        'noprogress': (f"'{tool}' întoarce mereu același rezultat. Nu-l mai apela cu aceleași "
+                       'argumente — schimbă abordarea.'),
+        'consecutive': (f"'{tool}' apelat identic de mai multe ori la rând fără progres. "
+                        'Schimbă argumentele sau abordarea.'),
+    }
+    return mesaje.get(detector, (f"Buclă oprită (detector {detector}) pe tool-ul '{tool}'. "
+                                 f'Evită repetarea aceluiași apel {tool} când nu aduce progres — '
+                                 'schimbă abordarea sau raportează blocajul.'))
+
+
+def propose_from_loop_abort(project_id, detector, tool, count, source_chat_id=None, source_chat_title=None):
+    '''Etapa C: oprirea de buclă -> regulă candidată pending. Text = lecție GENERALĂ
+    (fără argumente/URL din .entries). Dedup: dacă există deja o regulă cu exact același
+    text pentru proiect (ORICE status), nu inserează și întoarce None.'''
+    project_id = (project_id or '').strip()
+    tool = (tool or '').strip()
+    detector = (detector or '').strip()
+    if not project_id or not tool:
+        return None
+    text = _loop_rule_text(detector, tool, count)
+    for existing in list_for(project_id):
+        if existing['text'] == text:
+            return None
+    return add_rule(project_id, text, 'buclă', source_chat_id, source_chat_title)
+
+
 init_db()

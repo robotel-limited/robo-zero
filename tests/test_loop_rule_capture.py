@@ -107,9 +107,8 @@ def test_aborted_cu_project_id_creeaza_o_regula_pending(
     assert regula["status"] == "pending"
     assert regula["source_chat_id"] == session.id
     assert regula["source_chat_title"] == "Ședință de lucru"
-    assert _DETECTOR in regula["text"]
+    assert regula["text"] == project_rules_store._loop_rule_text(_DETECTOR, _TOOL, 4)
     assert _TOOL in regula["text"]
-    assert "Ex. ultim apel" in regula["text"]
     assert len(regula["text"]) <= 400
     # eroarea ajunge și în jurnalul chat-ului, ca în ramura AgentError
     assert any(e["type"] == "error" and _DETECTOR in str(e.get("text", "")) for e in session.log)
@@ -133,3 +132,29 @@ def test_rulare_normala_nu_creeaza_nicio_regula(make_session, run_session) -> No
     assert _toate_regulile() == []
     assert project_rules_store.list_for(session.project_id, status="pending") == []
     assert not any(e["type"] == "error" for e in session.log)
+
+
+def test_abort_duplicat_nu_creeaza_a_doua_regula(make_session, run_session) -> None:
+    """Aceași oprire de buclă de două ori -> aceeași lecție, o singură regulă."""
+    session = make_session(project_id="proj-etapa-c")
+
+    run_session(session, exc=_aborted())
+    run_session(session, exc=_aborted())
+
+    assert len(project_rules_store.list_for(session.project_id, status="pending")) == 1
+
+
+def test_regula_respinsa_nu_se_repropune(make_session, run_session) -> None:
+    """Dedup-ul privește ORICE status: o lecție respinsă nu e re-propusă."""
+    session = make_session(project_id="proj-etapa-c")
+
+    run_session(session, exc=_aborted())
+    reguli = project_rules_store.list_for(session.project_id, status="pending")
+    assert len(reguli) == 1
+    project_rules_store.reject(reguli[0]["id"])
+
+    run_session(session, exc=_aborted())
+
+    toate = project_rules_store.list_for(session.project_id)
+    assert len(toate) == 1
+    assert toate[0]["status"] == "rejected"

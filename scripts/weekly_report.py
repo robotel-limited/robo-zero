@@ -1,16 +1,12 @@
 #!/usr/bin/env python3
 """Raport săptămânal al regulilor robo-zero.
-
-usage: python3 scripts/weekly_report.py [--days N] [--output PATH]
-       [--discord-webhook URL] [--db PATH]
-
-Citește conf/settings.yaml (blocul weekly_report) ca fallback pentru args CLI,
-generază raportul text din data/projects.db și îl scrie în reports/.
-Trimite opțional pe Discord. Exit code 0 mereu (chiar dacă Discord a eșuat).
+usage: python3 scripts/weekly_report.py [--days N] [--output PATH] [--discord-webhook URL] [--db PATH]
+Citește conf/settings.yaml (blocul weekly_report) ca fallback; scrie reports/; trimite Discord opțional.
 """
 import argparse
 import json
 import sqlite3
+import subprocess
 import sys
 import time
 import urllib.request
@@ -51,10 +47,8 @@ EFFECT_EMPTY = "  (încă prea puține date (minim 3 expuneri/regulă))"
 
 
 def load_settings():
-    """Citește blocul weekly_report din conf/settings.yaml (opțional)."""
     try:
         import yaml
-
         with open(SETTINGS_PATH, encoding="utf-8") as fh:
             data = yaml.safe_load(fh) or {}
         if isinstance(data, dict):
@@ -105,8 +99,6 @@ def _section(title, rows, pending=False):
 
 
 def _effect_rows(db_path):
-    """effect_summary() de pe DB-ul raportului (--db). Fără tabelul
-    rule_exposures (DB vechi) sau la orice eșec -> [] (secțiunea «fără date»)."""
     try:
         conn = sqlite3.connect(str(db_path))
         try:
@@ -150,7 +142,6 @@ def _effect_line(rule):
 
 
 def generate_report(db_path, days):
-    """Construiește raportul text pentru ultimele `days` zile."""
     rows_a, rows_b, cutoff = _fetch(db_path, days)
     data_start = datetime.fromtimestamp(cutoff).strftime("%Y-%m-%d")
     data_end = datetime.fromtimestamp(time.time()).strftime("%Y-%m-%d")
@@ -213,33 +204,60 @@ def generate_report(db_path, days):
         f"Sumar: {n_approved} aprobate, {n_rejected} respinse  "
         f"(auto-aprobate: {auto}, manual: {manual})"
     )
+    lines.extend(_hermes_skills_section(days))
     lines.append(bar)
     return "\n".join(lines) + "\n"
 
 
 def post_to_discord(url, text):
-    """POST raportul pe Discord. Nu ridică excepții; True/False."""
     if not url:
         return False
-    truncated = len(text) > 1900
-    content = text[:1900] + ("..." if truncated else "")
+    content = text[:1900] + ("..." if len(text) > 1900 else "")
     data = json.dumps({"content": content}).encode("utf-8")
     req = urllib.request.Request(
-        url,
-        data=data,
-        headers={"Content-Type": "application/json"},
-        method="POST",
+        url, data=data, headers={"Content-Type": "application/json"}, method="POST",
     )
     try:
-        resp = urllib.request.urlopen(req, timeout=10)
-        try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
             resp.read()
-        finally:
-            resp.close()
         return True
     except Exception as err:
         print(f"WARNING: Discord POST eșuat: {err}", file=sys.stderr)
         return False
+
+
+def _hermes_skills_section(days, skills_dir=None):
+    if skills_dir is None:
+        skills_dir = Path.home() / ".hermes" / "skills"
+    if not (skills_dir / ".git").exists():
+        return []
+    try:
+        r = subprocess.run(
+            ["git", "-C", str(skills_dir), "log", "--oneline",
+             f"--since={days}.days.ago", "--format=%H"],
+            capture_output=True, text=True, timeout=10,
+        )
+        shas = [s.strip() for s in r.stdout.splitlines() if s.strip()]
+    except Exception:
+        return []
+    lines = ["", f"Hermes skills (ultimele {days} zile):"]
+    if not shas:
+        lines.append("  Nicio modificare în fereastra raportului.")
+        return lines
+    lines.append(f"  {len(shas)} commit-uri în ~/.hermes/skills")
+    try:
+        r2 = subprocess.run(
+            ["git", "-C", str(skills_dir), "diff", "--stat", f"{shas[-1]}^..HEAD"],
+            capture_output=True, text=True, timeout=10,
+        )
+        for ln in r2.stdout.splitlines():
+            ln = ln.strip()
+            if "|" in ln and not ln.startswith("changed"):
+                lines.append(f"    • {ln}")
+    except Exception:
+        pass
+    lines.append("  Pentru a reverte: git -C ~/.hermes/skills revert <sha>")
+    return lines
 
 
 def main(argv=None):
@@ -251,32 +269,25 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     settings = load_settings()
-
     days = args.days
     if days is None:
         try:
             days = int(settings.get("report_days"))
         except (TypeError, ValueError):
             days = 7
-
     webhook = args.discord_webhook
     if webhook is None:
         webhook = settings.get("discord_webhook_url") or ""
-
     db_path = Path(args.db) if args.db else DEFAULT_DB
-
     report = generate_report(db_path, days)
-
     if args.output:
         out = Path(args.output)
     else:
         out = REPORTS_DIR / f"weekly_{datetime.now().strftime('%Y-%m-%d')}.txt"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(report, encoding="utf-8")
-
     if webhook:
         post_to_discord(webhook, report)
-
     print(out)
     return 0
 

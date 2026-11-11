@@ -4,6 +4,8 @@ comenzile din denylist (safety.requires_confirmation) și limite de timeout/outp
 
 import asyncio
 import os
+import re
+import shlex
 import signal
 import time
 from typing import Any
@@ -36,6 +38,29 @@ def _new_files_since(workdir: str, start_ts: float) -> list[str]:
     return found
 
 
+_PATH_START = re.compile(r"(?<![\w'\"/])/[^\s'\"&|;<>()]*")
+_WORD = re.compile(r" [^\s'\"&|;<>()]+")
+
+
+def _quote_spaced_paths(command: str) -> str:
+    """Modelele mici repetă căi cu spații fără ghilimele; dacă primul segment
+    nu există, dar unit cu cuvintele următoare formează o cale reală, cea mai
+    lungă astfel de cale e pusă între ghilimele."""
+    out, pos = [], 0
+    for m in _PATH_START.finditer(command):
+        if m.start() < pos or os.path.exists(m.group()):
+            continue
+        end, best = m.end(), None
+        while (w := _WORD.match(command, end)):
+            end = w.end()
+            if os.path.exists(command[m.start():end]):
+                best = end
+        if best:
+            out.append(command[pos:m.start()] + shlex.quote(command[m.start():best]))
+            pos = best
+    return "".join(out) + command[pos:]
+
+
 def _kill_process_group(pid: int, sig: signal.Signals) -> None:
     """Trimite semnalul întregului grup de procese (vezi start_new_session
     în execute()), nu doar procesului shell. Folosit la timeout și la
@@ -55,12 +80,14 @@ class ShellExecute(Tool):
     description: str = (
         "Execută o comandă shell în workdir. Comenzile distructive "
         "(rm -rf, sudo, systemctl, kill, dd, mkfs, chmod -R, git push/reset --hard, "
-        "redirectare în afara workdir) cer aprobare înainte de execuție."
+        "redirectare în afara workdir) cer aprobare înainte de execuție. "
+        "Pune ÎNTOTDEAUNA căile între ghilimele duble (\"/cale/cu spații/fișier\") — "
+        "fără ghilimele, spațiile rup calea în mai multe argumente."
     )
     parameters: dict[str, Any] = {
         "command": {
             "type": "string",
-            "description": "Comanda shell de executat.",
+            "description": "Comanda shell de executat; căile între ghilimele duble.",
         }
     }
     required: list[str] = ["command"]
@@ -76,6 +103,7 @@ class ShellExecute(Tool):
         command = kwargs.get("command", "")
         if not command:
             return ToolResult(message="Eroare: parametrul 'command' e obligatoriu.")
+        command = _quote_spaced_paths(command)
 
         workdir = getattr(self.agent, "workdir", "/srv/robo-zero/workdir")
         timeout = getattr(self.agent, "shell_timeout_seconds", safety.SHELL_TIMEOUT_SECONDS)

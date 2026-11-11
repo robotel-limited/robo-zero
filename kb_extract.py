@@ -10,6 +10,9 @@ import tempfile
 import zipfile
 from pathlib import Path
 
+import openpyxl
+import xlrd
+
 import attachments
 import llm
 
@@ -95,7 +98,70 @@ def _docx(path: Path) -> str:
     return text
 
 
-LOCAL_EXTENSIONS = _TEXT_EXTENSIONS | {"pdf", "docx"}
+def _xlsx(path: Path) -> str:
+    try:
+        wb = openpyxl.load_workbook(path, data_only=True, read_only=True)
+    except Exception as e:
+        raise ExtractError(f"XLSX invalid: {e}")
+    sheets = []
+    for ws in wb.worksheets:
+        rows = []
+        for row in ws.iter_rows(values_only=True):
+            if any(cell is not None for cell in row):
+                rows.append(" | ".join("" if cell is None else str(cell) for cell in row))
+        if rows:
+            sheets.append(f"--- {ws.title} ---\n" + "\n".join(rows))
+    return "\n\n".join(sheets)
+
+
+def _xls_legacy(path: Path) -> str:
+    try:
+        wb = xlrd.open_workbook(str(path))
+    except Exception as e:
+        raise ExtractError(f"XLS invalid: {e}")
+    sheets = []
+    for sheet in wb.sheets():
+        rows = []
+        for r in range(sheet.nrows):
+            values = sheet.row_values(r)
+            if any(v not in ("", None) for v in values):
+                rows.append(" | ".join(str(v) for v in values))
+        if rows:
+            sheets.append(f"--- {sheet.name} ---\n" + "\n".join(rows))
+    return "\n\n".join(sheets)
+
+
+def _odt(path: Path) -> str:
+    try:
+        with zipfile.ZipFile(path) as z:
+            xml = z.read("content.xml").decode("utf-8", errors="replace")
+    except (zipfile.BadZipFile, KeyError) as e:
+        raise ExtractError(f"ODT invalid: {e}")
+    xml = re.sub(r"</text:p>|</text:h>", "\n", xml)
+    xml = re.sub(r"<text:tab/>", "\t", xml)
+    text = re.sub(r"<[^>]+>", "", xml)
+    for entity, char in (("&lt;", "<"), ("&gt;", ">"), ("&quot;", '"'), ("&apos;", "'"), ("&amp;", "&")):
+        text = text.replace(entity, char)
+    return text
+
+
+def _ods(path: Path) -> str:
+    try:
+        with zipfile.ZipFile(path) as z:
+            xml = z.read("content.xml").decode("utf-8", errors="replace")
+    except (zipfile.BadZipFile, KeyError) as e:
+        raise ExtractError(f"ODS invalid: {e}")
+    xml = re.sub(r"<table:table-cell[^>/]*/>", " | ", xml)
+    xml = re.sub(r"</table:table-cell>", " | ", xml)
+    xml = re.sub(r"</table:table-row>", "\n", xml)
+    xml = re.sub(r"<table:table[^>]*>", "\n--- tabel ---\n", xml)
+    text = re.sub(r"<[^>]+>", "", xml)
+    for entity, char in (("&lt;", "<"), ("&gt;", ">"), ("&quot;", '"'), ("&apos;", "'"), ("&amp;", "&")):
+        text = text.replace(entity, char)
+    return text
+
+
+LOCAL_EXTENSIONS = _TEXT_EXTENSIONS | {"pdf", "docx", "xlsx", "xlsm", "xls", "odt", "ods"}
 
 
 async def extract_local(path: Path) -> str:
@@ -107,6 +173,14 @@ async def extract_local(path: Path) -> str:
         return (await _run("pdftotext", "-layout", str(path), "-")).decode("utf-8", errors="replace")
     if ext == "docx":
         return _docx(path)
+    if ext in ("xlsx", "xlsm"):
+        return _xlsx(path)
+    if ext == "xls":
+        return _xls_legacy(path)
+    if ext == "odt":
+        return _odt(path)
+    if ext == "ods":
+        return _ods(path)
     return path.read_bytes().decode("utf-8", errors="replace")
 
 
@@ -120,11 +194,20 @@ async def extract(path: Path, filename: str, mime: str) -> str:
         text = await _pdf(path)
     elif ext == "docx":
         text = _docx(path)
+    elif ext in ("xlsx", "xlsm"):
+        text = _xlsx(path)
+    elif ext == "xls":
+        text = _xls_legacy(path)
+    elif ext == "odt":
+        text = _odt(path)
+    elif ext == "ods":
+        text = _ods(path)
     elif ext in _TEXT_EXTENSIONS or mime.startswith("text/"):
         text = path.read_bytes().decode("utf-8", errors="replace")
     else:
         raise ExtractError(
-            f"Tip de fișier neacceptat (.{ext or '?'}). Acceptate: text/cod, PDF, DOCX, imagini."
+            f"Tip de fișier neacceptat (.{ext or '?'}). Acceptate: text/cod, PDF, DOCX, XLSX/XLSM/XLS, "
+            "ODT/ODS, imagini."
         )
     if not text.strip():
         raise ExtractError("Nu s-a putut extrage niciun text.")

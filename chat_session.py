@@ -149,7 +149,10 @@ class ChatSession:
                 ),
             )
         except AgentLoopAborted as e:
-            self._append_log('error', text=str(e))
+            explanation = await self.agent.explain_abort(e)
+            self._append_log('error', text=(
+                f"{explanation}\n\n— Detalii tehnice —\n{e}" if explanation else str(e)
+            ))
             if self.project_id:
                 try:
                     project_rules_store.propose_from_loop_abort(

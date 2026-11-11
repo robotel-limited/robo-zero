@@ -342,6 +342,28 @@ class Agent:
             f"Agentul a atins limita de {task_max} iterații fără răspuns final."
         )
 
+    async def explain_abort(self, exc: AgentLoopAborted) -> str | None:
+        """Un ultim apel fără unelte: agentul spune ce îl blochează. None la orice eșec."""
+        self.history.append({"role": "user", "content": (
+            f"[sistem] Bucla ta a fost oprită: tool-ul '{exc.tool}' a fost apelat repetat fără progres "
+            f"(detector {exc.detector}). Nu mai ai unelte. Spune-i direct utilizatorului, în 2-4 propoziții: "
+            "ce încercai să faci, ce anume te blochează concret (ex. ce informație/fișier îți lipsește "
+            "sau ce nu funcționează) și ce ai nevoie de la el ca să continui."
+        )})
+        try:
+            response = await llm.chat(
+                self.history, model=self._chat_model(), purpose="loop_explain", max_tokens=800
+            )
+        except Exception:
+            self.history.pop()
+            return None
+        text = (response.content or "").strip()
+        if not text:
+            self.history.pop()
+            return None
+        self.history.append({"role": "assistant", "content": text})
+        return text
+
     @staticmethod
     def _broken_args_note(tc: Any, response: Any) -> str | None:
         """Mesajul pentru model dacă argumentele nu sunt un obiect JSON valid; None dacă sunt OK."""

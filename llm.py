@@ -312,9 +312,10 @@ async def chat(
         payload["response_format"] = response_format
     if tool_choice is not None:
         payload["tool_choice"] = tool_choice
-        if model.startswith("deepseek-"):
-            # thinking mode respinge orice tool_choice diferit de auto (HTTP 400)
-            payload["thinking"] = {"type": "disabled"}
+    # tool_choice: thinking respinge orice valoare diferită de auto (HTTP 400);
+    # response_format: reasoning-ul consumă max_tokens și lasă JSON-ul gol/tăiat
+    if model.startswith("deepseek-") and (tool_choice is not None or response_format):
+        payload["thinking"] = {"type": "disabled"}
 
     headers = {
         "Authorization": f"Bearer {_api_key(model)}",
